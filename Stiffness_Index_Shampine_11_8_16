@@ -8,20 +8,20 @@ Created on Mon Nov  7 17:47:34 2016
 
 import numpy as np
 import matplotlib.pyplot as plt
-import scipy as sci
-import sympy as sym
 
 
-def functionone(w, t, fp):
-    y1, y2, z1, z2 = w
-    a, b, n = fp
-    f = [z1,
-         (z1 + (b + a*n)*y1)/b,
-         z2,
-         y1 - z2 - a*y2]
-    return f
+def functionone(p, b, x):
+    y, ydot = np.zeros(2), np.zeros(2)
+    a, n = p
+    y[0] = np.exp(-1 * a * n * x)
+    y[1] = np.exp(-1 * a * x)
+    ydot[0] = -(b + a*n) * y[0] + b * y[1]**n
+    ydot[1] = y[0] - a*y[1] - y[1]**n
+    return ydot, y
 
 
+# The next two functions are not really needed for right now but will likely
+# come in handy later.
 def fwdeuler():
     pass
 
@@ -39,6 +39,7 @@ def rk4(f):
 
 
 def jacobian(a, b, n, x):
+    # Takes 2 matrices (a, b) and a number of iterations n to find the Jacobian
     if x is None:
         x = np.zeros(len(a[0]))
     d = np.diag(a)
@@ -48,33 +49,25 @@ def jacobian(a, b, n, x):
     return x
 
 
-def stiffnessindex(sp, a, b, fx):
-    # Unpack the stiffness index parameters (sp)
+def stiffnessindex(sp, a, b):
     tol, order, xi, gamma = sp
     index = tol**(1/(order + 1)) *\
-        np.linalg.norm(jacobian(a, b, 25, None)) *\
-        np.linalg.norm(fx)**(-1 / (order + 1)) *\
+        np.linalg.norm(a) *\
+        np.linalg.norm(b)**(-1 / (order + 1)) *\
         ((np.abs(xi)**(-1/(order + 1))) / np.abs(gamma))
     return index
 
-# Initial conditions (w)
-y1 = 1
-y2 = 1
-z1 = 0
-z2 = 0
-w = [y1, y2, z1, z2]
 
 # Function parameters (fp)
 fa = 1
-fb = 1
 fn = 4
-fp = [fa, fb, fn]
+fp = [fa, fn]
 
-# Stiffness parameter values (sp)
+# Stiffness index parameter values (sp)
 gamma = 1
 xi = 1
 order = 1
-tolerance = 1 * 10**-6
+tolerance = 10000
 sp = tolerance, order, xi, gamma
 
 # Matrix of b values to plot for
@@ -84,14 +77,14 @@ indexvalues = []
 for j in bm:
     ivr = []
     xm = []
-    for x in range(0, 5, 0.5):
-        a, b, fx = functionone()
-        ivr.append(stiffnessindex(sp, a, b, x))
+    for x in [x * 0.5 for x in range(0, 10)]:
+        a, b = functionone(fp, j, x)
+        ivr.append(stiffnessindex(sp, a, b))
         xm.append(x)
     indexvalues.append(ivr)
 
 for i in range(len(bm)):
-    plt.plot(x, indexvalues[i], label='b value: {}'.format(bm[i]))
+    plt.plot(xm, indexvalues[i], label='b value: {}'.format(bm[i]))
 plt.legend(bbox_to_anchor=(1, 1), loc=2)
 plt.title('Stiffness Index')
 plt.show()
