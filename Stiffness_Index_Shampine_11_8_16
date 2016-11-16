@@ -17,13 +17,14 @@ def functionone(p, b, x):
     y[1] = np.exp(-1 * a * x)
     ydot[0] = -(b + a*n) * y[0] + b * y[1]**n
     ydot[1] = y[0] - a*y[1] - y[1]**n
-    return ydot, y
+    A = [[0, ydot[0]], [ydot[1], 0]]
+    return A, y
 
 
 # The next two functions are not really needed for right now but will likely
 # come in handy later.
-def fwdeuler():
-    pass
+def fwdeuler(Y, A, dt):
+    return np.dot((np.eye(len(Y)) + dt*A), Y)
 
 
 def rk4(f):
@@ -41,7 +42,7 @@ def rk4(f):
 def jacobian(a, b, n, x):
     # Takes 2 matrices (a, b) and a number of iterations n to find the Jacobian
     if x is None:
-        x = np.zeros(len(a[0]))
+        x = np.zeros(len(a))
     d = np.diag(a)
     r = a - np.diagflat(d)
     for i in range(n):
@@ -52,8 +53,8 @@ def jacobian(a, b, n, x):
 def stiffnessindex(sp, a, b):
     tol, order, xi, gamma = sp
     index = tol**(1/(order + 1)) *\
-        np.linalg.norm(a) *\
-        np.linalg.norm(b)**(-1 / (order + 1)) *\
+        np.max(np.abs(np.linalg.eigvals(jacobian(a, b, 25, None)))) *\
+        np.linalg.norm(np.transpose(b))**(-1 / (order + 1)) *\
         ((np.abs(xi)**(-1/(order + 1))) / np.abs(gamma))
     return index
 
@@ -67,24 +68,25 @@ fp = [fa, fn]
 gamma = 1
 xi = 1
 order = 1
-tolerance = 10000
+tolerance = 0.000001
 sp = tolerance, order, xi, gamma
 
-# Matrix of b values to plot for
+# Matrix of x and b values to plot for
 bm = [0, 100, 10000]
+xm = [x * 0.5 for x in range(0, 11)]
 
 indexvalues = []
 for j in bm:
     ivr = []
-    xm = []
-    for x in [x * 0.5 for x in range(0, 10)]:
+    for x in xm:
         a, b = functionone(fp, j, x)
+        np.transpose(b).shape
         ivr.append(stiffnessindex(sp, a, b))
-        xm.append(x)
     indexvalues.append(ivr)
 
 for i in range(len(bm)):
     plt.plot(xm, indexvalues[i], label='b value: {}'.format(bm[i]))
 plt.legend(bbox_to_anchor=(1, 1), loc=2)
 plt.title('Stiffness Index')
+plt.yscale('log')
 plt.show()
