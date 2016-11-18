@@ -10,18 +10,20 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def functionone(p, b, x):
+def functionone(x, parameters):
+    '''Function to evaluate analytical solution'''
     y, ydot = np.zeros(2), np.zeros(2)
-    a, n = p
-    y[0] = np.exp(-1 * a * n * x)
-    y[1] = np.exp(-1 * a * x)
+    a, n, b = parameters
+
+    y[0] = np.exp(-1. * a * n * x)
+    y[1] = np.exp(-1. * a * x)
     ydot[0] = -(b + a*n) * y[0] + b * y[1]**n
     ydot[1] = y[0] - a*y[1] - y[1]**n
-    A = [[0, ydot[0]], [ydot[1], 0]]
+    A = [[-1*(b + a*n), b*y[1]**(n-1)],[1, -1*a - y[1]**(n-1)]]
     return A, y
 
-
-# The next two functions are not really needed for right now but will likely
+"""
+# The next few functions are not really needed for right now but will likely
 # come in handy later.
 def fwdeuler(Y, A, dt):
     return np.dot((np.eye(len(Y)) + dt*A), Y)
@@ -39,7 +41,7 @@ def rk4(f):
                             )(dt * f(t, y))
 
 
-def jacobian(a, b, n, x):
+def jacmtrx(a, b, n, x):
     # Takes 2 matrices (a, b) and a number of iterations n to find the Jacobian
     if x is None:
         x = np.zeros(len(a))
@@ -48,45 +50,51 @@ def jacobian(a, b, n, x):
     for i in range(n):
         x = (b - np.dot(r, x)) / d
     return x
+"""
 
 
-def stiffnessindex(sp, a, b):
-    tol, order, xi, gamma = sp
-    index = tol**(1/(order + 1)) *\
-        np.max(np.abs(np.linalg.eigvals(jacobian(a, b, 25, None)))) *\
-        np.linalg.norm(np.transpose(b))**(-1 / (order + 1)) *\
-        ((np.abs(xi)**(-1/(order + 1))) / np.abs(gamma))
+def stiffnessindex(sp, jacobian, localvals):
+    '''Function that uses stiffness parameters (sp), the local Jacobian matrix,
+    and a vector of the local function values to determine the local stiffness 
+    index as defined in 1985 Shampine'''
+    tolerance, order, xi, gamma = sp
+    index = tolerance**(1./(order + 1.)) *\
+        np.max(np.linalg.eigvals(jacobian)) *\
+         np.linalg.norm(localvals, ord=2)**(-1. / (order + 1.)) *\
+         ((np.abs(xi)**(-1./(order + 1.))) / np.abs(gamma))
     return index
 
 
-# Function parameters (fp)
-fa = 1
-fn = 4
-fp = [fa, fn]
+# Function parameters (funcparams)
+funca = 1.
+funcn = 4.
 
-# Stiffness index parameter values (sp)
-gamma = 1
-xi = 1
-order = 1
-tolerance = 0.000001
-sp = tolerance, order, xi, gamma
+# Stiffness index parameter values (stiffnessparams)
+gamma = 1.
+xi = 1.
+order = 1.
+tolerance = 1.e-5
+stiffnessparams = tolerance, order, xi, gamma
 
 # Matrix of x and b values to plot for
-bm = [0, 100, 10000]
-xm = [x * 0.5 for x in range(0, 11)]
+b_list = [0., 100., 10000.]
+x_list = np.arange(0, 5.5, 0.5)
 
 indexvalues = []
-for j in bm:
-    ivr = []
-    for x in xm:
-        a, b = functionone(fp, j, x)
-        np.transpose(b).shape
-        ivr.append(stiffnessindex(sp, a, b))
-    indexvalues.append(ivr)
+for j in b_list:
+    indexvalrow = []
+    for x in x_list:
+        funcparams = funca, funcn, j
+        jacobian, localvals = functionone(x, funcparams)
+        indexvalrow.append(stiffnessindex(stiffnessparams, jacobian, 
+                                          localvals))
+    indexvalues.append(indexvalrow)
 
-for i in range(len(bm)):
-    plt.plot(xm, indexvalues[i], label='b value: {}'.format(bm[i]))
+for i in range(len(b_list)):
+    plt.plot(x_list, indexvalues[i], label='b value: {}'.format(b_list[i]))
 plt.legend(bbox_to_anchor=(1, 1), loc=2)
 plt.title('Stiffness Index')
-plt.yscale('log')
+plt.xlabel('X range')
+plt.ylabel('Stiffness Index Value')
+# plt.yscale('log')
 plt.show()
