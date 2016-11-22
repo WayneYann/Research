@@ -19,7 +19,7 @@ def functionone(x, parameters):
     y[1] = np.exp(-1. * a * x)
     ydot[0] = -(b + a*n) * y[0] + b * y[1]**n
     ydot[1] = y[0] - a*y[1] - y[1]**n
-    A = [[-1*(b + a*n), b*y[1]**(n-1)],[1, -1*a - y[1]**(n-1)]]
+    A = [[-b - a*n, b*(y[1]**(n-1))],[1, -a - (y[1]**(n-1))]]
     return A, y
 
 """
@@ -59,8 +59,8 @@ def stiffnessindex(sp, jacobian, localvals):
     index as defined in 1985 Shampine'''
     tolerance, order, xi, gamma = sp
     index = tolerance**(1./(order + 1.)) *\
-        np.max(np.linalg.eigvals(jacobian)) *\
-         np.linalg.norm(localvals, ord=2)**(-1. / (order + 1.)) *\
+        np.max(np.abs(np.linalg.eigvals(jacobian))) *\
+         np.linalg.norm(localvals, ord=1)**(-1. / (order + 1.)) *\
          ((np.abs(xi)**(-1./(order + 1.))) / np.abs(gamma))
     return index
 
@@ -73,18 +73,18 @@ funcn = 4.
 gamma = 1.
 xi = 1.
 order = 1.
-tolerance = 1.e-5
+tolerance = 1.
 stiffnessparams = tolerance, order, xi, gamma
 
 # Matrix of x and b values to plot for
 b_list = [0., 100., 10000.]
-x_list = np.arange(0, 5.5, 0.5)
+x_list = np.arange(0, 5.0001, 0.01)
 
 indexvalues = []
-for j in b_list:
+for b in b_list:
     indexvalrow = []
     for x in x_list:
-        funcparams = funca, funcn, j
+        funcparams = funca, funcn, b
         jacobian, localvals = functionone(x, funcparams)
         indexvalrow.append(stiffnessindex(stiffnessparams, jacobian, 
                                           localvals))
@@ -96,5 +96,7 @@ plt.legend(bbox_to_anchor=(1, 1), loc=2)
 plt.title('Stiffness Index')
 plt.xlabel('X range')
 plt.ylabel('Stiffness Index Value')
-# plt.yscale('log')
+plt.yscale('log')
+plt.xlim(0, 5)
+plt.grid(b=True, which='both')
 plt.show()
