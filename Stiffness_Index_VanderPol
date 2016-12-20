@@ -10,17 +10,55 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def newtons_method(x, tolerance, parameters):
+def backwardeuler(yprev, eta, dx, tolerance):
+    '''A backward (implicit) Euler scheme for the van der Pol equation.'''
+#    ynext = np.zeros(2)
+    yprimenext = np.zeros(2)
+    ynext = newtons_method(yprev, tolerance, eta, dx)
+#    ynextcomp = newtons_method(yprev, tolerance, eta)
+#    ynext[0] = yprev[0] + dx * ynextcomp[1]
+#    ynext[1] = (yprev[1] - dx * ynextcomp[0]) /\
+#                (1 + (dx/eta)*(-1 + ynextcomp[0]**2))
+    yprimenext[0] = ynext[1]
+    yprimenext[1] = ynext[1]/eta - ynext[0] -\
+                (ynext[1]*ynext[0]**2)/eta
+    return ynext, yprimenext
+
+
+def newtons_method(yvals, tolerance, eta, dx):
     '''Simple function that uses Newton's method to find the next value in the
-    implicit scheme.'''
+    implicit scheme.  Configured for the van der Pol equation specifically.'''
     deviation = 99999.
-    eta, order = parameters
+    y1, y2 = yvals[0], yvals[1]
+    y1n = y1
+    y2n = y2
+    y1old = y1
+    y2old = y2
     while deviation > tolerance:
-        fx, dx = functiontwo(x, eta, order)
-        x1 = x - fx/dx
-        deviation = abs(x1 - x)
-        x = x1
-    return x
+        fy1 = y1 + dx*y2n
+        fy2 = (y2 - dx*y1n) / (1 + (dx/eta)*(-1 + y1n**2))
+        y1old = y1n
+        y2old = y2n
+        y1n = fy1
+        y2n = fy2
+        deviation = max(abs(y1n-y1old), abs(y2n-y2old))
+    return y1n, y2n
+
+
+#def functiontwo(x, eta):
+#    '''Function to evaluate the semi-analytical solution to the Van der Pol
+#    equation.   Equation 6.3 of 1985 Shampine.'''
+#    y, y1p = np.zeros(2), np.zeros(2)
+#    y[0] = x*y[1] + 2
+#    y[1] = x*y[1]/eta - x*y[0] - x*(y[0]**2)*y[1]/eta
+##    y1p[0] = y[1]
+##    y1p[1] = y[1]*eta**-1 - y[0] - y[0]*y[1]*eta**-1
+#    return y, y1p
+#
+#
+#def jacobiantwo(y, eta):
+#    '''Find the local Jacobian matrix of the Van der Pol equation.'''
+#    return [[0, 1], [-1 - y[0]*y[1]*eta**-1, eta**-1]]
 
 
 def factorial(number):
@@ -89,70 +127,58 @@ def stiffnessindex(sp, jacobian, derivativevals, normweights):
              ((np.abs(xi)**(-1./(order + 1.))) / np.abs(gamma))
     return index
 
-
-def functiontwo(x, eta, order):
-    '''Function to evaluate the semi-analytical solution to the Van der Pol
-    equation.   Equation 6.3 of 1985 Shampine.'''
-    y, y1p = np.zeros(2), np.zeros(2)
-    y[0] = x*y[1] + 2
-    y[1] = x*y[1]/eta - x*y[0] - x*(y[0]**2)*y[1]/eta
-    y1p[0] = y[1]
-    y1p[1] = y[1]*eta**-1 - y[0] - y[0]*y[1]*eta**-1
-    return y, y1p
-
-
-def jacobiantwo(y, eta):
-
-    return [[0, 1], [-1 - y[0]*y[1]*eta**-1, eta**-1]]
-
 # Stepsize and other important variables that affect accuracy
-dx = 0.1
-tolerance = 1.e-6
+dx = 0.01
+newtontolerance = 0.00000001
 
 # Stiffness index parameter values (stiffnessparams)
-gamma = 1.
-xi = 1.
-order = 1
-tolerance = 1.
-stiffnessparams = tolerance, order, xi, gamma
+#gamma = 1.
+#xi = 1.
+#order = 1
+#tolerance = 1.
+#stiffnessparams = tolerance, order, xi, gamma
 
 # Weighted norm parameters (normweights)
-wi = 1.
-wj = 1.
-normweights = wi, wj
+#wi = 1.
+#wj = 1.
+#normweights = wi, wj
 
 # List of all the eta values to plot for the second function
-eta_list = [1.e3]
-x_list = np.arange(0, 3000. + dx, dx)
+eta_list = [1/1.e3]
+x_list = np.arange(0, 808. + .5*dx, dx)
 
 # Iterate across the range of 0<x<3000 for each of the eta values for the
 # second function
 #indexvalues = []
+funcvals = []
 for eta in eta_list:
 #    indexvalrow = []
-    y = [2, 0]
+    y = [2., 0.]
     for x in x_list:
+        yprev = y
+        y, y1p = backwardeuler(yprev, eta, dx, newtontolerance)
+        funcvals.append(y[0])
 #        derivativevals, localvals = functiontwo(x, eta, order)
 #        jacobian = jacobiantwo(x, eta, order)
 #        indexvalrow.append(stiffnessindex(stiffnessparams, jacobian,
 #                                          derivativevals, normweights))
 #    indexvalues.append(indexvalrow)
 
-for i in range(len(eta_list)):
-    plt.figure(0)
-    plt.plot(x_list, funcvals[i], label='Eta value: {}'.format(eta_list[i]))
-    plt.figure(1)
+# Plot all of the values calculated
+plt.figure(0)
+plt.plot(x_list, funcvals, label='Eta value: {}'.format(eta_list[0]))
+#    plt.figure(1)
 #    plt.plot(x2_list, indexvalues[i], label='Eta value: {}'.format(eta_list[i]))
+for i in range(1):
     plt.figure(i)
     plt.legend(bbox_to_anchor=(1, 1), loc=2)
-    plt.xlim(0, 5)
     plt.xlabel('X range')
     plt.grid(b=True, which='both')
 plt.figure(0)
 plt.title('Numerical Solution')
 plt.ylabel('Y1 value')
-plt.figure(1)
-plt.title('IA-Stiffness Index')
-plt.ylabel('Stiffness Index Value')
-plt.yscale('log')
+#plt.figure(1)
+#plt.title('IA-Stiffness Index')
+#plt.ylabel('Stiffness Index Value')
+#plt.yscale('log')
 plt.show()
