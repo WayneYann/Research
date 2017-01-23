@@ -27,6 +27,10 @@ def weightednorm(matrix, weights):
     wi, wj = weights
     ivalues = []
     matrix = np.array(matrix)
+    # A few try statements are used to figure out the shape of the matrix
+    # Try statements are used because the code would otherwise return an
+    # exception if the matrix is one dimensional.  The shape of the matrix is
+    # needed to iterate across the rows and columns later.
     try:
         num_rows, num_columns = matrix.shape
         dimensions = 2
@@ -38,6 +42,9 @@ def weightednorm(matrix, weights):
         except IndexError:
             num_rows = matrix.shape[1]
             num_columns = 1
+    # Sums up the values across each of the columns and applies the weights,
+    # then finds the maximum value (the weighted matrix norm) after the weights
+    # have been applied.
     for i in range(num_columns):
         columnsum = 0.
         for j in range(num_rows):
@@ -71,9 +78,14 @@ def stiffnessindex(sp, jacobian, derivativevals, normweights):
              ((np.abs(xi)**(-1./(order + 1.))) / np.abs(gamma))
     return index
 
+
+def jacobiantwo(y, eta):
+    '''Find the local Jacobian matrix of the Van der Pol equation.'''
+    return [[0, 1], [-1 - y[0]*y[1]*eta, eta]]
+
 # Define the range of the computation
 xstart = 0
-xstop = 3000
+xstop = 10
 dx = 1.0e-0
 
 # Equation parameters
@@ -87,6 +99,18 @@ y2zero = 0
 abserr = 1.0e-8
 relerr = 1.0e-6
 
+# Stiffness index parameter values to be sent to the stiffness index function
+gamma = 1.
+xi = 1.
+order = 1
+tolerance = 1.
+stiffnessparams = tolerance, order, xi, gamma
+
+# Weighted norm parameters to be sent to the weighted norm function
+wi = 1.
+wj = 1.
+normweights = wi, wj
+
 # Create the range of points along x to integrate
 x_list = np.arange(xstart, xstop + 0.5*dx, dx)
 
@@ -97,7 +121,25 @@ y = [y1zero, y2zero]
 solution = sci.integrate.odeint(dydx, y, x_list, args=(eta,),
                                 atol=abserr, rtol=relerr)
 
-# Generate the solution values
+firstderivals, indexvalues, jacobianlist = [], [], []
+for i in range(len(solution)):
+    localjac = jacobiantwo(solution[i], eta)
+    jacobianlist.append(localjac)
+    firstderiv = dydx(solution[i], 0, eta)
+    firstderivals.append(firstderiv)
+
+secondderivals = np.gradient(firstderivals)
+test = secondderivals[0]
+for i in range(len(solution)):
+#    secondderiv = np.gradient(firstderivals[i])
+#    print(secondderiv)
+#    print(secondderivals[0][i])
+    derivvals = [secondderivals[0][i], secondderivals[1][i]]
+#    print(derivvals)
+    localstiffness = stiffnessindex(stiffnessparams, jacobianlist[i],
+                                    derivvals, normweights)
+    indexvalues.append(localstiffness)
+
 y1sol = []
 y2sol = []
 for i in range(len(solution)):
@@ -119,9 +161,15 @@ pyl.ylabel('y1 Value')
 pyl.plot(x_list, y1sol, 'b', linewidth=lw)
 pyl.title('Solution Component')
 
+#pyl.figure(2)
+#pyl.ylabel('y2 Value')
+#pyl.plot(x_list, y2sol, 'b', linewidth=lw)
+#pyl.title('Derivative Value')
+
 pyl.figure(2)
-pyl.ylabel('y2 Value')
-pyl.plot(x_list, y2sol, 'b', linewidth=lw)
-pyl.title('Derivative Value')
+pyl.ylabel('Index Value')
+pyl.plot(x_list, indexvalues, 'b', linewidth=lw)
+pyl.title('IA-Stiffness Index')
+pyl.yscale('log')
 
 pyl.show()
