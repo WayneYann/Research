@@ -78,7 +78,7 @@ def stiffnessindex(sp, jacobian, derivativevals, normweights):
     index as defined in 1985 Shampine'''
     # Method 1 uses the weighted norm of the Jacobian, Method 2 uses the
     # spectral radius of the Jacobian.
-    method = 1
+    method = 2
     tolerance, order, xi, gamma = sp
     if method == 1:
         index = tolerance**(1./(order + 1.)) *\
@@ -102,7 +102,7 @@ def jacobiantwo(y, eta):
 # Define the range of the computation
 xstart = 0.
 xstop = 1000.
-dx = 1.0e-4
+dx = 1.0e-2
 
 # Equation parameters
 eta = 1.e3
@@ -136,18 +136,25 @@ y = [y1zero, y2zero]
 # Call the integrator
 solution = sci.integrate.odeint(dydx, y, x_list, args=(eta,),
                                 atol=abserr, rtol=relerr)
+derivvals = []
+for i in range(len(solution)):
+    derivvals.append(dydx(solution[i], x_list[i], eta))
+
+secondderivvals = np.gradient(derivvals)
 
 # Generate the solution values
 y1sol, y2sol, indexvals = [], [], []
+
 for i in range(len(solution)):
     y1s = solution[i][0]
     y2s = solution[i][1]
     ys = [y1s, y2s]
     y1sol.append(y1s)
     y2sol.append(y2s)
-    derivativevals = [y2s, eta - 1 - eta*y1s**2]
     indexvals.append(stiffnessindex(stiffnessparams, jacobiantwo(ys, eta),
-                                    derivativevals, normweights))
+                                    secondderivvals, normweights))
+    y1sold = y1s
+    y2sold = y2s
 
 # Plot the solution
 for p in range(1, 4):
@@ -155,7 +162,7 @@ for p in range(1, 4):
     pyl.xlabel('x Value')
     pyl.grid(True)
     pyl.hold(True)
-    pyl.xlim(807.05,807.07)
+    pyl.xlim(805,810)
 
 lw = 1
 
@@ -172,6 +179,7 @@ pyl.title('Derivative Value')
 pyl.figure(3)
 pyl.ylabel('Stiffness Index Value')
 pyl.plot(x_list, indexvals, 'b', linewidth=lw)
+# pyl.yscale('log')
 pyl.title('IA-Stiffness Index')
 
 pyl.show()
