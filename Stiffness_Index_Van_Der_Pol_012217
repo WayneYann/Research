@@ -91,8 +91,8 @@ def jacobiantwo(y, eta):
 
 # Define the range of the computation
 xstart = 0
-xstop = 1000
-dx = 1.0e-0
+xstop = 3000
+dx = 1.0e-1
 
 # Equation parameters
 eta = 1.e3
@@ -127,33 +127,41 @@ y = [y1zero, y2zero]
 solution = sci.integrate.odeint(dydx, y, x_list, args=(eta,),
                                 atol=abserr, rtol=relerr)
 
-firstderivals, indexvalues, jacobianlist = [], [], []
+firstderivals, indexvalues, jacobianlist, y1primelist, y2primelist = [], [],\
+    [], [], []
 #oldy2 = solution[0][1]
 for i in range(len(solution)):
     localjac = jacobiantwo(solution[i], eta)
     jacobianlist.append(localjac)
     firstderiv = dydx(solution[i], 0, eta)
     firstderivals.append(firstderiv)
+    y1primelist.append(firstderiv[0])
+    y2primelist.append(firstderiv[1])
 #    y1dblprime = firstderiv[1]
 #    y2dblprime = np.abs(oldy2 - firstderiv[1]) / dx
 #    ydblprime = [y1dblprime, y2dblprime]
-#    localstiffness = stiffnessindex(stiffnessparams, jacobianlist[i],
-#                                    ydblprime, normweights)
+#    localstiffness = stiffnessindex(stiffnessparams, localjac,
+#                                    firstderiv, normweights)
 #    indexvalues.append(localstiffness)
 
-secondderivals = np.gradient(firstderivals, dx)
-#print(firstderivals)
-#print(secondderivals)
+#secondderivals = np.gradient(firstderivals, dx)
+y1doubleprimes = np.gradient(y1primelist, dx)
+y2doubleprimes = np.gradient(y2primelist, dx)
+#y1tripleprimes = np.gradient(y1doubleprimes, dx)
+#y2tripleprimes = np.gradient(y2doubleprimes, dx)
+#
+##print(y1doubleprimes)
+##print(secondderivals)
 for i in range(len(solution)):
-#    secondderiv = np.gradient(firstderivals[i])
-#    print(i)
-    y12p = firstderivals[i][1]
-    y22p = secondderivals[1][i][1]
-#    print(y22p)
-#    print(secondderiv)
-#    print(secondderivals[0][i])
+##    secondderiv = np.gradient(firstderivals[i])
+##    print(i)
+    y12p = y1doubleprimes[i]
+    y22p = y2doubleprimes[i]
+##    print(y22p)
+##    print(secondderiv)
+##    print(secondderivals[0][i])
     derivvals = [y12p, y22p]
-#    print(derivvals)
+##    print(derivvals)
     localstiffness = stiffnessindex(stiffnessparams, jacobianlist[i],
                                     derivvals, normweights)
     indexvalues.append(localstiffness)
@@ -170,7 +178,7 @@ for p in range(1, 3):
     pyl.xlabel('x Value')
     pyl.grid(True)
     pyl.hold(True)
-#    pyl.xlim(807.05,807.07)
+#    pyl.xlim(49,51)
 
 lw = 1
 
