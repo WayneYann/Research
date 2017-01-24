@@ -16,7 +16,7 @@ def dydx(y, x, eta):
     y1, y2 = y
 
     # Create dydx vector (y1', y2')
-    f = [y2, eta*y2 - y1 - eta*y2*y1**2]
+    f = [y2, eta*y2 - y1 - eta*y2*y1**2.]
     return f
 
 
@@ -62,7 +62,7 @@ def stiffnessindex(sp, jacobian, derivativevals, normweights):
     index as defined in 1985 Shampine'''
     # Method 1 uses the weighted norm of the Jacobian, Method 2 uses the
     # spectral radius of the Jacobian.
-    method = 2
+    method = 1
     tolerance, order, xi, gamma = sp
     if method == 1:
         index = tolerance**(1./(order + 1.)) *\
@@ -81,7 +81,7 @@ def stiffnessindex(sp, jacobian, derivativevals, normweights):
 
 def jacobiantwo(y, eta):
     '''Find the local Jacobian matrix of the Van der Pol equation.'''
-    return [[0, 1], [-1 - y[0]*y[1]*eta, eta]]
+    return [[0., 1.], [-1. - 2*y[0]*y[1]*eta, eta-eta*y[0]**2]]
 
 
 #def secondderiv(y, eta):
@@ -92,7 +92,7 @@ def jacobiantwo(y, eta):
 # Define the range of the computation
 xstart = 0
 xstop = 3000
-dx = 1.0e-1
+dx = 1.0e-2
 
 # Equation parameters
 eta = 1.e3
@@ -129,6 +129,7 @@ solution = sci.integrate.odeint(dydx, y, x_list, args=(eta,),
 
 firstderivals, indexvalues, jacobianlist, y1primelist, y2primelist = [], [],\
     [], [], []
+y1doubleprimes, y2doubleprimes, y1tripleprimes = [], [], []
 #oldy2 = solution[0][1]
 for i in range(len(solution)):
     localjac = jacobiantwo(solution[i], eta)
@@ -137,30 +138,71 @@ for i in range(len(solution)):
     firstderivals.append(firstderiv)
     y1primelist.append(firstderiv[0])
     y2primelist.append(firstderiv[1])
+    try:
+        solutionm2 = dydx(solution[i-2], 0, eta)
+        solutionm1 = dydx(solution[i-1], 0, eta)
+        solutionp1 = dydx(solution[i+1], 0, eta)
+        solutionp2 = dydx(solution[i+2], 0, eta)
+        y1doubleprime = (-solutionp2[0] + 8*solutionp1[0] - 8*solutionm1[0] +\
+                        solutionm2[0]) / (12*dx)
+        y2doubleprime = (-solutionp2[1] + 8*solutionp1[1] - 8*solutionm1[1] +\
+                        solutionm2[1]) / (12*dx)
+#        (nextsolution[0] - prevsolution[0]) / (2*dx)
+#        y2doubleprime = (nextsolution[1] - prevsolution[1]) / (2*dx)
+#        y1doubleprime = (solution[i-1][0] - 2*solution[i][0] +
+#                         solution[i+1][0]) / (dx**2)
+#        y2doubleprime = (solution[i-1][1] - 2*solution[i][1] +
+#                         solution[i+1][1]) / (dx**2)
+    except IndexError:
+        try:
+            nextsolution = dydx(solution[i+1], 0, eta)
+            y1doubleprime = (nextsolution[0] - firstderiv[0]) / dx
+            y2doubleprime = (nextsolution[1] - firstderiv[1]) / dx
+        except IndexError:
+            prevsolution = dydx(solution[i-1], 0, eta)
+            y1doubleprime = (firstderiv[0] - prevsolution[0]) / dx
+            y2doubleprime = (firstderiv[1] - prevsolution[0]) / dx
+    y1doubleprimes.append(y1doubleprime)
+    y2doubleprimes.append(y2doubleprime)
+
 #    y1dblprime = firstderiv[1]
 #    y2dblprime = np.abs(oldy2 - firstderiv[1]) / dx
 #    ydblprime = [y1dblprime, y2dblprime]
 #    localstiffness = stiffnessindex(stiffnessparams, localjac,
 #                                    firstderiv, normweights)
 #    indexvalues.append(localstiffness)
+for i in range(len(y1doubleprimes)):
+    try:
+        y1tripleprime = (-y1doubleprimes[i+2] + 8*y1doubleprimes[i+1] -
+                         8*y1doubleprimes[i-1] + y1doubleprimes[i-2]) / (12*dx)
+    except IndexError:
+        try:
+            y1tripleprime = (y1doubleprimes[i+1] - y1doubleprimes[i]) / dx
+        except:
+            y1tripleprime = (y1doubleprimes[i] - y1doubleprimes[i-1]) / dx
+    y1tripleprimes.append(y1tripleprime)
+
+
 
 #secondderivals = np.gradient(firstderivals, dx)
-y1doubleprimes = np.gradient(y1primelist, dx)
-y2doubleprimes = np.gradient(y2primelist, dx)
+#y1doubleprimes = np.gradient(y1primelist, dx)
+#y2doubleprimes = np.gradient(y2primelist, dx)
 #y1tripleprimes = np.gradient(y1doubleprimes, dx)
 #y2tripleprimes = np.gradient(y2doubleprimes, dx)
 #
 ##print(y1doubleprimes)
 ##print(secondderivals)
+derivvals = np.zeros(2)
 for i in range(len(solution)):
 ##    secondderiv = np.gradient(firstderivals[i])
 ##    print(i)
-    y12p = y1doubleprimes[i]
-    y22p = y2doubleprimes[i]
+    derivvals[0] = y1doubleprimes[i]
+    derivvals[1] = y1tripleprimes[i]
 ##    print(y22p)
 ##    print(secondderiv)
 ##    print(secondderivals[0][i])
-    derivvals = [y12p, y22p]
+#    derivvals = [y12p, y22p]
+#    print(derivvals)
 ##    print(derivvals)
     localstiffness = stiffnessindex(stiffnessparams, jacobianlist[i],
                                     derivvals, normweights)
@@ -173,12 +215,12 @@ for i in range(len(solution)):
     y2sol.append(solution[i][1])
 
 # Plot the solution
-for p in range(1, 3):
+for p in range(1, 9):
     pyl.figure(p, figsize=(6, 4.5), dpi=400)
     pyl.xlabel('x Value')
     pyl.grid(True)
     pyl.hold(True)
-#    pyl.xlim(49,51)
+    pyl.xlim(1, 3000)
 
 lw = 1
 
@@ -186,16 +228,48 @@ pyl.figure(1)
 pyl.ylabel('y1 Value')
 pyl.plot(x_list, y1sol, 'b', linewidth=lw)
 pyl.title('Solution Component')
-
-#pyl.figure(2)
-#pyl.ylabel('y2 Value')
-#pyl.plot(x_list, y2sol, 'b', linewidth=lw)
-#pyl.title('Derivative Value')
+#pyl.ylim(1, 2.1)
 
 pyl.figure(2)
+pyl.ylabel('y2 Value')
+pyl.plot(x_list, y2sol, 'b', linewidth=lw)
+pyl.title('y2 Value')
+pyl.ylim(-0.01,0.01)
+
+pyl.figure(3)
 pyl.ylabel('Index Value')
 pyl.plot(x_list, indexvalues, 'b', linewidth=lw)
 pyl.title('IA-Stiffness Index')
 pyl.yscale('log')
+
+pyl.figure(4)
+pyl.ylabel('First Derivative Value')
+pyl.plot(x_list, y1primelist, 'b', linewidth = lw)
+pyl.title('Y1 First Derivative Values')
+pyl.ylim(-0.01, 0.01)
+
+pyl.figure(5)
+pyl.ylabel('First Derivative Value')
+pyl.plot(x_list, y2primelist, 'b', linewidth = lw)
+pyl.title('Y2 First Derivative Values')
+pyl.ylim(-0.0001, 0.0001)
+
+pyl.figure(6)
+pyl.ylabel('Second Derivative Value')
+pyl.plot(x_list, y1doubleprimes, 'b', linewidth = lw)
+pyl.title('Y1 Second Derivative Values')
+pyl.ylim(-0.000001, 0.000001)
+
+pyl.figure(7)
+pyl.ylabel('Second Derivative Value')
+pyl.plot(x_list, y2doubleprimes, 'b', linewidth = lw)
+pyl.title('Y2 Second Derivative Values')
+pyl.ylim(-0.00001, 0.00001)
+
+pyl.figure(8)
+pyl.ylabel('Third Derivative Value')
+pyl.plot(x_list, y1tripleprimes, 'b', linewidth = lw)
+pyl.title('y1 Third Derivative Values')
+pyl.ylim(-0.00001, 0.00001)
 
 pyl.show()
