@@ -83,9 +83,15 @@ def jacobiantwo(y, eta):
     '''Find the local Jacobian matrix of the Van der Pol equation.'''
     return [[0, 1], [-1 - y[0]*y[1]*eta, eta]]
 
+
+#def secondderiv(y, eta):
+#    '''Finds the second derivative of the given equation.'''
+#    return [eta*y[1] - y[0] - eta*y[1]*y[0]**2,
+#            ]
+
 # Define the range of the computation
 xstart = 0
-xstop = 10
+xstop = 1000
 dx = 1.0e-0
 
 # Equation parameters
@@ -122,19 +128,31 @@ solution = sci.integrate.odeint(dydx, y, x_list, args=(eta,),
                                 atol=abserr, rtol=relerr)
 
 firstderivals, indexvalues, jacobianlist = [], [], []
+#oldy2 = solution[0][1]
 for i in range(len(solution)):
     localjac = jacobiantwo(solution[i], eta)
     jacobianlist.append(localjac)
     firstderiv = dydx(solution[i], 0, eta)
     firstderivals.append(firstderiv)
+#    y1dblprime = firstderiv[1]
+#    y2dblprime = np.abs(oldy2 - firstderiv[1]) / dx
+#    ydblprime = [y1dblprime, y2dblprime]
+#    localstiffness = stiffnessindex(stiffnessparams, jacobianlist[i],
+#                                    ydblprime, normweights)
+#    indexvalues.append(localstiffness)
 
-secondderivals = np.gradient(firstderivals)
-test = secondderivals[0]
+secondderivals = np.gradient(firstderivals, dx)
+#print(firstderivals)
+#print(secondderivals)
 for i in range(len(solution)):
 #    secondderiv = np.gradient(firstderivals[i])
+#    print(i)
+    y12p = firstderivals[i][1]
+    y22p = secondderivals[1][i][1]
+#    print(y22p)
 #    print(secondderiv)
 #    print(secondderivals[0][i])
-    derivvals = [secondderivals[0][i], secondderivals[1][i]]
+    derivvals = [y12p, y22p]
 #    print(derivvals)
     localstiffness = stiffnessindex(stiffnessparams, jacobianlist[i],
                                     derivvals, normweights)
