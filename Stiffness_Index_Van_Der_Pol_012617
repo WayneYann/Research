@@ -114,8 +114,11 @@ def stiffnessindex(sp, jacobian, derivativevals, normweights):
 
 # Define the range of the computation
 xstart = 0
-xstop = 0.1
-dx = 1.0e-6
+xstop = 810.
+xswitch = 807.
+xswitch2 = 808
+dx1 = 1.0e-1
+dx2 = 1.0e-8
 
 # Equation parameters
 eta = 1.0e3
@@ -125,8 +128,8 @@ y1zero = 2
 y2zero = 0
 
 # ODE Solver parameters
-abserr = 1.0e-8
-relerr = 1.0e-6
+abserr = 1.0e-10
+relerr = 1.0e-8
 
 # Stiffness index parameter values to be sent to the stiffness index function
 gamma = 1.
@@ -141,33 +144,36 @@ wj = 1.
 normweights = wi, wj
 
 # Create the range of points along x to integrate
-x_list = np.arange(xstart, xstop + 0.5*dx, dx)
+xlist1 = np.arange(xstart, xswitch, dx1)
+xlist2 = np.arange(xswitch, xswitch2, dx2)
+xlist3 = np.arange(xswitch2, xstop+dx1*.5, dx1)
+x_listcombo = np.concatenate((xlist1, xlist2, xlist3))
 
 # Pack up the parameters to send to the integrator
 y = [y1zero, y2zero]
 
 # Call the integrator
-solution6 = sci.integrate.odeint(dydx, y, x_list, args=(eta,),
+solutioncombo = sci.integrate.odeint(dydx, y, x_listcombo, args=(eta,),
                                 atol=abserr, rtol=relerr)
 
 # Find the stiffness index across the range of the solution by using the above
 # functions to get the Jacobian matrix and second derivative
-indexvalues6 = []
-for i in solution6:
+indexvaluescombo = []
+for i in solutioncombo:
     localjac = jacobian(i, eta)
     secondderiv = d2ydx2(i, 0, eta)
     localstiffness = stiffnessindex(stiffnessparams, localjac,
                                     secondderiv, normweights)
-    indexvalues6.append(localstiffness)
+    indexvaluescombo.append(localstiffness)
 
 # Plot the solution.  This loop just sets up some of the parameters that we
 # want to modify in all of the plots.
 for p in range(1, 3):
     pyl.figure(p, figsize=(6, 4.5), dpi=400)
-    pyl.xlabel('x Value, dx = {}'.format(dx))
+    pyl.xlabel('x Value')
     pyl.grid(True)
     pyl.hold(True)
-    pyl.xlim(0.005,0.006)
+#    pyl.xlim(0.005,0.006)
 
 #Set the linewidth to make plotting look nicer
 lw = 1
@@ -175,12 +181,12 @@ lw = 1
 # Set all of the parameters that we want to apply to each plot specifically.
 pyl.figure(1)
 pyl.ylabel('y1 Value')
-pyl.plot(x_list, solution6[:,0], 'b', linewidth=lw)
+pyl.plot(x_listcombo, solutioncombo[:,0], 'b', linewidth=lw)
 pyl.title('Solution Component')
 
 pyl.figure(2)
 pyl.ylabel('Index Value')
-pyl.plot(x_list, indexvalues6, 'b', linewidth=lw)
+pyl.plot(x_listcombo, indexvaluescombo, 'b', linewidth=lw)
 pyl.title('IA-Stiffness Index, Order = {}'.format(order))
 pyl.yscale('log')
 
