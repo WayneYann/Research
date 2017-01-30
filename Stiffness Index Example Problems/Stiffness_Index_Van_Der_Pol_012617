@@ -86,7 +86,7 @@ def stiffnessindex(sp, jacobian, derivativevals, normweights):
     index as defined in 1985 Shampine'''
     # Method 1 uses the weighted norm of the Jacobian, Method 2 uses the
     # spectral radius of the Jacobian.
-    method = 1
+    method = 2
 
     # Unpack the parameters
     tolerance, order, xi, gamma = sp
@@ -99,24 +99,24 @@ def stiffnessindex(sp, jacobian, derivativevals, normweights):
     np.asarray(derivativevals).T.tolist()
 
     if method == 1:
-        index = tolerance**(1./(order + 1.)) *\
+        exponent = 1./(order + 1)
+        index = tolerance**exponent *\
             weightednorm(jacobian, normweights) *\
-             weightednorm(derivativevals, normweights)**\
-                 (-1. / (order + 1.)) *\
-             ((np.abs(xi)**(-1./(order + 1.))) / np.abs(gamma))
+             weightednorm(derivativevals, normweights)**exponent *\
+             ((np.abs(xi)**exponent) / np.abs(gamma))
     else:
-        index = tolerance**(1./(order + 1.)) *\
+        exponent = 1./(order + 1)
+        index = tolerance**exponent *\
             np.max(np.abs(np.linalg.eigvals(jacobian))) *\
-             weightednorm(derivativevals, normweights)**\
-                 (-1. / (order + 1.)) *\
-             ((np.abs(xi)**(-1./(order + 1.))) / np.abs(gamma))
+             weightednorm(derivativevals, normweights)**exponent *\
+             ((np.abs(xi)**exponent) / np.abs(gamma))
     return index
 
 # Define the range of the computation
 xstart = 0
 xstop = 810.
-xswitch = 807.
-xswitch2 = 808
+xswitch = 807.01
+xswitch2 = 807.5
 dx1 = 1.0e-1
 dx2 = 1.0e-8
 
