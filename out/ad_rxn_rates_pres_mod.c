@@ -1,23 +1,26 @@
 #include <math.h>
 #include "header.h"
-#include "rates.h"
+#include "ad_rates.h"
+#include "adept.h"
+using adept::adouble;
+#define fmax(a, b) (a.value() > b ? a : adouble(b))
 
-void get_rxn_pres_mod (const double T, const double pres, const double * __restrict__ C, double * __restrict__ pres_mod) {
+void get_rxn_pres_mod (const adouble T, const adouble& pres, const adouble * __restrict__ C, adouble * __restrict__ pres_mod) {
   // third body variable declaration
-  double thd;
+  adouble thd;
 
   // pressure dependence variable declarations
-  double k0;
-  double kinf;
-  double Pr;
+  adouble k0;
+  adouble kinf;
+  adouble Pr;
 
   // troe variable declarations
-  double logFcent;
-  double A;
-  double B;
+  adouble logFcent;
+  adouble A;
+  adouble B;
 
-  double logT = log(T);
-  double m = pres / (8.31446210e+03 * T);
+  adouble logT = log(T);
+  adouble m = pres / (8.31446210e+03 * T);
 
   // reaction 5;
   pres_mod[0] = m + 1.5 * C[1] + 2.8 * C[11] - 1.0 * C[8] + 11.0 * C[4] - 1.0 * C[9] + 0.8999999999999999 * C[10];

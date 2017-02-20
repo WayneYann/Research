@@ -1,9 +1,11 @@
-#include "rates.h"
-void eval_rxn_rates (const double T, const double pres, const double * __restrict__ C, double * __restrict__ fwd_rxn_rates, double * __restrict__ rev_rxn_rates) {
-  double logT = log(T);
+#include "ad_rates.h"
+#include "adept.h"
+using adept::adouble;
+void eval_rxn_rates (const adouble T, const adouble& pres, const adouble * __restrict__ C, adouble * __restrict__ fwd_rxn_rates, adouble * __restrict__ rev_rxn_rates) {
+  adouble logT = log(T);
 
-  double kf;
-  double Kc;
+  adouble kf;
+  adouble Kc;
 
   //rxn 0
   kf = exp(2.5367656736087785e+01 - (7.6922142684371602e+03 / T));
