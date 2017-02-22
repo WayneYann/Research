@@ -10,6 +10,7 @@ import numpy as np
 import pyjacob as pyjacob
 import pylab as pyl
 import scipy as sci
+import datetime
 
 
 def firstderiv(state, time, press):
@@ -35,10 +36,10 @@ def derivcd4(vals, dx):
     deriv = []
     n = len(vals)
     for i in range(n):
-        if (i > 2 and i < n - 2):
+        if (i > 1 and i < n - 3):
             deriv.append((-1*vals[i-2] + 8*vals[i-1] + 8*vals[i+1] -\
                           vals[i+2]) / (12*dx))
-        elif i < 2:
+        elif i < 1:
             deriv.append((-3*vals[i] + 4*vals[i+1] - vals[i+2]) / (2*dx))
         else:
             deriv.append((3*vals[i] - 4*vals[i-1] + vals[i-2]) / (2*dx))
@@ -118,6 +119,9 @@ def stiffnessindex(sp, jacobian, derivativevals, normweights):
              ((np.abs(xi)**exponent) / np.abs(gamma))
     return index
 
+# Finding the current time to time how long the simulation takes
+starttime = datetime.datetime.now()
+
 # Stiffness index parameter values to be sent to the stiffness index function
 gamma = 1.
 xi = 1.
@@ -132,15 +136,15 @@ normweights = wi, wj
 
 # Define the range of the computation
 tstart = 0
-tstop = 5.e-3
-dt = 1.e-8
+tstop = 5.e-1
+dt = 5.e-9
 tlist = np.arange(tstart, tstop+dt, dt)
 
 t0 = 0.050
 
 # ODE Solver parameters
-abserr = 1.0e-12
-relerr = 1.0e-10
+abserr = 5.0e-13
+relerr = 5.0e-11
 
 # Load the initial conditions from the PaSR file
 ic = np.load('/Users/andrewalferman/Desktop/Research/pasr_out_h2-co_0.npy')
@@ -187,9 +191,9 @@ dydtlist = []
 jaclist = []
 for i in range(len(solution)):
     dydtlist.append(firstderiv(solution[i,:],tlist[i],Y_press))
-    jaclist.append(jacobval(solution[i,:],tlist[i],Y_press))
+    #jaclist.append(jacobval(solution[i,:],tlist[i],Y_press))
 dydtlist = np.array(dydtlist)
-jaclist = np.array(jaclist)
+#jaclist = np.array(jaclist)
 d2list = derivcd4(dydtlist, dt)
 d2list = np.array(d2list)
 
@@ -197,7 +201,8 @@ d2list = np.array(d2list)
 # functions to get the Jacobian matrix and second derivative
 indexvalues = []
 for i in range(len(solution)):
-    localstiffness = stiffnessindex(stiffnessparams, jaclist[i],
+    jac = jacobval(solution[i,:],tlist[i],Y_press)
+    localstiffness = stiffnessindex(stiffnessparams, jac,
                                     d2list[i], normweights)
     indexvalues.append(localstiffness)
 
@@ -226,3 +231,7 @@ pyl.title('IA-Stiffness Index, Order = {}'.format(order))
 pyl.yscale('log')
 
 pyl.show()
+
+finishtime = datetime.datetime.now()
+print('Start time: {}'.format(starttime))
+print('Finish time: {}'.format(finishtime))
