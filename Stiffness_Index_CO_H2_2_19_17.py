@@ -137,14 +137,14 @@ normweights = wi, wj
 # Define the range of the computation
 tstart = 0
 tstop = 5.e-1
-dt = 5.e-9
+dt = 1.e-6
 tlist = np.arange(tstart, tstop+dt, dt)
 
 t0 = 0.050
 
 # ODE Solver parameters
-abserr = 5.0e-13
-relerr = 5.0e-11
+abserr = 5.0e-12
+relerr = 5.0e-10
 
 # Load the initial conditions from the PaSR file
 ic = np.load('/Users/andrewalferman/Desktop/Research/pasr_out_h2-co_0.npy')
@@ -188,12 +188,9 @@ solution = sci.integrate.odeint(firstderiv, # Call the dydt function
 
 # Obtain the derivative values
 dydtlist = []
-jaclist = []
 for i in range(len(solution)):
     dydtlist.append(firstderiv(solution[i,:],tlist[i],Y_press))
-    #jaclist.append(jacobval(solution[i,:],tlist[i],Y_press))
 dydtlist = np.array(dydtlist)
-#jaclist = np.array(jaclist)
 d2list = derivcd4(dydtlist, dt)
 d2list = np.array(d2list)
 
