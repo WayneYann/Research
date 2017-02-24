@@ -7,7 +7,7 @@ Created on Fri Feb 17 14:54:13 2017
 """
 
 import numpy as np
-import pyjacob as pyjacob
+from coh2 import pyjacob as pyjacob
 import pylab as pyl
 import scipy as sci
 import datetime
@@ -183,7 +183,7 @@ solution = sci.integrate.odeint(firstderiv, # Call the dydt function
                                 # Pass it the absolute and relative tolerances
                                 atol=abserr, rtol=relerr,
                                 # Print a message stating if it worked or not
-                                printmessg=1
+                                printmessg=0
                                 )
 
 # Obtain the derivative values
