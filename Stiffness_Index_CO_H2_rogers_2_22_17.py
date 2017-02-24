@@ -76,7 +76,7 @@ def weightednorm(matrix, weights, dims):
         columnsum = 0.
         for j in range(num_rows):
             if dimensions == 2:
-                columnsum += np.abs(matrix[j][i]) * wj
+                columnsum += np.abs(matrix[j,i]) * wj
             else:
                 columnsum += np.abs(matrix[i]) * wj
         ivalues.append(columnsum / wi)
@@ -112,7 +112,7 @@ def stiffnessindex(sp, normweights, xlist, dx, solution):
         1.  Make it smarter regarding the shape of the derivative values, etc.
         2.  Use a different integrator that saves the values of the derivative
         as it goes so that we don't need to calculate each derivative twice.
-        Same goes with the Jacobian, it would be much, much faster to evaluate
+        Same goes with the Jacobian, it would be much faster to evaluate
         it on the fly.
         3.  Make this a class.
         4.  Implement this index in the integrator itself so that it makes all
@@ -122,19 +122,21 @@ def stiffnessindex(sp, normweights, xlist, dx, solution):
     '''
     # Method 1 uses the weighted norm of the Jacobian, Method 2 uses the
     # spectral radius of the Jacobian.
-    method = 1
+    method = 2
 
     # Unpack the parameters
     tolerance, order, xi, gamma = sp
 
     # Obtain the derivative values for the derivative of order p
     dydxlist = []
+    print('Finding first derivative values...')
     for i in range(len(solution)):
         dydxlist.append(firstderiv(solution[i,:],tlist[i],Y_press))
         if i % 500000 == 0:
             print('dydxlist: {}'.format(i))
     # Raise the derivative to the order we need it
     for i in range(order):
+        print('Finding derivative of order {}...'.format(i+2))
         dydxlist = derivcd4(dydxlist, dt)
     dydxlist = np.array(dydxlist)
 
@@ -143,7 +145,7 @@ def stiffnessindex(sp, normweights, xlist, dx, solution):
 
     # The weighted norm needs to be a single column, not a single row, so it
     # needs to be transposed.
-    print('Transposing')
+    print('Transposing dydx vector...')
     dydxlist = np.asarray(dydxlist).T
 
     # Figure out some of the values that will be multiplied many times, so that
@@ -154,9 +156,13 @@ def stiffnessindex(sp, normweights, xlist, dx, solution):
 
     # Obtain the shape of the jacobian and the dydx vector.  This will speed
     # up the weightednorm function (see function for details).  May not be
-    # needed if a better method can be found with numpy arrays.
+    # needed if a better method can be found with numpy arrays.  Note that
+    # these two values are only dummy values thrown in to get the shape, they
+    # are not included in the solution.
     jacshape = getshape(jacobval(solution[0,:],xlist[0],101300))
     dshape = getshape(dydxlist[:,0])
+
+    print('Computing stiffness index...')
 
     for i in range(len(solution)):
         jacobian = jacobval(solution[i,:],tlist[i],Y_press)
@@ -185,7 +191,7 @@ savedata = 1
 # Stiffness index parameter values to be sent to the stiffness index function
 gamma = 1.
 xi = 1.
-order = 1
+order = 5
 tolerance = 1.
 stiffnessparams = tolerance, order, xi, gamma
 
@@ -232,7 +238,7 @@ Y_species = Y[3:]
 Ys = np.hstack((Y_temp,Y_species))
 
 # Call the integrator
-solution2 = sci.integrate.odeint(firstderiv, # Call the dydt function
+solution = sci.integrate.odeint(firstderiv, # Call the dydt function
                                 # Pass it initial conditions
                                 Ys,
                                 # Pass it time steps to be evaluated
@@ -250,7 +256,7 @@ solution2 = sci.integrate.odeint(firstderiv, # Call the dydt function
 print('Code progress:')
 
 # Find the stiffness index across the range of the solution
-indexvalues2 = stiffnessindex(stiffnessparams, normweights, tlist, dt, solution2)
+indexvalues = stiffnessindex(stiffnessparams, normweights, tlist, dt, solution)
 
 # Plot the solution.  This loop just sets up some of the parameters that we
 # want to modify in all of the plots.
@@ -267,24 +273,26 @@ lw = 1
 # Set all of the parameters that we want to apply to each plot specifically.
 pyl.figure(1)
 pyl.ylabel('Temperature', fontsize=14)
-pyl.plot(tlist, solution2[:,0], 'b', linewidth=lw)
+pyl.plot(tlist, solution[:,0], 'b', linewidth=lw)
 pyl.title('Temperature Graph, Time={}, Particle={}'.format(
             pasrtimestep,particle), fontsize=16)
 pyl.xlim(0,0.005)
 
 pyl.figure(2)
 pyl.ylabel('Index Value', fontsize=14)
-pyl.plot(tlist, indexvalues2, 'b', linewidth=lw)
+pyl.plot(tlist, indexvalues, 'b', linewidth=lw)
 pyl.title('IA-Stiffness Index, Order = {}'.format(order), fontsize=16)
 pyl.yscale('log')
-pyl.text(0.1,0.001,'dt = {}, Abs Error = {}, Rel Error = {}'.format(
-            dt,abserr,relerr))
+#pyl.text(0.1,0.001,'dt = {}, Abs Error = {}, Rel Error = {}'.format(
+#            dt,abserr,relerr))
 
 pyl.show()
 
 if savedata == 1:
-    indexvalues2 = np.array(indexvalues2)
-    np.save('IndexVals_{}'.format(dt), [indexvalues2,tlist])
+    indexvalues = np.array(indexvalues)
+    dataneeded = [indexvalues,tlist, solution, pasrtimestep, particle, order,
+                  dt, abserr, relerr]
+    np.save('IndexVals_Order5_{}'.format(dt), dataneeded)
 
 finishtime = datetime.datetime.now()
 print('Finish time: {}'.format(finishtime))
