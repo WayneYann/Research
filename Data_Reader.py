@@ -9,7 +9,7 @@ Created on Thu Feb 23 16:09:32 2017
 import pylab as pyl
 import numpy as np
 
-filename = 'IndexVals_1e-07'
+filename = 'IndexVals_Order5_1e-07'
 [indexvalues, tlist, solution, pasrtimestep, particle, order, dt,
  abserr, relerr]  = np.load(filename+'.npy')
 
@@ -34,18 +34,18 @@ pyl.plot(tlist, solution[:,0], linewidth=lw)
 #        pyl.plot(tlist, solution[:,i], linewidth=lw)
 #pyl.title('Temperature Graph, Time={}, Particle={}'.format(
 #            pasrtimestep,particle), fontsize=16)
-pyl.xlim(0,0.005)
-pyl.savefig(filename+'_temp_NT.png')
+#pyl.xlim(0.1,0.15)
+pyl.savefig(filename+'_temp_3.png')
 
 pyl.figure(2)
 pyl.ylabel('Stiffness Index Value', fontsize=14)
 pyl.plot(tlist, indexvalues, 'b', linewidth=lw)
 #pyl.title('Stiffness Index, Order = {}'.format(order), fontsize=16)
 pyl.yscale('log')
-pyl.xlim(0, 0.1)
-pyl.ylim(1.e5,1.e17)
+#pyl.xlim(0.1,0.15)
+#pyl.ylim(1.e5,1.e17)
 #pyl.text(0,0.999,'dt = {}, Abs Error = {}, Rel Error = {}'.format(
 #            dt,abserr,relerr))
-pyl.savefig(filename+'_0_NT.png')
+pyl.savefig(filename+'_O5_2.png')
 
 pyl.show()

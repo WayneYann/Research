@@ -16,18 +16,38 @@ import datetime
 
 def firstderiv(state, time, press):
     """This function forces the integrator to use the right arguments."""
+    '''PyJac requires the state to be given to it to have zeros for all the
+    mass fractions that are considered to be part of the reaction but don't
+    do anything.  So I'm putting in a workaround where those zeros are added
+    back onto the state, then removed before returning the values back to the
+    program.  This is extremely gimmicky and a bit of a waste, but it might be
+    best to fix the problem with PyJac instead.
+    '''
+    fixer = np.zeros(4)
+    state = np.hstack((state,fixer))
     dy = np.zeros_like(state)
     pyjacob.py_dydt(time, press, state, dy)
-    return dy
+    return dy[:-4]
 
 
 def jacobval(state, time, press):
     """This function forces the integrator to use the right arguments."""
+    '''PyJac requires the state to be given to it to have zeros for all the
+    mass fractions that are considered to be part of the reaction but don't
+    do anything.  So I'm putting in a workaround where those zeros are added
+    back onto the state, then removed before returning the values back to the
+    program.  This is extremely gimmicky and a bit of a waste, but it might be
+    best to fix the problem with PyJac instead.  This all is needed so that
+    only nonzero eigenvalues of the matrix are returned.
+    '''
+    olen = len(state)
+    fixer = np.zeros(4)
+    state = np.hstack((state,fixer))
     a = len(state)
     jacobian = np.zeros(a**2)
     pyjacob.py_eval_jacobian(time, press, state, jacobian)
     jacobian = np.reshape(jacobian, (a,a))
-    return jacobian
+    return np.delete(np.delete(jacobian,olen,0),olen,1)
 
 
 def derivcd4(vals, dx):
@@ -45,65 +65,34 @@ def derivcd4(vals, dx):
         if i % 500000 == 0:
             print('Derivative list: {}'.format(i))
     for i in range((len(vals) - 2), len(vals)):
-        deriv.append((3*vals[i] - 4*vals[i-1] + vals[i-2]) / (2*dx))
+        deriv.append((vals[i] - vals[i-1]) / dx)
     return deriv
 
 
-def weightednorm(matrix, weights, dims):
+def weightednorm(matrix, weights):
     """Weighted average norm function as defined in 1985 Shampine.  Takes a
     matrix and 2 weights and returns the maximum value (divided by wi) of the
-    sum of each value in each row multiplied by wj."""
+    sum of each value in each row multiplied by wj.  Needs to be passed either
+    a matrix of m x n dimensions where m,n > 1, or a column vector."""
     # Unpack the parameters
     wi, wj = weights
 
     # Initialize a list that will be called later to obtain the maximum value
     ivalues = []
 
-    # Retrieve the number of rows and columns
-    num_rows, num_columns, dimensions = dims
-
-    # There's an optimization to be had in here somewhere with numpy arrays
-    # Here's the failed attempt at it.  Will try again later.
-#    for i in matrix[:,0]:
-#        print(i)
-#        print(np.shape(i))
-#        columnsum = np.sum(i * wj)
-#        ivalues.append(columnsum / wi)
-#    # Sums up the values across each of the columns and applies the weights,
-#    # then finds the maximum value (the weighted matrix norm) after the weights
-#    # have been applied.
-    for i in range(num_columns):
-        columnsum = 0.
-        for j in range(num_rows):
-            if dimensions == 2:
-                columnsum += np.abs(matrix[j,i]) * wj
-            else:
-                columnsum += np.abs(matrix[i]) * wj
-        ivalues.append(columnsum / wi)
-    return np.max(ivalues)
-
-
-def getshape(matrix):
-    ''' A few try statements are used to figure out the shape of the matrix
-    Try statements are used because the code would otherwise return an
-    exception if the matrix is one dimensional.  The shape of the matrix is
-    needed to iterate across the rows and columns later.'''
-    matrix = np.array(matrix)
     try:
-        num_rows, num_columns = matrix.shape
-        dimensions = 2
+        num_rows,num_columns = matrix.shape
+        for i in range(num_columns):
+            matrixcol = [np.abs(j)*wj for j in matrix[:,i]]
+            columnsum = np.sum(matrixcol)
+            ivalues.append(columnsum)
+        return np.max(ivalues) / wi
     except ValueError:
-        dimensions = 1
-        try:
-            num_rows = 1
-            num_columns = matrix.shape[0]
-        except IndexError:
-            num_rows = matrix.shape[1]
-            num_columns = 1
-    return (num_rows,num_columns, dimensions)
+        matrixcol = [np.abs(j)*wj for j in matrix]
+        return np.sum(matrixcol)/wi
 
 
-def stiffnessindex(sp, normweights, xlist, dx, solution):
+def stiffnessindex(sp, normweights, xlist, dx, solution, press):
     '''Function that uses stiffness parameters (sp), the local Jacobian matrix,
     and a vector of the local function values to determine the local stiffness
     index as defined in 1985 Shampine.
@@ -131,14 +120,16 @@ def stiffnessindex(sp, normweights, xlist, dx, solution):
     dydxlist = []
     print('Finding first derivative values...')
     for i in range(len(solution)):
-        dydxlist.append(firstderiv(solution[i,:],tlist[i],Y_press))
+        dydxlist.append(firstderiv(solution[i,:],tlist[i],press))
         if i % 500000 == 0:
             print('dydxlist: {}'.format(i))
     # Raise the derivative to the order we need it
     for i in range(order):
         print('Finding derivative of order {}...'.format(i+2))
-        dydxlist = derivcd4(dydxlist, dt)
+        dydxlist = derivcd4(dydxlist, dx)
     dydxlist = np.array(dydxlist)
+
+    print(np.shape(dydxlist))
 
     # Create a list to return for all the index values in a function
     indexlist = []
@@ -146,47 +137,55 @@ def stiffnessindex(sp, normweights, xlist, dx, solution):
     # The weighted norm needs to be a single column, not a single row, so it
     # needs to be transposed.
     print('Transposing dydx vector...')
-    dydxlist = np.asarray(dydxlist).T
-
+    dydxlist = np.transpose(dydxlist)
+    print(np.shape(dydxlist))
     # Figure out some of the values that will be multiplied many times, so that
     # each computation only needs to happen once.
     exponent = 1./(order + 1)
-    xiterm = ((np.abs(xi)**exponent) / np.abs(gamma))
+    xiterm = ((np.abs(xi)**(-1 * exponent)) / np.abs(gamma))
     toleranceterm = tolerance**exponent
+
+    stiffratios = []
 
     # Obtain the shape of the jacobian and the dydx vector.  This will speed
     # up the weightednorm function (see function for details).  May not be
     # needed if a better method can be found with numpy arrays.  Note that
     # these two values are only dummy values thrown in to get the shape, they
     # are not included in the solution.
-    jacshape = getshape(jacobval(solution[0,:],xlist[0],101300))
-    dshape = getshape(dydxlist[:,0])
-
-    print('Computing stiffness index...')
-
     for i in range(len(solution)):
-        jacobian = jacobval(solution[i,:],tlist[i],Y_press)
+        jacobian = jacobval(solution[i,:],xlist[i],Y_press)
+        if i == 0:
+            print(jacobian)
+            print(np.shape(jacobian))
+            jacone = jacobian
+        eigvalsr = [np.abs(i.real) for i in np.linalg.eigvals(jacobian)]
+        maxeigr = np.max(eigvalsr)
+        mineigr = np.min(eigvalsr)
+        if i == 0:
+            print(maxeigr)
+            print(mineigr)
+        stiffratios.append(maxeigr/mineigr)
         if method == 1:
             index = toleranceterm *\
-                    weightednorm(jacobian, normweights, jacshape) *\
-                    weightednorm(dydxlist[:,i], normweights, dshape)**exponent *\
+                    weightednorm(jacobian, normweights) *\
+                    weightednorm(dydxlist[:,i], normweights)**(-1 * exponent) *\
                     xiterm
         else:
             index = toleranceterm *\
-                    np.max(np.abs(np.linalg.eigvals(jacobian))) *\
-                    weightednorm(dydxlist[:,i], normweights, dshape)**exponent *\
+                    np.max(eigvalsr) *\
+                    weightednorm(dydxlist[:,i], normweights)**(-1 * exponent) *\
                     xiterm
         indexlist.append(index)
         if i % 500000 == 0:
             print('Index list: {}'.format(i))
     indexlist = np.array(indexlist)
-    return indexlist
+    return indexlist, stiffratios, jacone
 
 # Finding the current time to time how long the simulation takes
 starttime = datetime.datetime.now()
 print('Start time: {}'.format(starttime))
 
-savedata = 0
+savedata = 1
 
 # Stiffness index parameter values to be sent to the stiffness index function
 gamma = 1.
@@ -202,11 +201,9 @@ normweights = wi, wj
 
 # Define the range of the computation
 tstart = 0
-tstop = 5.e-0
+tstop = 5.e-1
 dt = 1.e-5
 tlist = np.arange(tstart, tstop+0.5*dt, dt)
-
-t0 = 0.050
 
 # ODE Solver parameters
 abserr = 1.0e-15
@@ -224,18 +221,21 @@ particle = 92
 Y = pasr[pasrtimestep, particle, :].copy()
 
 # Rearrange the array for the initial condition
-N2_pos = 11
 press_pos = 2
 temp_pos = 1
 arraylen = len(Y)
-Y_N2 = Y[N2_pos]
-Y_x = Y[arraylen - 1]
-Y[arraylen - 1] = Y_N2
-Y[N2_pos] = Y_x
+
 Y_press = Y[press_pos]
 Y_temp = Y[temp_pos]
-Y_species = Y[3:]
+Y_species = Y[3:arraylen-4]
 Ys = np.hstack((Y_temp,Y_species))
+
+#N2_pos = 9
+#newarlen = len(Ys)
+#Y_N2 = Ys[N2_pos]
+#Y_x = Ys[newarlen - 1]
+#Ys[newarlen - 1] = Y_N2
+#Ys[N2_pos] = Y_x
 
 # Call the integrator
 solution = sci.integrate.odeint(firstderiv, # Call the dydt function
@@ -256,11 +256,12 @@ solution = sci.integrate.odeint(firstderiv, # Call the dydt function
 print('Code progress:')
 
 # Find the stiffness index across the range of the solution
-indexvalues = stiffnessindex(stiffnessparams, normweights, tlist, dt, solution)
+indexvalues, stiffratio, jacone = stiffnessindex(stiffnessparams, normweights, tlist,
+                                         dt, solution, Y_press)
 
 # Plot the solution.  This loop just sets up some of the parameters that we
 # want to modify in all of the plots.
-for p in range(1,3):
+for p in range(1,4):
     pyl.figure(p, figsize=(6, 4.5), dpi=600)
     pyl.xlabel('Time (s)', fontsize=14)
     pyl.xlim(tstart,tstop)
@@ -276,7 +277,7 @@ pyl.ylabel('Temperature', fontsize=14)
 pyl.plot(tlist, solution[:,0], 'b', linewidth=lw)
 #pyl.title('Temperature Graph, Time={}, Particle={}'.format(
 #            pasrtimestep,particle), fontsize=16)
-pyl.xlim(0,0.005)
+#pyl.xlim(0,0.005)
 
 pyl.figure(2)
 pyl.ylabel('Index Value', fontsize=14)
@@ -285,6 +286,10 @@ pyl.plot(tlist, indexvalues, 'b', linewidth=lw)
 pyl.yscale('log')
 #pyl.text(0.1,0.001,'dt = {}, Abs Error = {}, Rel Error = {}'.format(
 #            dt,abserr,relerr))
+
+pyl.figure(3)
+pyl.ylabel('Stiffness Ratio')
+pyl.plot(tlist, stiffratio, 'b', linewidth=lw)
 
 pyl.show()
 
