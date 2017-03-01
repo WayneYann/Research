@@ -167,7 +167,7 @@ normweights = wi, wj
 # Define the range of the computation
 tstart = 0
 tstop = 5.e-1
-dt = 1.e-8
+dt = 1.e-7
 tlist = np.arange(tstart, tstop+0.5*dt, dt)
 
 # ODE Solver parameters
@@ -238,12 +238,10 @@ pyl.figure(1)
 pyl.ylabel('Temperature (K)', fontsize=14)
 pyl.plot(tlist, solution[:,0], 'b', linewidth=lw)
 
-
 pyl.figure(2)
 pyl.ylabel('Index Value', fontsize=14)
 pyl.plot(tlist, indexvalues, 'b', linewidth=lw)
 pyl.yscale('log')
-
 
 pyl.show()
 
