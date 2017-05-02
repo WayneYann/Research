@@ -6,6 +6,9 @@ Created on Fri Feb 17 14:54:13 2017
 @author: andrewalferman
 """
 
+filenum = '_1'
+
+
 import os as os
 import numpy as np
 import pyjacob as pyjacob
@@ -227,14 +230,15 @@ abserr = 1.0e-15
 relerr = 1.0e-13
 
 # Load the initial conditions from the PaSR file
-filepath = os.path.join(os.getcwd(),'pasr_out_h2-co_0.npy')
+filepath = os.path.join(os.getcwd(),'pasr_out_h2-co' + filenum + '.npy')
 pasr = np.load(filepath)
 
 # Initialize the array of stiffness index values
 numparticles = len(pasr[0,:,0])
 numtsteps = len(pasr[:,0,0])
-vals = len(tlist)
-pasrstiffnesses = np.zeros((numtsteps,numparticles))
+# Cheated a little here to make coding faster
+numparams = 11
+pasrstiffnesses = np.zeros((numtsteps,numparticles,numparams))
 
 # Loop through the PaSR file for initial conditions
 for particle in range(numparticles):
@@ -254,12 +258,12 @@ for particle in range(numparticles):
         Y_species = Y[3:arraylen-4]
         Ys = np.hstack((Y_temp,Y_species))
 
-        #N2_pos = 9
-        #newarlen = len(Ys)
-        #Y_N2 = Ys[N2_pos]
-        #Y_x = Ys[newarlen - 1]
-        #Ys[newarlen - 1] = Y_N2
-        #Ys[N2_pos] = Y_x
+        N2_pos = 9
+        newarlen = len(Ys)
+        Y_N2 = Ys[N2_pos]
+        Y_x = Ys[newarlen - 1]
+        Ys[newarlen - 1] = Y_N2
+        Ys[N2_pos] = Y_x
 
         # Call the integrator
         solution = sci.integrate.odeint(firstderiv, # Call the dydt function
@@ -283,7 +287,7 @@ for particle in range(numparticles):
         indexvalues = stiffnessindex(stiffnessparams, normweights,
                                      tlist, dt, solution, Y_press)
 
-        pasrstiffnesses[tstep,particle] = np.log(indexvalues[2])
+        pasrstiffnesses[tstep,particle,:] = np.hstack((solution[3],indexvalues[3]))
 
 
         ## Plot the solution.  This loop just sets up some of the parameters that we
@@ -335,12 +339,18 @@ xmesh, ymesh = np.meshgrid(xcoords,ycoords)
 pyl.figure(0, figsize=(6, 4.5), dpi=600)
 pyl.xlabel('Particle')
 pyl.ylabel('Timestep')
-plot = pyl.contourf(xmesh,ymesh,pasrstiffnesses,50)
+plot = pyl.contourf(xmesh,ymesh,pasrstiffnesses[:,:,10],50)
 pyl.grid(b=True, which='both')
 pyl.colorbar(plot)
-pyl.savefig('COH2_PaSR_Stiffness_Index.png')
 
-pyl.show()
+#pyl.savefig('COH2_PaSR_Stiffness_Index'+ filenum + '.png')
+
+
+
+
+
+
+#pyl.show()
 
 finishtime = datetime.datetime.now()
 print('Finish time: {}'.format(finishtime))

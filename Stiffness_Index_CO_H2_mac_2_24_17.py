@@ -76,10 +76,19 @@ def weightednorm(matrix, weights):
     a matrix of m x n dimensions where m,n > 1, or a column vector."""
     # Unpack the parameters
     wi, wj = weights
+    rowsum = np.zeros(len(matrix))
+
+    print('Rowsum:')
+    print(rowsum)
+
+    for i in range(len(matrix)):
+        rowsum += [wj * np.abs(j) for j in matrix[:,i]]
+    return np.max(rowsum) / wi
 
     # Initialize a list that will be called later to obtain the maximum value
-    ivalues = []
+    #ivalues = []
 
+    """
     try:
         num_rows,num_columns = matrix.shape
         for i in range(num_columns):
@@ -90,6 +99,7 @@ def weightednorm(matrix, weights):
     except ValueError:
         matrixcol = [np.abs(j)*wj for j in matrix]
         return np.sum(matrixcol)/wi
+    """
 
 
 def stiffnessindex(sp, normweights, xlist, dx, solution, press):
