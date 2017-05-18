@@ -165,7 +165,7 @@ relerr = 1.0e-13
 # Load the initial conditions from the PaSR files
 pasrarrays = []
 print('Loading data...')
-for i in range(9):
+for i in range(1):
     filepath = os.path.join(os.getcwd(),'pasr_out_h2-co_' + str(i) + '.npy')
     filearray = np.load(filepath)
     pasrarrays.append(filearray)

@@ -132,7 +132,7 @@ def stiffnessindex(sp, normweights, xlist, dx, solution, press):
                 xiterm
         indexlist.append(index)
     indexlist = np.array(indexlist)
-    return indexlist, dydxlist
+    return indexlist#, dydxlist
 
 
 # Finding the current time to time how long the simulation takes
@@ -154,9 +154,9 @@ wj = 1.
 normweights = wi, wj
 
 # Define the range of the computation
-dt = 1.e-7
+dt = 1.e-8
 tstart = 0
-tstop = 5 * dt
+tstop = 0.2
 tlist = np.arange(tstart, tstop + 0.5 * dt, dt)
 
 # ODE Solver parameters
@@ -174,28 +174,30 @@ for i in range(9):
 pasr = np.concatenate(pasrarrays, 1)
 
 # Initialize the array of stiffness index values
-numparticles = len(pasr[0, :, 0])
-numtsteps = len(pasr[:, 0, 0])
+#numparticles = len(pasr[0, :, 0])
+numparticles = 92
+#numtsteps = len(pasr[:, 0, 0])
+numtsteps = 4
 
 # Cheated a little here and entered the number of variables to code faster
 numparams = 15
-# pasrstiffnesses = np.zeros((numtsteps, numparticles))
-pasrstiffnesses2 = np.zeros((numtsteps,numparticles,numparams))
+pasrstiffnesses = np.zeros((numtsteps, numparticles, numparams))
+#pasrstiffnesses2 = np.zeros((numtsteps,numparticles,numparams))
 
 # Create vectors for that time how long it takes to compute stiffness index and
 # the solution itself
 solutiontimes, stiffcomptimes = [], []
 
-expeigs = np.zeros((numtsteps, numparticles))
+#expeigs = np.zeros((numtsteps, numparticles))
 
 # Loop through the PaSR file for initial conditions
 print('Code progress:')
-for particle in range(numparticles):
-    print(particle)
-    for tstep in range(numtsteps):
+for particle in [numparticles]:
+    # print(particle)
+    for tstep in [numtsteps]:
         #        print(tstep)
         # Get the initial condition.
-        Y = pasr[tstep, particle, :].copy()
+        Y = pasr[numtsteps, numparticles, :].copy()
 
         # Rearrange the array for the initial condition
         press_pos = 2
@@ -220,53 +222,51 @@ for particle in range(numparticles):
         solution = []
         onestep = Ys[:]
         currentt = tstart
-        for i in range(5):
-            intrange = np.arange(currentt, currentt + dt, dt)
-            time0 = timer.time()
+        #for i in range(5):
+            #intrange = np.arange(currentt, currentt + dt, dt)
+        time0 = timer.time()
             # This integrator may not be the greatest, but it was easy to learn
-            onestep = odeint(firstderiv,  # Call dydt function
+        solution = odeint(firstderiv,  # Call dydt function
                              # Pass it initial conditions
-                             onestep,
+                          Ys,
                              # Pass it time steps to be evaluated
-                             intrange,
+                          tlist,
                              # Pass any additional information
                              # needed
-                             args=(Y_press,),
+                          args=(Y_press,),
                              # Pass it the absolute and relative
                              # tolerances
-                             atol=abserr, rtol=relerr,
+                          atol=abserr, rtol=relerr,
                              # Change to 1 to print a message stating if it
                              # worked or not
-                             printmessg=0
-                             )
-            time1 = timer.time()
-            onestep = onestep[0]
-            solution.append(onestep)
+                          printmessg=0
+                          )
+        time1 = timer.time()
+            # onestep = onestep[0]
+            # solution.append(onestep)
             # Should only time it for one timestep
-            if i == 2:
-                solutiontimes.append(time1 - time0)
+            # if i == 2:
+            #    solutiontimes.append(time1 - time0)
         # Convert the solution to an array for ease of use.  Maybe just using
         # numpy function to begin with would be faster?
         solution = np.array(solution)
         # Find the stiffness index across the range of the solution and time it
         time2 = timer.time()
-        indexvalues, derivatives = stiffnessindex(stiffnessparams, normweights,
+        indexvalues = stiffnessindex(stiffnessparams, normweights,
                                      tlist, dt, solution, Y_press)
         time3 = timer.time()
         # This statement intended to cut back on the amount of data processed
-        derivatives = derivatives[2]
+        #derivatives = derivatives[2]
 
         stiffcomptimes.append(time3 - time2)
-
         # Commented old code for the maximum eigenvalue or CEMA analysis
         # expeigs[tstep,particle] = np.log10(maxeig)
         # Commented old code for just figuring out the PaSR stiffness values
         # pasrstiffnesses[tstep, particle] = np.log10(indexvalues[2])
-        # pasrstiffnesses[tstep,particle,:] = np.hstack((solution[2],
-        #                                               indexvalues[2]))
+        # pasrstiffnesses = np.concatenate((solution, indexvalues))
         # This variable includes the values of the derivatives
-        pasrstiffnesses2[tstep,particle,:] = np.hstack(
-                (derivatives,indexvalues[2]))
+        #pasrstiffnesses2[tstep,particle,:] = np.hstack(
+        #        (derivatives,indexvalues[2]))
 
 speciesnames = ['H', 'H$_2$', 'O', 'OH', 'H$_2$O', 'O$_2$', 'HO$_2$',
                 'H$_2$O$_2$', 'Ar', 'He', 'CO', 'CO$_2$', 'N$_2$']
@@ -274,6 +274,7 @@ speciesnames = ['H', 'H$_2$', 'O', 'OH', 'H$_2$O', 'O$_2$', 'HO$_2$',
 
 pyl.close('all')
 pyl.clf()
+"""
 for i in range(14):
     for j in range(len(pasrstiffnesses2[0,:,0])):
         pyl.figure(i)
@@ -313,7 +314,7 @@ if savedata == 1:
 
 finishtime = datetime.datetime.now()
 print('Finish time: {}'.format(finishtime))
-"""
+
 # Commented old code for different types of plots that have been useful
 ratios = []
 for i in range(len(solutiontimes)):
@@ -377,4 +378,18 @@ label = cb.set_label('log$_{10}$ (Stiffness Index)')
 
 # pyl.savefig('PaSR_Range_Stiffness_Index.png')
 """
+
+pyl.figure(0)
+pyl.ylabel('Temperature (K)')
+for i in range(1, len(solution[0, :])):
+    pyl.ylabel(speciesnames[i-1] + ' Mass Fraction')
+for i in range(len(solution[0, :])):
+    pyl.xlabel('Time (s)')
+    pyl.plot(tlist, solution[:, i])
+pyl.figure(len(solution[0, :]))
+pyl.ylabel('Stiffness Index Value')
+pyl.xlabel('Time (s)')
+pyl.plot(tlist, indexvalues)
+pyl.yscale('log')
+
 pyl.show()
