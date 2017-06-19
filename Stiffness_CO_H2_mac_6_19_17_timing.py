@@ -273,7 +273,9 @@ speciesnames = ['H', 'H$_2$', 'O', 'OH', 'H$_2$O', 'O$_2$', 'HO$_2$',
 
 
 pyl.close('all')
-pyl.clf()
+pyl.clf('all')
+
+"""
 for i in range(14):
     for j in range(len(pasrstiffnesses2[0, :, 0])):
         pyl.figure(i)
@@ -314,6 +316,7 @@ if savedata == 1:
 finishtime = datetime.datetime.now()
 print('Finish time: {}'.format(finishtime))
 """
+
 # Commented old code for different types of plots that have been useful
 ratios = []
 for i in range(len(solutiontimes)):
@@ -352,7 +355,7 @@ pyl.ylim(0, max(stiffcomptimes))
 pyl.xlabel('Computation Number')
 pyl.ylabel('Stiffness Index Computation Time')
 pyl.scatter(range(datanum), stiffcomptimes, 0.1)
-
+"""
 pyl.figure(2)
 pyl.xlim(0, datanum)
 # pyl.ylim(0,)
