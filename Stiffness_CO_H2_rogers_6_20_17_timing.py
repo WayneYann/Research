@@ -6,16 +6,20 @@ Created on Fri Feb 17 14:54:13 2017
 @author: andrewalferman
 """
 
+import matplotlib
+matplotlib.use('Agg')
 import os as os
 import numpy as np
-from coh2 import pyjacob as pyjacob
+import pyjacob as pyjacob
 import pylab as pyl
 # import scipy as sci
 import datetime
 import time as timer
 
-from scipy.integrate import odeint
+# from scipy.integrate import odeint
 from scipy.integrate import ode
+
+pyl.ioff()
 
 
 def firstderiv(state, time, press):
@@ -157,7 +161,7 @@ wj = 1.
 normweights = wi, wj
 
 # Define the range of the computation
-dt = 1.e-7
+dt = 1.e-10
 tstart = 0
 tstop = 5 * dt
 tlist = np.arange(tstart, tstop + 0.5 * dt, dt)
@@ -222,15 +226,16 @@ for particle in range(numparticles):
 
         # Call the integrator and time it
         solution = []
-        onestep = Ys[:]
+        curstate = Ys[:]
         currentt = tstart
 
         # Specify the integrator
-        solver = ode(firstderiv,
-                     jac=jacobval).set_integrator('zvode',
-                                                  method='bdf')
+        solver = ode(firstderiv  # ,
+                     # jac=jacobval
+                     ).set_integrator('zvode',
+                                      method='bdf')
         for i in range(5):
-            intrange = np.arange(currentt, currentt + dt, dt)
+            # intrange = np.arange(currentt, currentt + dt, dt)
             time0 = timer.time()
             """
             # This integrator may not be the greatest, but it was easy to learn
@@ -252,18 +257,20 @@ for particle in range(numparticles):
             """
 
             # Set the initial condition
-            solver.set_initial_value(onestep, 0.0)
+            solver.set_initial_value(curstate,
+                                     0.0
+                                     ).set_f_params(curstate, 0.0, Y_press)
 
             # Integrate the ODE one step
             k = 0
             while solver.successful() and k < 1:
-                solver.integrate(solver.t + dt)
-                onestep = solver.y
+                solver.integrate(dt)
+                curstate = solver.y.real
                 k += 1
 
             time1 = timer.time()
-            onestep = onestep[0]
-            solution.append(onestep)
+            solution.append(curstate)
+
             # Should only time it for one timestep
             if i == 2:
                 solutiontimes.append(time1 - time0)
@@ -289,7 +296,7 @@ for particle in range(numparticles):
         # pasrstiffnesses[tstep,particle,:] = np.hstack((solution[2],
         #                                               indexvalues[2]))
         # This variable includes the values of the derivatives
-        #pasrstiffnesses2[tstep, particle, :] = np.hstack(
+        # pasrstiffnesses2[tstep, particle, :] = np.hstack(
         #    (derivatives, indexvalues[2]))
 
 speciesnames = ['H', 'H$_2$', 'O', 'OH', 'H$_2$O', 'O$_2$', 'HO$_2$',
@@ -362,9 +369,10 @@ solavg = 1000. * (solavg / datanum)
 stiffavg = 1000. * (stiffavg / datanum)
 print("Average integration time (ms): {:.7f}".format(solavg))
 print("Average SI computation time (ms): {:.7f}".format(stiffavg))
-print("Maximum integration time (ms): {:.7f}".format(max(solutiontimes) * 1000.))
+print("Maximum integration time (ms): {:.7f}".format(
+    max(solutiontimes) * 1000.))
 print("Maximum SI computation time (ms): {:.7f}".format(max(stiffcomptimes)
-                                                   * 1000.))
+                                                        * 1000.))
 
 # Plot of integration times vs. computation number
 pyl.figure(0)
@@ -400,8 +408,8 @@ if savefigures == 1:
 pyl.figure(3)
 pyl.ylabel('Stiffness Index ')
 pyl.xlabel('Stiffness Index Computation Time')
-pyl.xlim(0.,max(solutiontimes))
-pyl.ylim(0.,max(stiffcomptimes))
+pyl.xlim(0., max(solutiontimes))
+pyl.ylim(0., max(stiffcomptimes))
 pyl.scatter(stiffcomptimes, stiffvals, 0.1)
 if savefigures == 1:
     pyl.savefig('Stiffcomp_Stiffvals.' + figformat)
@@ -410,11 +418,11 @@ if savefigures == 1:
 pyl.figure(4)
 pyl.ylabel('Stiffness Index ')
 pyl.xlabel('Integration Time')
-pyl.xlim(0.,max(solutiontimes))
-pyl.ylim(0.,max(stiffvals))
+pyl.xlim(0., max(solutiontimes))
+pyl.ylim(0., max(stiffvals))
 pyl.scatter(solutiontimes, stiffvals, 0.1)
 if savefigures == 1:
-    pyl.savefig('Int_Stiffvals.' + figformat)
+    pyl.savefig('Int_Stiffvals1.' + figformat)
 
 
 """
@@ -436,4 +444,5 @@ label = cb.set_label('log$_{10}$ (Stiffness Index)')
 if savefigures == 1:
     pyl.savefig('PaSR_Range_Stiffness_Index.' + figformat)
 """
-pyl.show()
+pyl.close('all')
+# pyl.show()
