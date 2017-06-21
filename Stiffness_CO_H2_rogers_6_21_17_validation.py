@@ -243,7 +243,7 @@ for particle in [92]:
                                  ).set_f_params(curstate, 0.0, Y_press)
 
         # Integrate the ODE across all steps
-        while solver.successful() and solver.t < tstop:
+        while solver.successful() and solver.t <= tstop:
             time0 = timer.time()
             solver.integrate(solver.t + dt)
             curstate = solver.y.real
@@ -256,15 +256,15 @@ for particle in [92]:
         solution = np.array(solution)
         # Find the stiffness index across the range of the solution and time it
         time2 = timer.time()
-        indexvalues, derivatives = stiffnessindex(stiffnessparams, normweights,
-                                                  tlist, dt, solution, Y_press)
-        time3 = timer.time()
+        # indexvalues, derivatives = stiffnessindex(stiffnessparams, normweights,
+        #                                          tlist, dt, solution, Y_press)
+        # time3 = timer.time()
         # This statement intended to cut back on the amount of data processed
-        derivatives = derivatives[2]
+        # derivatives = derivatives[2]
 
-        stiffcomptimes.append(time3 - time2)
+        # stiffcomptimes.append(time3 - time2)
 
-        stiffvals.append(indexvalues[2])
+        # stiffvals.append(indexvalues[2])
 
         # Commented old code for the maximum eigenvalue or CEMA analysis
         # expeigs[tstep,particle] = np.log10(maxeig)
@@ -286,6 +286,14 @@ for i in range(15):
     pyl.figure(i)
     pyl.clf()
 pyl.close('all')
+
+# Plot the solution of the temperature
+pyl.figure(0)
+pyl.xlabel('Time')
+pyl.ylabel('Temperature')
+pyl.plot(tlist, solution[:, 0])
+if savefigures == 1:
+    pyl.savefig('Autoignition_Temperature.' + figformat)
 
 """
 # Plot all of the 2nd derivatives vs stiffness index
