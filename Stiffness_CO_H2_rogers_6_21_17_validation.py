@@ -287,8 +287,10 @@ for i in range(15):
     pyl.clf()
 pyl.close('all')
 
-print('Solution shape:')
-print(np.shape(solution))
+print('Solution[:, 0] shape:')
+print(np.shape(solution[:, 0]))
+print('tlist shape:')
+print(np.shape(tlist))
 
 # Plot the solution of the temperature
 pyl.figure(0)
