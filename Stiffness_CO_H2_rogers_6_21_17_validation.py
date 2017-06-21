@@ -287,6 +287,9 @@ for i in range(15):
     pyl.clf()
 pyl.close('all')
 
+print('Solution shape:')
+print(np.shape(solution))
+
 # Plot the solution of the temperature
 pyl.figure(0)
 pyl.xlabel('Time')
