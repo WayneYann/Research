@@ -232,24 +232,19 @@ for particle in [92]:
         # Specify the integrator
         solver = ode(firstderiv  # ,
                      # jac=jacobval
-                     ).set_integrator('zvode',
+                     ).set_integrator('vode',
                                       method='bdf')
 
         # intrange = np.arange(currentt, currentt + dt, dt)
 
-        # Set the initial condition
-        solver.set_initial_value(curstate,
-                                 0.0
-                                 ).set_f_params(curstate, 0.0, Y_press)
-
         # Integrate the ODE across all steps
         while solver.successful() and solver.t <= tstop:
             time0 = timer.time()
-            solver.integrate(solver.t + dt)
-            curstate = solver.y.real
             solver.set_initial_value(curstate,
                                      solver.t
                                      ).set_f_params(curstate, solver.t, Y_press)
+            solver.integrate(solver.t + dt)
+            curstate = solver.y
             time1 = timer.time()
             solution.append(curstate)
             solutiontimes.append(time1 - time0)
