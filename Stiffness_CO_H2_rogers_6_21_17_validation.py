@@ -247,6 +247,9 @@ for particle in [92]:
             time0 = timer.time()
             solver.integrate(solver.t + dt)
             curstate = solver.y.real
+            solver.set_initial_value(curstate,
+                                     solver.t
+                                     ).set_f_params(curstate, solver.t, Y_press)
             time1 = timer.time()
             solution.append(curstate)
             solutiontimes.append(time1 - time0)
