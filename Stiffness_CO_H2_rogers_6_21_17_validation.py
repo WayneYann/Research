@@ -198,9 +198,9 @@ expeigs = np.zeros((numtsteps, numparticles))
 
 # Loop through the PaSR file for initial conditions
 print('Code progress:')
-for particle in 92:
-    print(particle)
-    for tstep in 4:
+for particle in [92]:
+    # print(particle)
+    for tstep in [4]:
         #        print(tstep)
         # Get the initial condition.
         Y = pasr[tstep, particle, :].copy()
@@ -423,4 +423,4 @@ if savefigures == 1:
     pyl.savefig('PaSR_Range_Stiffness_Index.' + figformat)
 """
 # pyl.close('all')
-pyl.show()
+# pyl.show()
