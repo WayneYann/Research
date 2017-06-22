@@ -264,6 +264,9 @@ for particle in [92]:
         # Find the stiffness index across the range of the solution and time it
         time2 = timer.time()
         # indexvalues, derivatives = stiffnessindex(stiffnessparams, normweights,
+        print(np.shape(tlist2))
+        print(dt*100.)
+        print(np.shape(solution))
         indexvalues = stiffnessindex(stiffnessparams, normweights,
                                      tlist2, dt*100., solution, Y_press)
         time3 = timer.time()
