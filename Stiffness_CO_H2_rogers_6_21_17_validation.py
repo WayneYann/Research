@@ -167,7 +167,7 @@ tstop = 0.05
 tlist = np.arange(tstart, tstop + 0.5 * dt, dt)
 
 # ODE Solver parameters
-abserr = 1.0e-14
+abserr = 1.0e-15
 relerr = 1.0e-12
 
 # Load the initial conditions from the PaSR files
