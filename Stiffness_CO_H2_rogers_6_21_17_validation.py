@@ -163,12 +163,12 @@ normweights = wi, wj
 # Define the range of the computation
 dt = 1.e-8
 tstart = 0
-tstop = 0.2
+tstop = 0.05
 tlist = np.arange(tstart, tstop + 0.5 * dt, dt)
 
 # ODE Solver parameters
-abserr = 1.0e-13
-relerr = 1.0e-11
+abserr = 1.0e-14
+relerr = 1.0e-12
 
 # Load the initial conditions from the PaSR files
 pasrarrays = []
