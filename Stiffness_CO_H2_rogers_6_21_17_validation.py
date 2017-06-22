@@ -294,7 +294,7 @@ print(np.shape(tlist))
 pyl.figure(0)
 pyl.xlabel('Time')
 pyl.ylabel('Temperature')
-pyl.plot(tlist[1:], solution[:, 0])
+pyl.plot(tlist[1: len(solution[:, 0])], solution[:, 0])
 if savefigures == 1:
     pyl.savefig('Autoignition_Temperature.' + figformat)
 
