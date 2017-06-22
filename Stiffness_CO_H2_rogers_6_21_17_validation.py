@@ -137,7 +137,7 @@ def stiffnessindex(sp, normweights, xlist, dx, solution, press):
                 xiterm
         indexlist.append(index)
     indexlist = np.array(indexlist)
-    return indexlist#, dydxlist
+    return indexlist  # , dydxlist
 
 
 # Finding the current time to time how long the simulation takes
@@ -161,14 +161,14 @@ wj = 1.
 normweights = wi, wj
 
 # Define the range of the computation
-dt = 2.e-8
+dt = 1.e-7
 tstart = 0
 tstop = 0.05
 tlist = np.arange(tstart, tstop + 0.5 * dt, dt)
 
 # ODE Solver parameters
-abserr = 1.0e-15
-relerr = 1.0e-13
+# abserr = 1.0e-15
+# relerr = 1.0e-13
 
 # Load the initial conditions from the PaSR files
 pasrarrays = []
@@ -181,20 +181,20 @@ for i in range(9):
 pasr = np.concatenate(pasrarrays, 1)
 
 # Initialize the array of stiffness index values
-numparticles = len(pasr[0, :, 0])
-numtsteps = len(pasr[:, 0, 0])
+# numparticles = len(pasr[0, :, 0])
+# numtsteps = len(pasr[:, 0, 0])
 
 # Cheated a little here and entered the number of variables to code faster
 numparams = 15
 # pasrstiffnesses = np.zeros((numtsteps, numparticles))
-pasrstiffnesses2 = np.zeros((numtsteps, numparticles, numparams))
+# pasrstiffnesses2 = np.zeros((numtsteps, numparticles, numparams))
 
 # Create vectors for that time how long it takes to compute stiffness index and
 # the solution itself
 solutiontimes, stiffcomptimes = [], []
 stiffvals = []
 
-expeigs = np.zeros((numtsteps, numparticles))
+# expeigs = np.zeros((numtsteps, numparticles))
 
 # Loop through the PaSR file for initial conditions
 print('Code progress:')
@@ -237,17 +237,23 @@ for particle in [92]:
 
         # intrange = np.arange(currentt, currentt + dt, dt)
 
+        # Set initial conditions
+        solver.set_initial_value(curstate,
+                                 solver.t
+                                 ).set_f_params(curstate, solver.t, Y_press)
+
         # Integrate the ODE across all steps
+        k = 0
         while solver.successful() and solver.t <= tstop:
             time0 = timer.time()
-            solver.set_initial_value(curstate,
-                                     solver.t
-                                     ).set_f_params(curstate, solver.t, Y_press)
+            solver.set_f_params(solver.y, solver.t, Y_press)
             solver.integrate(solver.t + dt)
-            curstate = solver.y
             time1 = timer.time()
-            solution.append(curstate)
-            solutiontimes.append(time1 - time0)
+            k += 1
+            # Only going to need 1 out of 100 values of the solution to be saved
+            if k == 100:
+                solution.append(solver.y)
+                solutiontimes.append(time1 - time0)
 
         # Convert the solution to an array for ease of use.  Maybe just using
         # numpy function to begin with would be faster?
