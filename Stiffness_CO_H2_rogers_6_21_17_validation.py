@@ -253,7 +253,6 @@ for particle in [92]:
             # Only going to need 1 out of X values of the solution to be saved
             solution.append(solver.y)
             solutiontimes.append(time1 - time0)
-            tlist2.append(solver.t)
 
         # Convert the solution to an array for ease of use.  Maybe just using
         # numpy function to begin with would be faster?
