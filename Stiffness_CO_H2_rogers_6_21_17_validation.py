@@ -163,7 +163,7 @@ normweights = wi, wj
 # Define the range of the computation
 dt = 1.e-8
 tstart = 0
-tstop = 0.2
+tstop = 0.05
 tlist = np.arange(tstart, tstop + 0.5 * dt, dt)
 
 # ODE Solver parameters
@@ -311,7 +311,8 @@ if savefigures == 1:
 pyl.figure(1)
 pyl.xlabel('Time (sec)')
 pyl.ylabel('Stiffness Index')
-pyl.plot(tlist[: len(solution[:, 0])], indexvalues)
+pyl.yscale('log')
+pyl.plot(tlist[: len(solution[:-3, 0])], indexvalues[:-3])
 if savefigures == 1:
     pyl.savefig('Autoignition_Stiffness_Indes.' + figformat)
 
