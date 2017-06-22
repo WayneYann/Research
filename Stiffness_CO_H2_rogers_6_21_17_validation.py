@@ -285,16 +285,16 @@ for i in range(15):
     pyl.clf()
 pyl.close('all')
 
-print('Solution[:, 0] shape:')
-print(np.shape(solution[:, 0]))
-print('tlist shape:')
-print(np.shape(tlist[1: len(solution[:, 0])]))
+# print('Solution[:, 0] shape:')
+# print(np.shape(solution[:, 0]))
+# print('tlist shape:')
+# print(np.shape(tlist[1: len(solution[:, 0])]))
 
 # Plot the solution of the temperature
 pyl.figure(0)
 pyl.xlabel('Time')
 pyl.ylabel('Temperature')
-pyl.plot(tlist[1: len(solution[:, 0])], solution[:, 0])
+pyl.plot(tlist[: len(solution[:, 0])], solution[:, 0])
 if savefigures == 1:
     pyl.savefig('Autoignition_Temperature.' + figformat)
 
