@@ -161,7 +161,7 @@ wj = 1.
 normweights = wi, wj
 
 # Define the range of the computation
-dt = 1.e-7
+dt = 1.e-8
 tstart = 0
 tstop = 0.05
 tlist = np.arange(tstart, tstop + 0.5 * dt, dt)
