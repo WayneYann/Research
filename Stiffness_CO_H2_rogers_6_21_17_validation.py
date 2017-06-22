@@ -167,8 +167,8 @@ tstop = 0.2
 tlist = np.arange(tstart, tstop + 0.5 * dt, dt)
 
 # ODE Solver parameters
-# abserr = 1.0e-15
-# relerr = 1.0e-13
+abserr = 1.0e-15
+relerr = 1.0e-13
 
 # Load the initial conditions from the PaSR files
 pasrarrays = []
@@ -233,7 +233,9 @@ for particle in [92]:
         solver = ode(firstderiv  # ,
                      # jac=jacobval
                      ).set_integrator('vode',
-                                      method='bdf')
+                                      method='bdf',
+                                      atol=abserr,
+                                      rtol=relerr)
 
         # intrange = np.arange(currentt, currentt + dt, dt)
 
