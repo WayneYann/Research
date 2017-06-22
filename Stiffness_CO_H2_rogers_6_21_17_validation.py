@@ -254,13 +254,13 @@ for particle in [92]:
         solution = np.array(solution)
         # Find the stiffness index across the range of the solution and time it
         time2 = timer.time()
-        # indexvalues, derivatives = stiffnessindex(stiffnessparams, normweights,
-        #                                          tlist, dt, solution, Y_press)
-        # time3 = timer.time()
+        indexvalues, derivatives = stiffnessindex(stiffnessparams, normweights,
+                                                  tlist, dt, solution, Y_press)
+        time3 = timer.time()
         # This statement intended to cut back on the amount of data processed
         # derivatives = derivatives[2]
 
-        # stiffcomptimes.append(time3 - time2)
+        stiffcomptimes.append(time3 - time2)
 
         # stiffvals.append(indexvalues[2])
 
@@ -292,11 +292,28 @@ pyl.close('all')
 
 # Plot the solution of the temperature
 pyl.figure(0)
-pyl.xlabel('Time')
-pyl.ylabel('Temperature')
+pyl.xlabel('Time (sec)')
+pyl.ylabel('Temperature (K)')
 pyl.plot(tlist[: len(solution[:, 0])], solution[:, 0])
 if savefigures == 1:
     pyl.savefig('Autoignition_Temperature.' + figformat)
+
+# Plot the time per integration
+pyl.figure(1)
+pyl.xlabel('Time (sec)')
+pyl.ylabel('Integration time (sec)')
+pyl.plot(tlist[: len(solution[:, 0])], solutiontimes)
+if savefigures == 1:
+    pyl.savefig('Autoignition_Integration_Times.' + figformat)
+
+# Plot the stiffness index vs. time
+# Plot the time per integration
+pyl.figure(1)
+pyl.xlabel('Time (sec)')
+pyl.ylabel('Stiffness Index')
+pyl.plot(tlist[: len(solution[:, 0])], indexvalues)
+if savefigures == 1:
+    pyl.savefig('Autoignition_Stiffness_Indes.' + figformat)
 
 """
 # Plot all of the 2nd derivatives vs stiffness index
