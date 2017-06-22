@@ -163,7 +163,7 @@ normweights = wi, wj
 # Define the range of the computation
 dt = 1.e-8
 tstart = 0
-tstop = 0.05
+tstop = 0.2
 tlist = np.arange(tstart, tstop + 0.5 * dt, dt)
 
 # ODE Solver parameters
@@ -243,8 +243,6 @@ for particle in [92]:
                                  ).set_f_params(curstate, solver.t, Y_press)
 
         # Integrate the ODE across all steps
-        k = 0
-        tlist2 = []
         while solver.successful() and solver.t <= tstop:
             time0 = timer.time()
             solver.set_f_params(solver.y, solver.t, Y_press)
@@ -265,7 +263,7 @@ for particle in [92]:
         # print(dt*100.)
         # print(np.shape(solution))
         indexvalues = stiffnessindex(stiffnessparams, normweights,
-                                     tlist2, dt, solution, Y_press)
+                                     tlist, dt, solution, Y_press)
         time3 = timer.time()
         # This statement intended to cut back on the amount of data processed
         # derivatives = derivatives[2]
