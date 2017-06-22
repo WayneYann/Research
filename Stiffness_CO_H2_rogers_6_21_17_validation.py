@@ -167,8 +167,8 @@ tstop = 0.2
 tlist = np.arange(tstart, tstop + 0.5 * dt, dt)
 
 # ODE Solver parameters
-abserr = 1.0e-15
-relerr = 1.0e-13
+abserr = 1.0e-13
+relerr = 1.0e-11
 
 # Load the initial conditions from the PaSR files
 pasrarrays = []
@@ -245,6 +245,7 @@ for particle in [92]:
                                  ).set_f_params(curstate, solver.t, Y_press)
 
         # Integrate the ODE across all steps
+        print('Integrating...')
         while solver.successful() and solver.t <= tstop:
             time0 = timer.time()
             solver.set_f_params(solver.y, solver.t, Y_press)
@@ -264,6 +265,7 @@ for particle in [92]:
         # print(np.shape(tlist2))
         # print(dt*100.)
         # print(np.shape(solution))
+        print('Finding Stiffness Index...')
         indexvalues = stiffnessindex(stiffnessparams, normweights,
                                      tlist, dt, solution, Y_press)
         time3 = timer.time()
