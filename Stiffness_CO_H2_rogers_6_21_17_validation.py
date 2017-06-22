@@ -245,7 +245,7 @@ for particle in [92]:
         # Integrate the ODE across all steps
         k = 0
         tlist2 = []
-        reducingparam = 10
+        reducingparam = 1
         while solver.successful() and solver.t <= tstop:
             time0 = timer.time()
             solver.set_f_params(solver.y, solver.t, Y_press)
