@@ -244,6 +244,7 @@ for particle in [92]:
 
         # Integrate the ODE across all steps
         k = 0
+        tlist2 = []
         while solver.successful() and solver.t <= tstop:
             time0 = timer.time()
             solver.set_f_params(solver.y, solver.t, Y_press)
@@ -254,6 +255,7 @@ for particle in [92]:
             if k == 100:
                 solution.append(solver.y)
                 solutiontimes.append(time1 - time0)
+                tlist2.append(solver.t)
 
         # Convert the solution to an array for ease of use.  Maybe just using
         # numpy function to begin with would be faster?
@@ -263,7 +265,7 @@ for particle in [92]:
         time2 = timer.time()
         # indexvalues, derivatives = stiffnessindex(stiffnessparams, normweights,
         indexvalues = stiffnessindex(stiffnessparams, normweights,
-                                     tlist, dt, solution, Y_press)
+                                     tlist2, dt*100., solution, Y_press)
         time3 = timer.time()
         # This statement intended to cut back on the amount of data processed
         # derivatives = derivatives[2]
