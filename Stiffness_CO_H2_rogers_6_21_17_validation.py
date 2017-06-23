@@ -258,9 +258,10 @@ for particle in [92]:
                      jac=jacobval
                      ).set_integrator('vode',
                                       method='bdf',
-                                      nstep=10000,
+                                      # nstep=10000,
                                       atol=abserr,
-                                      rtol=relerr)
+                                      rtol=relerr
+                                      )
 
         # intrange = np.arange(currentt, currentt + dt, dt)
 
