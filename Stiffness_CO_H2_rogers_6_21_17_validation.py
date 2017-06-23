@@ -254,11 +254,11 @@ for particle in [92]:
         currentt = tstart
 
         # Specify the integrator
-        solver = ode(firstderiv,
-                     jac=jacobval
+        solver = ode(firstderiv  # ,
+                     # jac=jacobval
                      ).set_integrator('vode',
                                       method='bdf',
-                                      # nstep=10000,
+                                      nstep=10000,
                                       atol=abserr,
                                       rtol=relerr
                                       )
