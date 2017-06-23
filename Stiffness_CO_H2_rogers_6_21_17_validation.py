@@ -22,7 +22,7 @@ from scipy.integrate import ode
 pyl.ioff()
 
 
-def firstderiv(state, time, press):
+def firstderiv(time, state, press):
     """Force the integrator to use the right arguments."""
     # Need to make sure that N2 is at the end of the state array
     dy = np.zeros_like(state)
@@ -30,7 +30,7 @@ def firstderiv(state, time, press):
     return dy
 
 
-def jacobval(state, time, press):
+def jacobval(time, state, press):
     """Force the integrator to use the right arguments."""
     # Need to get rid of N2 because PyJac doesn't compute it.
     new = state[:-1]
@@ -80,7 +80,7 @@ def weightednorm(matrix, weights):
         return np.sum(matrixcol) / wi
 
 
-def stiffnessindex(sp, normweights, xlist, dx, solution, press):
+def stiffnessindex(xlist, solution, dfun, jfun, *args, **kwargs):
     """Determine the local stiffness index."""
     '''Function that uses stiffness parameters (sp), the local Jacobian matrix,
     and a vector of the local function values to determine the local stiffness
@@ -96,17 +96,53 @@ def stiffnessindex(sp, normweights, xlist, dx, solution, press):
         to save the dydx list beyond a few variables that would be needed to
         compute the higher level derivatives.
     '''
-    # Method 2 uses the weighted norm of the Jacobian, Method 1 uses the
-    # spectral radius of the Jacobian.
-    method = 1
+    SIparams = {'method': 1,
+                'gamma': 1,
+                'xi': 1,
+                'order': 1,
+                'tolerance': 1,
+                'wi': 1,
+                'wj': 1
+                }
 
-    # Unpack the parameters
-    tolerance, order, xi, gamma = sp
+    for key, value in kwargs.iteritems():
+        SIparams[key] = value
+
+    funcparams = []
+    for arg in args:
+        funcparams.append(arg)
+
+    method = SIparams['method']
+    gamma = SIparams['gamma']
+    xi = SIparams['xi']
+    order = SIparams['order']
+    tolerance = SIparams['tolerance']
+    wi = SIparams['wi']
+    wj = SIparams['wj']
+
+    normweights = wi, wj
+
+    # # Method 2 uses the weighted norm of the Jacobian, Method 1 uses the
+    # # spectral radius of the Jacobian.
+    # if not 'method' in kwargs:
+    #     method = 2
+    #
+    # # Stiffness index parameter values
+    # if not 'gamma' in kwargs:
+    #     gamma = 1.
+    # xi = 1.
+    # order = 1
+    # tolerance = 1.
+    #
+    # # Weighted norm parameters
+    # wi = 1.
+    # wj = 1.
 
     # Obtain the derivative values for the derivative of order p
+    dx = xlist[1] - xlist[0]
     dydxlist = []
     for i in range(len(solution)):
-        dydxlist.append(firstderiv(solution[i, :], xlist[i], press))
+        dydxlist.append(dfun(xlist[i], solution[i, :], funcparams[0]))
     # Raise the derivative to the order we need it
     for i in range(order):
         dydxlist = derivcd4(dydxlist, dx)
@@ -123,7 +159,7 @@ def stiffnessindex(sp, normweights, xlist, dx, solution, press):
 
     # Actual computation of the stiffness index for the method specified.
     for i in range(len(solution)):
-        jacobian = jacobval(solution[i, :], xlist[i], Y_press)
+        jacobian = jfun(xlist[i], solution[i, :], funcparams[0])
         if method == 1:
             eigenvalues = np.linalg.eigvals(jacobian)
             index = toleranceterm *\
@@ -147,18 +183,6 @@ print('Start time: {}'.format(starttime))
 savedata = 0
 savefigures = 1
 figformat = 'png'
-
-# Stiffness index parameter values to be sent to the stiffness index function
-gamma = 1.
-xi = 1.
-order = 1
-tolerance = 1.
-stiffnessparams = tolerance, order, xi, gamma
-
-# Weighted norm parameters to be sent to the weighted norm function
-wi = 1.
-wj = 1.
-normweights = wi, wj
 
 # Define the range of the computation
 dt = 1.e-8
@@ -230,8 +254,8 @@ for particle in [92]:
         currentt = tstart
 
         # Specify the integrator
-        solver = ode(firstderiv  # ,
-                     # jac=jacobval
+        solver = ode(firstderiv,
+                     jac=jacobval
                      ).set_integrator('vode',
                                       method='bdf',
                                       nstep=10000,
@@ -243,13 +267,12 @@ for particle in [92]:
         # Set initial conditions
         solver.set_initial_value(curstate,
                                  solver.t
-                                 ).set_f_params(curstate, solver.t, Y_press)
+                                 ).set_f_params(Y_press).set_jac_params(Y_press)
 
         # Integrate the ODE across all steps
         print('Integrating...')
         while solver.successful() and solver.t <= tstop:
             time0 = timer.time()
-            solver.set_f_params(solver.y, solver.t, Y_press)
             solver.integrate(solver.t + dt)
             time1 = timer.time()
             # Only going to need 1 out of X values of the solution to be saved
@@ -267,8 +290,12 @@ for particle in [92]:
         # print(dt*100.)
         # print(np.shape(solution))
         print('Finding Stiffness Index...')
-        indexvalues = stiffnessindex(stiffnessparams, normweights,
-                                     tlist, dt, solution, Y_press)
+        indexvalues = stiffnessindex(tlist,
+                                     solution,
+                                     firstderiv,
+                                     jacobval,
+                                     Y_press
+                                     )
         time3 = timer.time()
         # This statement intended to cut back on the amount of data processed
         # derivatives = derivatives[2]
