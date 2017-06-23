@@ -105,7 +105,7 @@ def stiffnessindex(xlist, solution, dfun, jfun, *args, **kwargs):
                 'wj': 1
                 }
 
-    for key, value in kwargs.iteritems():
+    for key, value in kwargs.items():
         SIparams[key] = value
 
     funcparams = []
