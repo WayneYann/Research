@@ -82,7 +82,7 @@ def weightednorm(matrix, weights):
 
 def stiffnessindex(xlist, solution, dfun, jfun, *args, **kwargs):
     """Determine the local stiffness index."""
-    '''Function that uses stiffness parameters (sp), the local Jacobian matrix,
+    '''Function that uses stiffness parameters, the local Jacobian matrix,
     and a vector of the local function values to determine the local stiffness
     index as defined in 1985 Shampine.
 
@@ -96,7 +96,7 @@ def stiffnessindex(xlist, solution, dfun, jfun, *args, **kwargs):
         to save the dydx list beyond a few variables that would be needed to
         compute the higher level derivatives.
     '''
-    SIparams = {'method': 1,
+    SIparams = {'method': 2,
                 'gamma': 1,
                 'xi': 1,
                 'order': 1,
@@ -112,31 +112,19 @@ def stiffnessindex(xlist, solution, dfun, jfun, *args, **kwargs):
     for arg in args:
         funcparams.append(arg)
 
+    # Method 2 uses the weighted norm of the Jacobian, Method 1 uses the
+    # spectral radius of the Jacobian.
     method = SIparams['method']
+    # Stiffness index parameter values
     gamma = SIparams['gamma']
     xi = SIparams['xi']
     order = SIparams['order']
     tolerance = SIparams['tolerance']
+    # Weighted norm parameters
     wi = SIparams['wi']
     wj = SIparams['wj']
 
     normweights = wi, wj
-
-    # # Method 2 uses the weighted norm of the Jacobian, Method 1 uses the
-    # # spectral radius of the Jacobian.
-    # if not 'method' in kwargs:
-    #     method = 2
-    #
-    # # Stiffness index parameter values
-    # if not 'gamma' in kwargs:
-    #     gamma = 1.
-    # xi = 1.
-    # order = 1
-    # tolerance = 1.
-    #
-    # # Weighted norm parameters
-    # wi = 1.
-    # wj = 1.
 
     # Obtain the derivative values for the derivative of order p
     dx = xlist[1] - xlist[0]
@@ -185,14 +173,14 @@ savefigures = 1
 figformat = 'png'
 
 # Define the range of the computation
-dt = 1.e-8
+dt = 1.e-5
 tstart = 0
 tstop = 0.2
 tlist = np.arange(tstart, tstop + 0.5 * dt, dt)
 
 # ODE Solver parameters
 abserr = 1.0e-16
-relerr = 1.0e-10
+relerr = 1.0e-12
 
 # Load the initial conditions from the PaSR files
 pasrarrays = []
@@ -268,7 +256,8 @@ for particle in [92]:
         # Set initial conditions
         solver.set_initial_value(curstate,
                                  solver.t
-                                 ).set_f_params(Y_press).set_jac_params(Y_press)
+                                 ).set_f_params(Y_press
+                                                ).set_jac_params(Y_press)
 
         # Integrate the ODE across all steps
         print('Integrating...')
@@ -276,7 +265,6 @@ for particle in [92]:
             time0 = timer.time()
             solver.integrate(solver.t + dt)
             time1 = timer.time()
-            # Only going to need 1 out of X values of the solution to be saved
             solution.append(solver.y)
             solutiontimes.append(time1 - time0)
 
