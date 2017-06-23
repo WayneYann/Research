@@ -30,6 +30,11 @@ def firstderiv(state, time, press):
     return dy
 
 
+def jacvdp(y, x, eta):
+    """Find the local Jacobian matrix of the Van der Pol equation."""
+    return np.array([[0., 1.], [-1. - 2*y[0]*y[1]*eta, eta-eta*y[0]**2]])
+
+
 def jacobval(state, time, press):
     """Force the integrator to use the right arguments."""
     # Need to get rid of N2 because PyJac doesn't compute it.
@@ -39,6 +44,30 @@ def jacobval(state, time, press):
     pyjacob.py_eval_jacobian(time, press, new, jacobian)
     jacobian = np.reshape(jacobian, (a, a))
     return jacobian
+
+
+def dydx(y, x, eta):
+    """Find the local vector of the first derivative of the Van der Pol eqn."""
+    # Unpack the y vector
+    y1 = y[0]
+    y2 = y[1]
+
+    # Create dydx vector (y1', y2')
+    f = np.array([y2, eta*y2 - y1 - eta*y2*y1**2.])
+    # print(f)
+    return f
+
+
+def d2ydx2(y, x, eta):
+    """Find the local vector of the 2nd derivative of the Van der Pol eqn."""
+    # Unpack the y vector
+    y1 = y[0]
+    y2 = y[1]
+
+    # Create vector of the second derivative
+    y2prime = eta*y2 - y1 - eta*y2*y1**2.
+    f = np.array([y2prime, eta*y2prime - y2 - 2*eta*y1*y2 - eta*y2prime*y1**2])
+    return f
 
 
 def derivcd4(vals, dx):
@@ -80,7 +109,7 @@ def weightednorm(matrix, weights):
         return np.sum(matrixcol) / wi
 
 
-def stiffnessindex(sp, normweights, xlist, dx, solution, press):
+def stiffnessindex(sp, normweights, xlist, dx, solution, press, dfun, jfun):
     """Determine the local stiffness index."""
     '''Function that uses stiffness parameters (sp), the local Jacobian matrix,
     and a vector of the local function values to determine the local stiffness
@@ -105,8 +134,9 @@ def stiffnessindex(sp, normweights, xlist, dx, solution, press):
 
     # Obtain the derivative values for the derivative of order p
     dydxlist = []
+
     for i in range(len(solution)):
-        dydxlist.append(firstderiv(solution[i, :], xlist[i], press))
+        dydxlist.append(dfun(solution[i, :], xlist[i], press))
     # Raise the derivative to the order we need it
     for i in range(order):
         dydxlist = derivcd4(dydxlist, dx)
@@ -123,7 +153,7 @@ def stiffnessindex(sp, normweights, xlist, dx, solution, press):
 
     # Actual computation of the stiffness index for the method specified.
     for i in range(len(solution)):
-        jacobian = jacobval(solution[i, :], xlist[i], Y_press)
+        jacobian = jfun(solution[i, :], xlist[i], press)
         if method == 1:
             eigenvalues = np.linalg.eigvals(jacobian)
             index = toleranceterm *\
@@ -142,6 +172,7 @@ def stiffnessindex(sp, normweights, xlist, dx, solution, press):
 
 # Finding the current time to time how long the simulation takes
 starttime = datetime.datetime.now()
+print('----------------------------------------------')
 print('Start time: {}'.format(starttime))
 
 savedata = 0
@@ -161,31 +192,31 @@ wj = 1.
 normweights = wi, wj
 
 # Define the range of the computation
-dt = 1.e-8
+dt = 1.e-2
 tstart = 0
-tstop = 0.2
+tstop = 3000.
 tlist = np.arange(tstart, tstop + 0.5 * dt, dt)
 
 # ODE Solver parameters
-abserr = 1.0e-16
-relerr = 1.0e-10
+abserr = 1.0e-14
+relerr = 1.0e-8
 
 # Load the initial conditions from the PaSR files
-pasrarrays = []
-print('Loading data...')
-for i in range(9):
-    filepath = os.path.join(os.getcwd(), 'pasr_out_h2-co_' + str(i) + '.npy')
-    filearray = np.load(filepath)
-    pasrarrays.append(filearray)
-
-pasr = np.concatenate(pasrarrays, 1)
+# pasrarrays = []
+# print('Loading data...')
+# for i in range(9):
+#     filepath = os.path.join(os.getcwd(), 'pasr_out_h2-co_' + str(i) + '.npy')
+#     filearray = np.load(filepath)
+#     pasrarrays.append(filearray)
+#
+# pasr = np.concatenate(pasrarrays, 1)
 
 # Initialize the array of stiffness index values
 # numparticles = len(pasr[0, :, 0])
 # numtsteps = len(pasr[:, 0, 0])
 
 # Cheated a little here and entered the number of variables to code faster
-numparams = 15
+# numparams = 15
 # pasrstiffnesses = np.zeros((numtsteps, numparticles))
 # pasrstiffnesses2 = np.zeros((numtsteps, numparticles, numparams))
 
@@ -203,26 +234,28 @@ for particle in [92]:
     for tstep in [4]:
         #        print(tstep)
         # Get the initial condition.
-        Y = pasr[tstep, particle, :].copy()
+        # Y = pasr[tstep, particle, :].copy()
 
         # Rearrange the array for the initial condition
-        press_pos = 2
-        temp_pos = 1
-        arraylen = len(Y)
-
-        Y_press = Y[press_pos]
-        Y_temp = Y[temp_pos]
-        Y_species = Y[3:arraylen]
-        Ys = np.hstack((Y_temp, Y_species))
+        # press_pos = 2
+        # temp_pos = 1
+        # arraylen = len(Y)
+        #
+        # Y_press = Y[press_pos]
+        # Y_temp = Y[temp_pos]
+        # Y_species = Y[3:arraylen]
+        # Ys = np.hstack((Y_temp, Y_species))
 
         # Put N2 to the last value of the mass species
-        N2_pos = 9
-        newarlen = len(Ys)
-        Y_N2 = Ys[N2_pos]
-        Y_x = Ys[newarlen - 1]
-        for i in range(N2_pos, newarlen - 1):
-            Ys[i] = Ys[i + 1]
-        Ys[newarlen - 1] = Y_N2
+        # N2_pos = 9
+        # newarlen = len(Ys)
+        # Y_N2 = Ys[N2_pos]
+        # Y_x = Ys[newarlen - 1]
+        # for i in range(N2_pos, newarlen - 1):
+        #     Ys[i] = Ys[i + 1]
+        # Ys[newarlen - 1] = Y_N2
+        Ys = np.array([2, 0])
+        eta = 1000.
 
         # Call the integrator and time it
         solution = []
@@ -230,27 +263,42 @@ for particle in [92]:
         currentt = tstart
 
         # Specify the integrator
-        solver = ode(firstderiv  # ,
-                     # jac=jacobval
+        solver = ode(dydx,
+                     jac=jacvdp
                      ).set_integrator('vode',
                                       method='bdf',
-                                      nstep=10000,
+                                      nsteps=100000000,
                                       atol=abserr,
-                                      rtol=relerr)
+                                      rtol=relerr
+                                      )
 
         # intrange = np.arange(currentt, currentt + dt, dt)
 
         # Set initial conditions
-        solver.set_initial_value(curstate,
+        solver.set_initial_value(Ys,
                                  solver.t
-                                 ).set_f_params(curstate, solver.t, Y_press)
+                                 ).set_f_params(Ys,
+                                                solver.t,
+                                                eta
+                                                ).set_jac_params(Ys,
+                                                                 solver.t,
+                                                                 eta)
 
         # Integrate the ODE across all steps
         print('Integrating...')
         while solver.successful() and solver.t <= tstop:
             time0 = timer.time()
-            solver.set_f_params(solver.y, solver.t, Y_press)
+            solver.set_f_params(solver.y,
+                                solver.t,
+                                eta
+                                ).set_jac_params(solver.y,
+                                                 solver.t,
+                                                 eta)
             solver.integrate(solver.t + dt)
+            # if int(solver.t) % 100 == 0:
+            #     print(solver.y[0])
+            # print(solver.y)
+            # print('This statement')
             time1 = timer.time()
             # Only going to need 1 out of X values of the solution to be saved
             solution.append(solver.y)
@@ -268,7 +316,7 @@ for particle in [92]:
         # print(np.shape(solution))
         print('Finding Stiffness Index...')
         indexvalues = stiffnessindex(stiffnessparams, normweights,
-                                     tlist, dt, solution, Y_press)
+                                     tlist[1:], dt, solution, eta, dydx, jacvdp)
         time3 = timer.time()
         # This statement intended to cut back on the amount of data processed
         # derivatives = derivatives[2]
@@ -306,19 +354,19 @@ pyl.close('all')
 # Plot the solution of the temperature
 pyl.figure(0)
 pyl.xlabel('Time (sec)')
-pyl.ylabel('Temperature (K)')
+pyl.ylabel('Y Value')
 pyl.plot(tlist[: len(tempnums)], tempnums)
 if savefigures == 1:
-    pyl.savefig('Autoignition_Temperature.' + figformat)
+    pyl.savefig('VDP_Y_Value.' + figformat)
 
 # Plot the time per integration
 pyl.figure(1)
 pyl.xlabel('Time (sec)')
 pyl.ylabel('Integration time (sec)')
-pyl.ylim(0, 0.005)
+# pyl.ylim(0, 0.005)
 pyl.plot(tlist[: len(tempnums)], solutiontimes)
 if savefigures == 1:
-    pyl.savefig('Autoignition_Integration_Times.' + figformat)
+    pyl.savefig('VDP_Integration_Times.' + figformat)
 
 # Plot the stiffness index vs. time
 # Plot the time per integration
@@ -328,7 +376,7 @@ pyl.ylabel('Stiffness Index')
 pyl.yscale('log')
 pyl.plot(tlist[: len(solution[:-3, 0])], indexvalues[:-3])
 if savefigures == 1:
-    pyl.savefig('Autoignition_Stiffness_Index.' + figformat)
+    pyl.savefig('VDP_Stiffness_Index.' + figformat)
 
 """
 # Plot all of the 2nd derivatives vs stiffness index
