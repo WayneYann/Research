@@ -140,7 +140,7 @@ def stiffnessindex(xlist, solution, dfun, jfun, *args, **kwargs):
     dx = xlist[1] - xlist[0]
     dydxlist = []
     for i in range(len(solution)):
-        dydxlist.append(dfun(xlist[i], solution[i, :], args))
+        dydxlist.append(dfun(xlist[i], solution[i, :], [arg for arg in args]))
     # Raise the derivative to the order we need it
     for i in range(order):
         dydxlist = derivcd4(dydxlist, dx)
@@ -157,7 +157,7 @@ def stiffnessindex(xlist, solution, dfun, jfun, *args, **kwargs):
 
     # Actual computation of the stiffness index for the method specified.
     for i in range(len(solution)):
-        jacobian = jfun(xlist[i], solution[i, :], args)
+        jacobian = jfun(xlist[i], solution[i, :], [arg for arg in args])
         if method == 1:
             eigenvalues = np.linalg.eigvals(jacobian)
             index = toleranceterm *\
