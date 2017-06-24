@@ -180,9 +180,9 @@ savefigures = 1
 figformat = 'png'
 
 # Define the range of the computation
-dt = 1.e-3
-tstart = 0
-tstop = 0.2
+dt = 1.e-8
+tstart = 0.
+tstop = 5 * dt
 tlist = np.arange(tstart, tstop + 0.5 * dt, dt)
 
 # ODE Solver parameters
@@ -200,8 +200,8 @@ for i in range(9):
 pasr = np.concatenate(pasrarrays, 1)
 
 # Initialize the array of stiffness index values
-# numparticles = len(pasr[0, :, 0])
-# numtsteps = len(pasr[:, 0, 0])
+numparticles = len(pasr[0, :, 0])
+numtsteps = len(pasr[:, 0, 0])
 
 # Cheated a little here and entered the number of variables to code faster
 numparams = 15
@@ -217,9 +217,9 @@ stiffvals = []
 
 # Loop through the PaSR file for initial conditions
 print('Code progress:')
-for particle in [92]:
-    # print(particle)
-    for tstep in [4]:
+for particle in range(numparticles):
+    print(particle)
+    for tstep in range(numtsteps):
         #        print(tstep)
         # Get the initial condition.
         Y = pasr[tstep, particle, :].copy()
@@ -249,8 +249,8 @@ for particle in [92]:
         currentt = tstart
 
         # Specify the integrator
-        solver = ode(firstderiv  # ,
-                     # jac=jacobval
+        solver = ode(firstderiv,
+                     jac=jacobval
                      ).set_integrator('vode',
                                       method='bdf',
                                       nsteps=99999999,
@@ -262,7 +262,7 @@ for particle in [92]:
 
         # Set initial conditions
         solver.set_initial_value(curstate,
-                                 solver.t
+                                 tstart
                                  ).set_f_params(Y_press
                                                 ).set_jac_params(Y_press)
 
@@ -298,7 +298,7 @@ for particle in [92]:
 
         stiffcomptimes.append(time3 - time2)
 
-        # stiffvals.append(indexvalues[2])
+        stiffvals.append(indexvalues[2])
 
         # Commented old code for the maximum eigenvalue or CEMA analysis
         # expeigs[tstep,particle] = np.log10(maxeig)
@@ -325,7 +325,7 @@ pyl.close('all')
 # print(np.shape(solution[:, 0]))
 # print('tlist shape:')
 # print(np.shape(tlist[1: len(solution[:, 0])]))
-
+"""
 # Plot the solution of the temperature
 pyl.figure(0)
 pyl.xlabel('Time (sec)')
@@ -355,7 +355,7 @@ pyl.xlim(tstart, tstop)
 pyl.plot(tlist[: len(solution[:-3, 0])], indexvalues[:-3])
 if savefigures == 1:
     pyl.savefig('Autoignition_Stiffness_Index' + str(dt) + '.' + figformat)
-
+"""
 """
 # Plot all of the 2nd derivatives vs stiffness index
 for i in range(14):
@@ -399,7 +399,6 @@ finishtime = datetime.datetime.now()
 print('Finish time: {}'.format(finishtime))
 """
 
-"""
 # Ratios of the stiffness computation times to integration times
 ratios = []
 for i in range(len(solutiontimes)):
@@ -439,7 +438,7 @@ pyl.xlabel('Computation Number')
 pyl.ylabel('Stiffness Index Computation Time')
 pyl.scatter(range(datanum), stiffcomptimes, 0.1)
 if savefigures == 1:
-    pyl.savefig('Stiff_Comp_Times.' + figformat)
+    pyl.savefig('Stiff_Comp_Times_6_24.' + figformat)
 
 # Plot of ratio of stiffness computation times vs. integration times
 pyl.figure(2)
@@ -449,7 +448,7 @@ pyl.xlabel('Particle Number')
 pyl.ylabel('Ratio')
 pyl.scatter(range(datanum), ratios, 0.1)
 if savefigures == 1:
-    pyl.savefig('Stiff_Comp_Ratios.' + figformat)
+    pyl.savefig('Stiff_Comp_Ratios_6_24.' + figformat)
 
 # Plot of stiffness computation times vs. stiffness index
 pyl.figure(3)
@@ -459,7 +458,7 @@ pyl.xlim(0., max(solutiontimes))
 pyl.ylim(0., max(stiffcomptimes))
 pyl.scatter(stiffcomptimes, stiffvals, 0.1)
 if savefigures == 1:
-    pyl.savefig('Stiffcomp_Stiffvals.' + figformat)
+    pyl.savefig('Stiffcomp_Stiffvals_6_24.' + figformat)
 
 # Plot of stiffness computation times vs. stiffness index
 pyl.figure(4)
@@ -469,8 +468,8 @@ pyl.xlim(0., max(solutiontimes))
 pyl.ylim(0., max(stiffvals))
 pyl.scatter(solutiontimes, stiffvals, 0.1)
 if savefigures == 1:
-    pyl.savefig('Int_Stiffvals1.' + figformat)
-"""
+    pyl.savefig('Int_Stiffvals_6_24.' + figformat)
+
 
 """
 # Plot the stiffness at every point in the PaSR simulation
