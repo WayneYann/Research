@@ -7,7 +7,7 @@ Created on Fri Feb 17 14:54:13 2017
 """
 
 import matplotlib
-# matplotlib.use('Agg')
+matplotlib.use('Agg')
 import os as os
 import numpy as np
 import pyjacob as pyjacob
@@ -19,7 +19,7 @@ import time as timer
 # from scipy.integrate import odeint
 from scipy.integrate import ode
 
-# pyl.ioff()
+pyl.ioff()
 
 
 def firstderiv(time, state, press):
@@ -222,7 +222,7 @@ print('----------------------------------------------')
 print('Start time: {}'.format(starttime))
 
 savedata = 0
-savefigures = 0
+savefigures = 1
 figformat = 'png'
 
 # Define the range of the computation
@@ -232,8 +232,8 @@ tstop = 1000.
 tlist = np.arange(tstart, tstop + 0.5 * dt, dt)
 
 # ODE Solver parameters
-abserr = 1.0e-16
-relerr = 1.0e-12
+abserr = 1.0e-17
+relerr = 1.0e-15
 
 # Load the initial conditions from the PaSR files
 # pasrarrays = []
@@ -378,6 +378,7 @@ pyl.close('all')
 pyl.figure(0)
 pyl.xlabel('X Value')
 pyl.ylabel('Y Value')
+pyl.xlim(tstart, tstop)
 pyl.plot(tlist[: len(tempnums)], tempnums)
 pyl.grid(b=True, which='both')
 if savefigures == 1:
@@ -387,18 +388,19 @@ if savefigures == 1:
 pyl.figure(1)
 pyl.xlabel('Time (sec)')
 pyl.ylabel('Integration time (sec)')
-# pyl.ylim(0, 0.005)
+pyl.ylim(0, max(solutiontimes))
+pyl.xlim(tstart, tstop)
 pyl.plot(tlist[: len(tempnums)], solutiontimes)
 pyl.grid(b=True, which='both')
 if savefigures == 1:
     pyl.savefig('VDP_Integration_Times.' + figformat)
 
 # Plot the stiffness index vs. time
-# Plot the time per integration
 pyl.figure(2)
 pyl.xlabel('Time (sec)')
 pyl.ylabel('Stiffness Index')
 pyl.yscale('log')
+pyl.xlim(tstart, tstop)
 pyl.plot(tlist[: len(solution[:-3, 0])], indexvalues[:-3])
 pyl.grid(b=True, which='both')
 if savefigures == 1:
@@ -420,6 +422,7 @@ fig3 = pyl.figure(3)
 x = fig3.add_subplot(111)
 pyl.xlabel('X Value')
 pyl.ylabel('Y Value')
+pyl.xlim(tstart, tstop)
 pyl.ylim(-0.01, 0.01)
 pyl.plot(tlist, solutioncd, label='CD 2nd Deriv')
 pyl.plot(tlist, solution2, label='Analytical 2nd Deriv')

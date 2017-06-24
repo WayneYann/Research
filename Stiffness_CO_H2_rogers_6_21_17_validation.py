@@ -330,6 +330,7 @@ pyl.close('all')
 pyl.figure(0)
 pyl.xlabel('Time (sec)')
 pyl.ylabel('Temperature (K)')
+pyl.xlim(tstart, tstop)
 pyl.plot(tlist[: len(tempnums)], tempnums)
 if savefigures == 1:
     pyl.savefig('Autoignition_Temperature' + str(dt) + '.' + figformat)
@@ -338,6 +339,7 @@ if savefigures == 1:
 pyl.figure(1)
 pyl.xlabel('Time (sec)')
 pyl.ylabel('Integration time (sec)')
+pyl.xlim(tstart, tstop)
 # pyl.ylim(0, 0.005)
 pyl.plot(tlist[: len(tempnums)], solutiontimes)
 if savefigures == 1:
@@ -349,6 +351,7 @@ pyl.figure(2)
 pyl.xlabel('Time (sec)')
 pyl.ylabel('Stiffness Index')
 pyl.yscale('log')
+pyl.xlim(tstart, tstop)
 pyl.plot(tlist[: len(solution[:-3, 0])], indexvalues[:-3])
 if savefigures == 1:
     pyl.savefig('Autoignition_Stiffness_Index' + str(dt) + '.' + figformat)
