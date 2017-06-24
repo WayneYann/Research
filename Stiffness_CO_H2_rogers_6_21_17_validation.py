@@ -118,9 +118,9 @@ def stiffnessindex(xlist, solution, dfun, jfun, *args, **kwargs):
     for key, value in kwargs.items():
         SIparams[key] = value
 
-    # funcparams = []
-    # for arg in args:
-    #     funcparams.append(arg)
+    funcparams = []
+    for arg in args:
+        funcparams.append(arg)
 
     # Method 2 uses the weighted norm of the Jacobian, Method 1 uses the
     # spectral radius of the Jacobian.
@@ -140,7 +140,7 @@ def stiffnessindex(xlist, solution, dfun, jfun, *args, **kwargs):
     dx = xlist[1] - xlist[0]
     dydxlist = []
     for i in range(len(solution)):
-        dydxlist.append(dfun(xlist[i], solution[i, :], [arg for arg in args]))
+        dydxlist.append(dfun(xlist[i], solution[i, :], funcparams[0]))
     # Raise the derivative to the order we need it
     for i in range(order):
         dydxlist = derivcd4(dydxlist, dx)
@@ -157,7 +157,7 @@ def stiffnessindex(xlist, solution, dfun, jfun, *args, **kwargs):
 
     # Actual computation of the stiffness index for the method specified.
     for i in range(len(solution)):
-        jacobian = jfun(xlist[i], solution[i, :], [arg for arg in args])
+        jacobian = jfun(xlist[i], solution[i, :], funcparams[0])
         if method == 1:
             eigenvalues = np.linalg.eigvals(jacobian)
             index = toleranceterm *\
@@ -183,9 +183,9 @@ savefigures = 0
 figformat = 'png'
 
 # Define the range of the computation
-dt = 1.e-5
+dt = 1.e-3
 tstart = 0
-tstop = 10. * dt
+tstop = 0.2
 tlist = np.arange(tstart, tstop + 0.5 * dt, dt)
 
 # ODE Solver parameters
@@ -335,7 +335,7 @@ pyl.xlabel('Time (sec)')
 pyl.ylabel('Temperature (K)')
 pyl.plot(tlist[: len(tempnums)], tempnums)
 if savefigures == 1:
-    pyl.savefig('Autoignition_Temperature.' + figformat)
+    pyl.savefig('Autoignition_Temperature' + str(dt) + '.' + figformat)
 
 # Plot the time per integration
 pyl.figure(1)
@@ -344,7 +344,7 @@ pyl.ylabel('Integration time (sec)')
 pyl.ylim(0, 0.005)
 pyl.plot(tlist[: len(tempnums)], solutiontimes)
 if savefigures == 1:
-    pyl.savefig('Autoignition_Integration_Times.' + figformat)
+    pyl.savefig('Autoignition_Integration_Times' + str(dt) + '.' + figformat)
 
 # Plot the stiffness index vs. time
 # Plot the time per integration
@@ -354,7 +354,7 @@ pyl.ylabel('Stiffness Index')
 pyl.yscale('log')
 pyl.plot(tlist[: len(solution[:-3, 0])], indexvalues[:-3])
 if savefigures == 1:
-    pyl.savefig('Autoignition_Stiffness_Index.' + figformat)
+    pyl.savefig('Autoignition_Stiffness_Index' + str(dt) + '.' + figformat)
 
 """
 # Plot all of the 2nd derivatives vs stiffness index

@@ -7,7 +7,7 @@ Created on Fri Feb 17 14:54:13 2017
 """
 
 import matplotlib
-matplotlib.use('Agg')
+# matplotlib.use('Agg')
 import os as os
 import numpy as np
 import pyjacob as pyjacob
@@ -19,7 +19,7 @@ import time as timer
 # from scipy.integrate import odeint
 from scipy.integrate import ode
 
-pyl.ioff()
+# pyl.ioff()
 
 
 def firstderiv(time, state, press):
@@ -111,9 +111,10 @@ def weightednorm(matrix, weights):
         return np.sum(matrixcol) / wi
 
 
-def stiffnessindex(sp, normweights, xlist, dx, solution, press, dfun, jfun):
-    """Determine the local stiffness index."""
-    '''Function that uses stiffness parameters (sp), the local Jacobian matrix,
+def stiffnessindex(xlist, solution, dfun, jfun, *args, **kwargs):
+    """Determine the local stiffness index.
+
+    Function that uses stiffness parameters, the local Jacobian matrix,
     and a vector of the local function values to determine the local stiffness
     index as defined in 1985 Shampine.
 
@@ -126,28 +127,50 @@ def stiffnessindex(sp, normweights, xlist, dx, solution, press, dfun, jfun):
         of the values as the integration goes.  This would eliminate the need
         to save the dydx list beyond a few variables that would be needed to
         compute the higher level derivatives.
-        3.  Make the parameters passed to this function optional.
-    '''
+    """
+    SIparams = {'method': 2,
+                'gamma': 1,
+                'xi': 1,
+                'order': 1,
+                'tolerance': 1,
+                'wi': 1,
+                'wj': 1
+                }
+
+    for key, value in kwargs.items():
+        SIparams[key] = value
+
+    funcparams = []
+    for arg in args:
+        funcparams.append(arg)
+
     # Method 2 uses the weighted norm of the Jacobian, Method 1 uses the
     # spectral radius of the Jacobian.
-    method = 2
+    method = SIparams['method']
+    # Stiffness index parameter values
+    gamma = SIparams['gamma']
+    xi = SIparams['xi']
+    order = SIparams['order']
+    tolerance = SIparams['tolerance']
+    # Weighted norm parameters
+    wi = SIparams['wi']
+    wj = SIparams['wj']
 
-    # Unpack the parameters
-    tolerance, order, xi, gamma = sp
+    normweights = wi, wj
 
     # Obtain the derivative values for the derivative of order p
+    dx = xlist[1] - xlist[0]
     dydxlist = []
 
-    # valtime = timer.time()
+    valtime = timer.time()
     for i in range(len(solution)):
-        dydxlist.append(d2ydx2(xlist[i], solution[i], eta))
-    #     dydxlist.append(dfun(xlist[i], solution[i, :], press))
-    # print('Time to get derivative: {}'.format(timer.time() - valtime))
+        dydxlist.append(dfun(xlist[i], solution[i, :], funcparams[0]))
+        # dydxlist.append(d2ydx2(xlist[i], solution[i], funcparams[0]))
+    print('Time to get derivative: {}'.format(timer.time() - valtime))
     # Raise the derivative to the order we need it
-    # for i in range(order):
-    #     dydxlist = derivcd4(dydxlist, dx)
+    for i in range(order):
+        dydxlist = derivcd4(dydxlist, dx)
     dydxlist = np.array(dydxlist)
-
 
     # Create a list to return for all the index values in a function
     indexlist = []
@@ -165,7 +188,7 @@ def stiffnessindex(sp, normweights, xlist, dx, solution, press, dfun, jfun):
     dnormtime = 0.0
     for i in range(len(solution)):
         jtime = timer.time()
-        jacobian = jfun(xlist[i], solution[i, :], press)
+        jacobian = jfun(xlist[i], solution[i, :], funcparams[0])
         jactime += timer.time() - jtime
         if method == 1:
             etime = timer.time()
@@ -199,23 +222,11 @@ print('----------------------------------------------')
 print('Start time: {}'.format(starttime))
 
 savedata = 0
-savefigures = 1
+savefigures = 0
 figformat = 'png'
 
-# Stiffness index parameter values to be sent to the stiffness index function
-gamma = 1.
-xi = 1.
-order = 1
-tolerance = 1.
-stiffnessparams = tolerance, order, xi, gamma
-
-# Weighted norm parameters to be sent to the weighted norm function
-wi = 1.
-wj = 1.
-normweights = wi, wj
-
 # Define the range of the computation
-dt = 1.e-5
+dt = 1.e-3
 tstart = 0
 tstop = 1000.
 tlist = np.arange(tstart, tstop + 0.5 * dt, dt)
@@ -322,14 +333,11 @@ for particle in [92]:
         # print(dt*100.)
         # print(np.shape(solution))
         print('Finding Stiffness Index...')
-        indexvalues = stiffnessindex(stiffnessparams,
-                                     normweights,
-                                     tlist,
-                                     dt,
+        indexvalues = stiffnessindex(tlist,
                                      solution,
-                                     eta,
                                      dydx,
-                                     jacvdp
+                                     jacvdp,
+                                     eta
                                      )
         time3 = timer.time()
         # This statement intended to cut back on the amount of data processed
@@ -398,9 +406,7 @@ if savefigures == 1:
 
 # Make sure that the CD formula is working correctly
 solution2 = []
-print(np.shape(solution))
 y1sol = np.array(solution[:, 0])
-print(np.shape(y1sol))
 for i in range(len(solution)):
     solution2.append(d2ydx2(tlist[i], solution[i], eta))
 solutioncd = derivcd4(y1sol, dt)
@@ -562,4 +568,4 @@ if savefigures == 1:
     pyl.savefig('PaSR_Range_Stiffness_Index.' + figformat)
 """
 # pyl.close('all')
-# pyl.show()
+pyl.show()
