@@ -221,7 +221,7 @@ numparticles = 5
 
 print('Code progress:')
 for particle in range(numparticles):
-    print(particle)
+    # print(particle)
     for tstep in range(numtsteps):
         #        print(tstep)
         # Get the initial condition.
@@ -270,7 +270,7 @@ for particle in range(numparticles):
                                                 ).set_jac_params(Y_press)
 
         # Integrate the ODE across all steps
-        print('Integrating...')
+        # print('Integrating...')
         k = 0
         while solver.successful() and solver.t <= tstop:
             time0 = timer.time()
