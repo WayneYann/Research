@@ -447,7 +447,7 @@ if savefigures == 1:
 # Plot of ratio of stiffness computation times vs. integration times
 pyl.figure(2)
 pyl.xlim(0, datanum)
-# pyl.ylim(0,)
+pyl.ylim(0, max(ratios))
 pyl.xlabel('Particle Number')
 pyl.ylabel('Ratio')
 pyl.scatter(range(datanum), ratios, 0.1)
@@ -458,8 +458,8 @@ if savefigures == 1:
 pyl.figure(3)
 pyl.ylabel('Stiffness Index ')
 pyl.xlabel('Stiffness Index Computation Time')
-pyl.xlim(min(stiffvals), max(stiffvals))
-pyl.ylim(0., max(stiffcomptimes))
+pyl.ylim(min(stiffvals), max(stiffvals))
+pyl.xlim(0., max(stiffcomptimes))
 pyl.yscale('log')
 pyl.scatter(stiffcomptimes, stiffvals, 0.1)
 if savefigures == 1:
@@ -470,7 +470,7 @@ pyl.figure(4)
 pyl.ylabel('Stiffness Index ')
 pyl.xlabel('Integration Time')
 pyl.xlim(0., max(solutiontimes))
-pyl.xlim(min(stiffvals), max(stiffvals))
+pyl.ylim(min(stiffvals), max(stiffvals))
 pyl.yscale('log')
 pyl.scatter(solutiontimes, stiffvals, 0.1)
 if savefigures == 1:
