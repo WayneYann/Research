@@ -179,7 +179,7 @@ starttime = datetime.datetime.now()
 print('Start time: {}'.format(starttime))
 
 savedata = 0
-savefigures = 1
+savefigures = 0
 figformat = 'png'
 
 # Define the range of the computation
