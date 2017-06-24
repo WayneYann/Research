@@ -252,8 +252,8 @@ for particle in range(numparticles):
         currentt = tstart
 
         # Specify the integrator
-        solver = ode(firstderiv,
-                     jac=jacobval
+        solver = ode(firstderiv  # ,
+                     # jac=jacobval
                      ).set_integrator('vode',
                                       method='bdf',
                                       nsteps=99999999,
