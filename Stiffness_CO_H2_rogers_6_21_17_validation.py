@@ -50,16 +50,13 @@ def derivcd4(vals, dx):
     """
     deriv = []
     for i in range(2):
-        print(i)
         deriv.append((-3 * vals[i] + 4 * vals[i + 1] - vals[i + 2]) / (2 * dx))
     for i in range(2, len(vals) - 2):
-        print(i)
         deriv.append(((-1 * vals[i + 2]) + (8 * vals[i + 1]) -
                      (8 * vals[i - 1]) + vals[i - 2]) /
                      (12 * dx)
                      )
     for i in range((len(vals) - 2), len(vals)):
-        print(i)
         deriv.append((3 * vals[i] - 4 * vals[i - 1] + vals[i - 2]) / 2 * dx)
     return deriv
 
@@ -179,11 +176,11 @@ starttime = datetime.datetime.now()
 print('Start time: {}'.format(starttime))
 
 savedata = 0
-savefigures = 0
+savefigures = 1
 figformat = 'png'
 
 # Define the range of the computation
-dt = 1.e-3
+dt = 1.e-4
 tstart = 0
 tstop = 0.2
 tlist = np.arange(tstart, tstop + 0.5 * dt, dt)
@@ -256,7 +253,7 @@ for particle in [92]:
                      # jac=jacobval
                      ).set_integrator('vode',
                                       method='bdf',
-                                      nsteps=10000,
+                                      nsteps=99999999,
                                       atol=abserr,
                                       rtol=relerr
                                       )
