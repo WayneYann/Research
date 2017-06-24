@@ -284,7 +284,7 @@ for particle in range(numparticles):
         # Convert the solution to an array for ease of use.  Maybe just using
         # numpy function to begin with would be faster?
         solution = np.array(solution)
-        tempnums = np.array(solution[:, 0])
+        # tempnums = np.array(solution[:, 0])
         # Find the stiffness index across the range of the solution and time it
         time2 = timer.time()
         # indexvalues, derivatives = stiffnessindex(stiffnessparams, normweights,
