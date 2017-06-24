@@ -192,7 +192,7 @@ relerr = 1.0e-15
 # Load the initial conditions from the PaSR files
 pasrarrays = []
 print('Loading data...')
-for i in range(9):
+for i in range(1):
     filepath = os.path.join(os.getcwd(), 'pasr_out_h2-co_' + str(i) + '.npy')
     filearray = np.load(filepath)
     pasrarrays.append(filearray)
@@ -216,8 +216,6 @@ stiffvals = []
 # expeigs = np.zeros((numtsteps, numparticles))
 
 # Loop through the PaSR file for initial conditions
-
-numparticles = 5
 
 print('Code progress:')
 for particle in range(numparticles):
@@ -284,7 +282,7 @@ for particle in range(numparticles):
         # Convert the solution to an array for ease of use.  Maybe just using
         # numpy function to begin with would be faster?
         solution = np.array(solution)
-        # tempnums = np.array(solution[:, 0])
+        tempnums = np.array(solution[:, 0])
         # Find the stiffness index across the range of the solution and time it
         time2 = timer.time()
         # indexvalues, derivatives = stiffnessindex(stiffnessparams, normweights,
