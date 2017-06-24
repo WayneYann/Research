@@ -217,6 +217,8 @@ stiffvals = []
 
 # Loop through the PaSR file for initial conditions
 
+numparticles = 5
+
 print('Code progress:')
 for particle in range(numparticles):
     print(particle)
@@ -289,7 +291,7 @@ for particle in range(numparticles):
         # print(np.shape(tlist2))
         # print(dt*100.)
         # print(np.shape(solution))
-        print('Finding Stiffness Index...')
+        # print('Finding Stiffness Index...')
         indexvalues = stiffnessindex(tlist,
                                      solution,
                                      firstderiv,
