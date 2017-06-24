@@ -216,6 +216,9 @@ stiffvals = []
 # expeigs = np.zeros((numtsteps, numparticles))
 
 # Loop through the PaSR file for initial conditions
+
+numparticles = 5
+
 print('Code progress:')
 for particle in range(numparticles):
     print(particle)
@@ -268,12 +271,15 @@ for particle in range(numparticles):
 
         # Integrate the ODE across all steps
         print('Integrating...')
+        k = 0
         while solver.successful() and solver.t <= tstop:
             time0 = timer.time()
             solver.integrate(solver.t + dt)
             time1 = timer.time()
-            solution.append(solver.y)
-            solutiontimes.append(time1 - time0)
+            # solution.append(solver.y)
+            if k == 2:
+                solutiontimes.append(time1 - time0)
+            k += 1
 
         # Convert the solution to an array for ease of use.  Maybe just using
         # numpy function to begin with would be faster?
