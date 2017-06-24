@@ -192,7 +192,7 @@ relerr = 1.0e-15
 # Load the initial conditions from the PaSR files
 pasrarrays = []
 print('Loading data...')
-for i in range(1):
+for i in range(9):
     filepath = os.path.join(os.getcwd(), 'pasr_out_h2-co_' + str(i) + '.npy')
     filearray = np.load(filepath)
     pasrarrays.append(filearray)
@@ -458,8 +458,9 @@ if savefigures == 1:
 pyl.figure(3)
 pyl.ylabel('Stiffness Index ')
 pyl.xlabel('Stiffness Index Computation Time')
-pyl.xlim(0., max(solutiontimes))
+pyl.xlim(0., max(stiffvals))
 pyl.ylim(0., max(stiffcomptimes))
+pyl.yscale('log')
 pyl.scatter(stiffcomptimes, stiffvals, 0.1)
 if savefigures == 1:
     pyl.savefig('Stiffcomp_Stiffvals_6_24.' + figformat)
@@ -470,6 +471,7 @@ pyl.ylabel('Stiffness Index ')
 pyl.xlabel('Integration Time')
 pyl.xlim(0., max(solutiontimes))
 pyl.ylim(0., max(stiffvals))
+pyl.yscale('log')
 pyl.scatter(solutiontimes, stiffvals, 0.1)
 if savefigures == 1:
     pyl.savefig('Int_Stiffvals_6_24.' + figformat)
