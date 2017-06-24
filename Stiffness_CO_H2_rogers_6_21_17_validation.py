@@ -42,10 +42,12 @@ def jacobval(time, state, press):
 
 
 def derivcd4(vals, dx):
-    """Take the derivative of a series using 4th order central differencing."""
-    """Given a list of values at equally spaced points, returns the first
+    """Take the derivative of a series using 4th order central differencing.
+
+    Given a list of values at equally spaced points, returns the first
     derivative using the fourth order central difference formula, or forward/
-    backward differencing at the boundaries."""
+    backward differencing at the boundaries.
+    """
     deriv = []
     for i in range(2):
         print(i)
@@ -63,11 +65,13 @@ def derivcd4(vals, dx):
 
 
 def weightednorm(matrix, weights):
-    """Weighted average norm function as defined in 1985 Shampine."""
-    """Takes a matrix and 2 weights and returns the maximum value (divided by
+    """Weighted average norm function as defined in 1985 Shampine.
+
+    Takes a matrix and 2 weights and returns the maximum value (divided by
     wi) of the sum of each value in each row multiplied by wj.  Needs to be
     passed either a matrix of m x n dimensions where m,n > 1, or a column
-    vector."""
+    vector.
+    """
     # Unpack the parameters
     wi, wj = weights
 
@@ -86,8 +90,9 @@ def weightednorm(matrix, weights):
 
 
 def stiffnessindex(xlist, solution, dfun, jfun, *args, **kwargs):
-    """Determine the local stiffness index."""
-    '''Function that uses stiffness parameters, the local Jacobian matrix,
+    """Determine the local stiffness index.
+
+    Function that uses stiffness parameters, the local Jacobian matrix,
     and a vector of the local function values to determine the local stiffness
     index as defined in 1985 Shampine.
 
@@ -100,7 +105,7 @@ def stiffnessindex(xlist, solution, dfun, jfun, *args, **kwargs):
         of the values as the integration goes.  This would eliminate the need
         to save the dydx list beyond a few variables that would be needed to
         compute the higher level derivatives.
-    '''
+    """
     SIparams = {'method': 2,
                 'gamma': 1,
                 'xi': 1,
@@ -113,9 +118,9 @@ def stiffnessindex(xlist, solution, dfun, jfun, *args, **kwargs):
     for key, value in kwargs.items():
         SIparams[key] = value
 
-    funcparams = []
-    for arg in args:
-        funcparams.append(arg)
+    # funcparams = []
+    # for arg in args:
+    #     funcparams.append(arg)
 
     # Method 2 uses the weighted norm of the Jacobian, Method 1 uses the
     # spectral radius of the Jacobian.
@@ -135,7 +140,7 @@ def stiffnessindex(xlist, solution, dfun, jfun, *args, **kwargs):
     dx = xlist[1] - xlist[0]
     dydxlist = []
     for i in range(len(solution)):
-        dydxlist.append(dfun(xlist[i], solution[i, :], funcparams[0]))
+        dydxlist.append(dfun(xlist[i], solution[i, :], args))
     # Raise the derivative to the order we need it
     for i in range(order):
         dydxlist = derivcd4(dydxlist, dx)
@@ -152,7 +157,7 @@ def stiffnessindex(xlist, solution, dfun, jfun, *args, **kwargs):
 
     # Actual computation of the stiffness index for the method specified.
     for i in range(len(solution)):
-        jacobian = jfun(xlist[i], solution[i, :], funcparams[0])
+        jacobian = jfun(xlist[i], solution[i, :], args)
         if method == 1:
             eigenvalues = np.linalg.eigvals(jacobian)
             index = toleranceterm *\
