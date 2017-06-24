@@ -48,11 +48,16 @@ def derivcd4(vals, dx):
     backward differencing at the boundaries."""
     deriv = []
     for i in range(2):
+        print(i)
         deriv.append((-3 * vals[i] + 4 * vals[i + 1] - vals[i + 2]) / (2 * dx))
     for i in range(2, len(vals) - 2):
-        deriv.append((-1 * vals[i + 2] + 8 * vals[i + 1] - 8 * vals[i - 1] +
-                      vals[i - 2]) / (12 * dx))
+        print(i)
+        deriv.append(((-1 * vals[i + 2]) + (8 * vals[i + 1]) -
+                     (8 * vals[i - 1]) + vals[i - 2]) /
+                     (12 * dx)
+                     )
     for i in range((len(vals) - 2), len(vals)):
+        print(i)
         deriv.append((3 * vals[i] - 4 * vals[i - 1] + vals[i - 2]) / 2 * dx)
     return deriv
 
@@ -175,7 +180,7 @@ figformat = 'png'
 # Define the range of the computation
 dt = 1.e-5
 tstart = 0
-tstop = 0.2
+tstop = 10. * dt
 tlist = np.arange(tstart, tstop + 0.5 * dt, dt)
 
 # ODE Solver parameters
