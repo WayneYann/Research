@@ -217,8 +217,6 @@ stiffvals = []
 
 # Loop through the PaSR file for initial conditions
 
-numparticles = 5
-
 print('Code progress:')
 for particle in range(numparticles):
     print(particle)
