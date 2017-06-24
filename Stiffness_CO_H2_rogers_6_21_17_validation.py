@@ -180,7 +180,7 @@ savefigures = 1
 figformat = 'png'
 
 # Define the range of the computation
-dt = 1.e-4
+dt = 1.e-3
 tstart = 0
 tstop = 0.2
 tlist = np.arange(tstart, tstop + 0.5 * dt, dt)
@@ -338,7 +338,7 @@ if savefigures == 1:
 pyl.figure(1)
 pyl.xlabel('Time (sec)')
 pyl.ylabel('Integration time (sec)')
-pyl.ylim(0, 0.005)
+# pyl.ylim(0, 0.005)
 pyl.plot(tlist[: len(tempnums)], solutiontimes)
 if savefigures == 1:
     pyl.savefig('Autoignition_Integration_Times' + str(dt) + '.' + figformat)
