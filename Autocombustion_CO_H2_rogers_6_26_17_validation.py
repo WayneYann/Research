@@ -173,7 +173,6 @@ def stiffnessindex(xlist, solution, dfun, jfun, *args, **kwargs):
 
 # Finding the current time to time how long the simulation takes
 starttime = datetime.datetime.now()
-print('Today\'s date: ' + datetime.date)
 print('Start time: {}'.format(starttime))
 
 savedata = 0
@@ -451,7 +450,8 @@ pyl.xlabel('Computation Number')
 pyl.ylabel('Stiffness Index Computation Time')
 pyl.scatter(range(datanum), stiffcomptimes, 0.1)
 if savefigures == 1:
-    pyl.savefig('Stiff_Comp_Times_6_24.' + figformat)
+    pyl.savefig('Stiff_Comp_Times_' + timer.strftime("%m_%d") +
+                '.' + figformat)
 
 # Plot of ratio of stiffness computation times vs. integration times
 pyl.figure(2)
@@ -461,7 +461,8 @@ pyl.xlabel('Particle Number')
 pyl.ylabel('Ratio')
 pyl.scatter(range(datanum), ratios, 0.1)
 if savefigures == 1:
-    pyl.savefig('Stiff_Comp_Ratios_6_24.' + figformat)
+    pyl.savefig('Stiff_Comp_Ratios_' + timer.strftime("%m_%d") +
+                '.' + figformat)
 
 # Plot of stiffness computation times vs. stiffness index
 pyl.figure(3)
@@ -472,7 +473,8 @@ pyl.xlim(0., max(stiffcomptimes))
 pyl.yscale('log')
 pyl.scatter(stiffcomptimes, stiffvals, 0.1)
 if savefigures == 1:
-    pyl.savefig('Stiffcomp_Stiffvals_6_24.' + figformat)
+    pyl.savefig('Stiffcomp_Stiffvals_' + timer.strftime("%m_%d") +
+                '.' + figformat)
 
 # Plot of stiffness computation times vs. stiffness index
 pyl.figure(4)
@@ -483,7 +485,8 @@ pyl.ylim(min(stiffvals), max(stiffvals))
 pyl.yscale('log')
 pyl.scatter(solutiontimes, stiffvals, 0.1)
 if savefigures == 1:
-    pyl.savefig('Int_Stiffvals_6_24.' + figformat)
+    pyl.savefig('Int_Stiffvals_' + timer.strftime("%m_%d") +
+                '.' + figformat)
 
 
 """
