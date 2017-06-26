@@ -239,11 +239,6 @@ for particle in [92]:
         Y_species = Y[3:arraylen]
         Ys = np.hstack((Y_temp, Y_species))
 
-        print('-----')
-        print('Modified condition:')
-        for i in Ys:
-            print(i)
-
         # Put N2 to the last value of the mass species
         N2_pos = 9
         newarlen = len(Ys)
@@ -257,6 +252,11 @@ for particle in [92]:
         solution = []
         curstate = Ys[:]
         currentt = tstart
+
+        print('-----')
+        print('Modified condition:')
+        for i in Ys:
+            print(i)
 
         # Specify the integrator
         solver = ode(firstderiv  # ,
