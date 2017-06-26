@@ -288,6 +288,7 @@ for particle in [92]:
             for i in solver.y:
                 print(i)
             localjac = jacobval(solver.t, solver.y, Y_press)
+            print(np.shape(localjac))
             print('Local Jacobian at t = {}'.format(solver.t))
             for i in localjac:
                 print(i)
