@@ -287,6 +287,10 @@ for particle in [92]:
             print('Condition at t = {}'.format(solver.t))
             for i in solver.y:
                 print(i)
+            localjac = jacobval(solver.t, solver.y, Y_press)
+            print('Local Jacobian at t = {}'.format(solver.t))
+            for i in localjac:
+                print(i)
             solution.append(solver.y)
             if k == 2:
                 solutiontimes.append(time1 - time0)
