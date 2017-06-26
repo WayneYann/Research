@@ -34,9 +34,9 @@ def jacobval(time, state, press):
     """Force the integrator to use the right arguments."""
     # Need to get rid of N2 because PyJac doesn't compute it.
     new = state[:-1]
-    a = len(new)
+    a = len(state)
     jacobian = np.zeros(a**2)
-    pyjacob.py_eval_jacobian(time, press, new, jacobian)
+    pyjacob.py_eval_jacobian(time, press, state, jacobian)
     jacobian = np.reshape(jacobian, (a, a))
     return jacobian
 
@@ -295,6 +295,8 @@ for particle in [92]:
             if k == 2:
                 solutiontimes.append(time1 - time0)
             k += 1
+
+        raise Exception('Done finding solution!')
 
         # Convert the solution to an array for ease of use.  Maybe just using
         # numpy function to begin with would be faster?
