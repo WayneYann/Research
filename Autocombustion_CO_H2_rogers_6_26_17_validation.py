@@ -265,7 +265,7 @@ for particle in [92]:
             print(i)
 
         print('Starting Jacobian:')
-        for i in jacobval:
+        for i in test:
             print(i)
 
         # Specify the integrator
