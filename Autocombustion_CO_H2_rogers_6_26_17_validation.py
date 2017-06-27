@@ -356,7 +356,7 @@ pyl.figure(0)
 pyl.xlabel('Time (sec)')
 pyl.ylabel('Temperature (K)')
 pyl.xlim(tstart, tstop)
-pyl.plot(tlist[1: len(tempnums)], tempnums)
+pyl.plot(tlist[1:], tempnums)
 if savefigures == 1:
     pyl.savefig('Autoignition_Temperature_' + str(dt) +
                 '_' + timer.strftime("%m_%d") +
