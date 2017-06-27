@@ -190,7 +190,7 @@ figformat = 'png'
 # Define the range of the computation
 dt = 1.e-8
 tstart = 0.
-tstop = 5. * dt
+tstop = 500. * dt
 tlist = np.arange(tstart, tstop + 0.5 * dt, dt)
 
 # ODE Solver parameters
@@ -269,7 +269,10 @@ for particle in [92]:
 
         # Specify the integrator
         solver = ode(firstderiv,
-                     jac=jacobval
+                     jac=jacobval,
+                     first_step=dt,
+                     min_step=0.1*dt,
+                     max_step=100*dt
                      ).set_integrator('vode',
                                       method='bdf',
                                       nsteps=99999999,
@@ -286,7 +289,7 @@ for particle in [92]:
 
         # Integrate the ODE across all steps
         # print('Integrating...')
-        k = 0
+        times = []
         while solver.successful() and solver.t <= tstop:
             time0 = timer.time()
             solver.integrate(solver.t)
@@ -295,6 +298,7 @@ for particle in [92]:
             # print('Condition at t = {}'.format(solver.t))
             # for i in solver.y:
             #     print(i)
+            times.append(solution.t)
             solution.append(solver.y)
             solutiontimes.append(time1 - time0)
             print('Advancing time')
@@ -318,25 +322,25 @@ for particle in [92]:
         solution = np.array(solution)
         tempnums = np.array(solution[:, 0])
         # Find the stiffness index across the range of the solution and time it
-        time2 = timer.time()
+        # time2 = timer.time()
         # indexvalues, derivatives = stiffnessindex(stiffnessparams, normweights,
         # print(np.shape(tlist2))
         # print(dt*100.)
         # print(np.shape(solution))
         # print('Finding Stiffness Index...')
-        indexvalues = stiffnessindex(tlist,
-                                     solution,
-                                     firstderiv,
-                                     jacobval,
-                                     Y_press
-                                     )
-        time3 = timer.time()
+        # indexvalues = stiffnessindex(tlist,
+        #                              solution,
+        #                              firstderiv,
+        #                              jacobval,
+        #                              Y_press
+        #                              )
+        # time3 = timer.time()
         # This statement intended to cut back on the amount of data processed
         # derivatives = derivatives[2]
 
-        stiffcomptimes.append(time3 - time2)
+        # stiffcomptimes.append(time3 - time2)
 
-        stiffvals.append(indexvalues[2])
+        # stiffvals.append(indexvalues[2])
 
         # Commented old code for the maximum eigenvalue or CEMA analysis
         # expeigs[tstep,particle] = np.log10(maxeig)
@@ -367,15 +371,16 @@ print('tempnums shape:')
 print(np.shape(tempnums))
 print('solutiontimes shape:')
 print(np.shape(solutiontimes))
-print('indexvalues shape:')
-print(np.shape(indexvalues))
+# print('indexvalues shape:')
+# print(np.shape(indexvalues))
 
 # Plot the solution of the temperature
 pyl.figure(0)
 pyl.xlabel('Time (sec)')
 pyl.ylabel('Temperature (K)')
 pyl.xlim(tstart, tstop)
-pyl.plot(tlist[1:], tempnums)
+# pyl.plot(tlist[1:], tempnums)
+pyl.plot(times, tempnums)
 if savefigures == 1:
     pyl.savefig('Autoignition_Temperature_' + str(dt) +
                 '_' + timer.strftime("%m_%d") +
@@ -387,23 +392,24 @@ pyl.xlabel('Time (sec)')
 pyl.ylabel('Integration time (sec)')
 pyl.xlim(tstart, tstop)
 # pyl.ylim(0, 0.005)
-pyl.plot(tlist[1:], solutiontimes)
+# pyl.plot(tlist[1:], solutiontimes)
+pyl.plot(times, solutiontimes)
 if savefigures == 1:
     pyl.savefig('Autoignition_Integration_Times_' + str(dt) +
                 '_' + timer.strftime("%m_%d") +
                 '.' + figformat)
 
 # Plot the stiffness index vs. time
-pyl.figure(2)
-pyl.xlabel('Time (sec)')
-pyl.ylabel('Stiffness Index')
-pyl.yscale('log')
-pyl.xlim(tstart, tstop)
-pyl.plot(tlist[1:-3], indexvalues[:-3])
-if savefigures == 1:
-    pyl.savefig('Autoignition_Stiffness_Index_' + str(dt) +
-                '_' + timer.strftime("%m_%d") +
-                '.' + figformat)
+# pyl.figure(2)
+# pyl.xlabel('Time (sec)')
+# pyl.ylabel('Stiffness Index')
+# pyl.yscale('log')
+# pyl.xlim(tstart, tstop)
+# pyl.plot(tlist[1:-3], indexvalues[:-3])
+# if savefigures == 1:
+#     pyl.savefig('Autoignition_Stiffness_Index_' + str(dt) +
+#                 '_' + timer.strftime("%m_%d") +
+#                 '.' + figformat)
 
 """
 
