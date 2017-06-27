@@ -92,7 +92,7 @@ def weightednorm(matrix, weights):
 
 
 def stiffnessindex(xlist, solution, dfun, jfun, *args, **kwargs):
-    """Determine the local stiffness index.
+    """Determine the stiffness index across a solution vector.
 
     Function that uses stiffness parameters, the local Jacobian matrix,
     and a vector of the local function values to determine the local stiffness
@@ -190,7 +190,7 @@ figformat = 'png'
 # Define the range of the computation
 dt = 1.e-8
 tstart = 0.
-tstop = 500. * dt
+tstop = 0.2
 tlist = np.arange(tstart, tstop + 0.5 * dt, dt)
 
 # ODE Solver parameters
@@ -269,15 +269,16 @@ for particle in [92]:
 
         # Specify the integrator
         solver = ode(firstderiv,
-                     jac=jacobval,
-                     first_step=dt,
-                     min_step=0.1*dt,
-                     max_step=100.*dt
+                     jac=jacobval
                      ).set_integrator('vode',
                                       method='bdf',
                                       nsteps=99999999,
                                       atol=abserr,
-                                      rtol=relerr
+                                      rtol=relerr,
+                                      with_jacobian=True,
+                                      first_step=dt,
+                                      min_step=0.1*dt,
+                                      max_step=1000*dt
                                       )
 
         # intrange = np.arange(currentt, currentt + dt, dt)
@@ -292,16 +293,15 @@ for particle in [92]:
         times = []
         while solver.successful() and solver.t <= tstop:
             time0 = timer.time()
-            solver.integrate(solver.t)
+            solver.integrate(solver.t)  # + dt)
             time1 = timer.time()
             # print('-----')
             # print('Condition at t = {}'.format(solver.t))
             # for i in solver.y:
             #     print(i)
-            times.append(solution.t)
             solution.append(solver.y)
             solutiontimes.append(time1 - time0)
-            print('Advancing time')
+            times.append(solver.t)
 
         print('Final time:')
         print(solver.t)
@@ -363,43 +363,41 @@ for i in range(15):
     pyl.clf()
 pyl.close('all')
 
-print('Solution[:, 0] shape:')
-print(np.shape(solution[:, 0]))
-print('tlist shape:')
-print(np.shape(tlist))
-print('tempnums shape:')
-print(np.shape(tempnums))
-print('solutiontimes shape:')
-print(np.shape(solutiontimes))
+# print('Solution[:, 0] shape:')
+# print(np.shape(solution[:, 0]))
+# print('tlist shape:')
+# print(np.shape(tlist))
+# print('tempnums shape:')
+# print(np.shape(tempnums))
+# print('solutiontimes shape:')
+# print(np.shape(solutiontimes))
 # print('indexvalues shape:')
 # print(np.shape(indexvalues))
 
-# Plot the solution of the temperature
-pyl.figure(0)
-pyl.xlabel('Time (sec)')
-pyl.ylabel('Temperature (K)')
-pyl.xlim(tstart, tstop)
+# # Plot the solution of the temperature
+# pyl.figure(0)
+# pyl.xlabel('Time (sec)')
+# pyl.ylabel('Temperature (K)')
+# pyl.xlim(tstart, tstop)
 # pyl.plot(tlist[1:], tempnums)
-pyl.plot(times, tempnums)
-if savefigures == 1:
-    pyl.savefig('Autoignition_Temperature_' + str(dt) +
-                '_' + timer.strftime("%m_%d") +
-                '.' + figformat)
-
-# Plot the time per integration
-pyl.figure(1)
-pyl.xlabel('Time (sec)')
-pyl.ylabel('Integration time (sec)')
-pyl.xlim(tstart, tstop)
-# pyl.ylim(0, 0.005)
+# if savefigures == 1:
+#     pyl.savefig('Autoignition_Temperature_' + str(dt) +
+#                 '_' + timer.strftime("%m_%d") +
+#                 '.' + figformat)
+#
+# # Plot the time per integration
+# pyl.figure(1)
+# pyl.xlabel('Time (sec)')
+# pyl.ylabel('Integration time (sec)')
+# pyl.xlim(tstart, tstop)
+# # pyl.ylim(0, 0.005)
 # pyl.plot(tlist[1:], solutiontimes)
-pyl.plot(times, solutiontimes)
-if savefigures == 1:
-    pyl.savefig('Autoignition_Integration_Times_' + str(dt) +
-                '_' + timer.strftime("%m_%d") +
-                '.' + figformat)
-
-# Plot the stiffness index vs. time
+# if savefigures == 1:
+#     pyl.savefig('Autoignition_Integration_Times_' + str(dt) +
+#                 '_' + timer.strftime("%m_%d") +
+#                 '.' + figformat)
+#
+# # Plot the stiffness index vs. time
 # pyl.figure(2)
 # pyl.xlabel('Time (sec)')
 # pyl.ylabel('Stiffness Index')
