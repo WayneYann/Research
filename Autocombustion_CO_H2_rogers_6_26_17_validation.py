@@ -344,19 +344,19 @@ for i in range(15):
     pyl.clf()
 pyl.close('all')
 
-print('Solution[:, 0] shape:')
-print(np.shape(solution[:, 0]))
-print('tlist shape:')
-print(np.shape(tlist))
-print('tempnums shape:')
-print(np.shape(tempnums))
+# print('Solution[:, 0] shape:')
+# print(np.shape(solution[:, 0]))
+# print('tlist shape:')
+# print(np.shape(tlist))
+# print('tempnums shape:')
+# print(np.shape(tempnums))
 
 # Plot the solution of the temperature
 pyl.figure(0)
 pyl.xlabel('Time (sec)')
 pyl.ylabel('Temperature (K)')
 pyl.xlim(tstart, tstop)
-pyl.plot(tlist[: len(tempnums)], tempnums)
+pyl.plot(tlist[1: len(tempnums)], tempnums)
 if savefigures == 1:
     pyl.savefig('Autoignition_Temperature_' + str(dt) +
                 '_' + timer.strftime("%m_%d") +
