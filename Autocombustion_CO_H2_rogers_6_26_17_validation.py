@@ -264,10 +264,6 @@ for particle in [92]:
         for i in Ys:
             print(i)
 
-        print('Starting Jacobian:')
-        for i in test:
-            print(i)
-
         # Specify the integrator
         solver = ode(firstderiv,
                      jac=jacobval
@@ -299,9 +295,6 @@ for particle in [92]:
                 print(i)
             localjac = jacobval(solver.t, solver.y, Y_press)
             print(np.shape(localjac))
-            print('Local Jacobian at t = {}'.format(solver.t))
-            for i in localjac:
-                print(i)
             solution.append(solver.y)
             if k == 2:
                 solutiontimes.append(time1 - time0)
