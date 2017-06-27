@@ -272,7 +272,7 @@ for particle in [92]:
                      jac=jacobval,
                      first_step=dt,
                      min_step=0.1*dt,
-                     max_step=100*dt
+                     max_step=100.*dt
                      ).set_integrator('vode',
                                       method='bdf',
                                       nsteps=99999999,
