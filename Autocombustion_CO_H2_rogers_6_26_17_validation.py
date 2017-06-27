@@ -37,12 +37,11 @@ def jacobval(time, state, press):
     a = len(new)
     jacobian = np.zeros(a**2)
     pyjacob.py_eval_jacobian(time, press, new, jacobian)
+    # Re-add the zeros back in
     jacobian = np.reshape(jacobian, (a, a))
     for i in jacobian:
         i = np.hstack((i, 0))
     jacobian = np.vstack((jacobian, np.zeros(a)))
-    for i in jacobian:
-        print(i)
     return jacobian
 
 
