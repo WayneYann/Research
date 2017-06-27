@@ -347,7 +347,7 @@ pyl.close('all')
 print('Solution[:, 0] shape:')
 print(np.shape(solution[:, 0]))
 print('tlist shape:')
-print(np.shape(tlist[1: len(solution[:, 0])]))
+print(np.shape(tlist))
 print('tempnums shape:')
 print(np.shape(tempnums))
 
