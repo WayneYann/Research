@@ -259,8 +259,6 @@ for particle in [92]:
 
         test = jacobval(0.0, Ys, Y_press)
 
-        raise Exception('Test done.')
-
         print('-----')
         print('Modified condition:')
         for i in Ys:
