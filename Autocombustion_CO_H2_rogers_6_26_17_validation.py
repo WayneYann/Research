@@ -43,7 +43,7 @@ def jacobval(time, state, press):
     print('Old Jacobian')
     for i in jacobian:
         print(i)
-        i.append(0.0)
+    jacobian = np.insert(jacobian, a, axis=1)
     print('New Jacobian')
     for i in jacobian:
         print(i)
