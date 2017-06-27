@@ -33,15 +33,15 @@ def firstderiv(time, state, press):
 def jacobval(time, state, press):
     """Force the integrator to use the right arguments."""
     # Need to get rid of N2 because PyJac doesn't compute it.
-    new = state[:-1]
-    a = len(new)
+    # new = state[:-1]
+    a = len(state)
     jacobian = np.zeros(a**2)
     # Obtain the jacobian from pyJac
-    pyjacob.py_eval_jacobian(time, press, new, jacobian)
+    pyjacob.py_eval_jacobian(time, press, state, jacobian)
     jacobian = np.reshape(jacobian, (a, a))
     # Re-add the zeros back in
-    jacobian = np.insert(jacobian, a, np.zeros(a), axis=1)
-    jacobian = np.vstack((jacobian, np.zeros(a+1)))
+    # jacobian = np.insert(jacobian, a, np.zeros(a), axis=1)
+    # jacobian = np.vstack((jacobian, np.zeros(a+1)))
     return jacobian
 
 
@@ -254,10 +254,8 @@ for particle in [92]:
 
         # Call the integrator and time it
         solution = []
-        curstate = Ys[:]
+        curstate = Ys[:-1]
         currentt = tstart
-
-        test = jacobval(0.0, Ys, Y_press)
 
         print('-----')
         print('Modified condition:')
@@ -293,8 +291,6 @@ for particle in [92]:
             print('Condition at t = {}'.format(solver.t))
             for i in solver.y:
                 print(i)
-            localjac = jacobval(solver.t, solver.y, Y_press)
-            print(np.shape(localjac))
             solution.append(solver.y)
             if k == 2:
                 solutiontimes.append(time1 - time0)
