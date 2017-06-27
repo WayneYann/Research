@@ -34,7 +34,7 @@ def jacobval(time, state, press):
     """Force the integrator to use the right arguments."""
     # Need to get rid of N2 because PyJac doesn't compute it.
     # new = state[:-1]
-    print('Jacobian function called.')
+    # print('Jacobian function called.')
     a = len(state)
     jacobian = np.zeros(a**2)
     # Obtain the jacobian from pyJac
