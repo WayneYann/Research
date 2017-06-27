@@ -298,7 +298,9 @@ for particle in [92]:
             solutiontimes.append(time1 - time0)
 
         # raise Exception('Done finding solution!')
-
+        print('Last solution value:')
+        for i in solver.y:
+            print(i)
         # Convert the solution to an array for ease of use.  Maybe just using
         # numpy function to begin with would be faster?
         solution = np.array(solution)
