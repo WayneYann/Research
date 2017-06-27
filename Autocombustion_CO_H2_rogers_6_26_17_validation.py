@@ -298,6 +298,7 @@ for particle in [92]:
             #     print(i)
             solution.append(solver.y)
             solutiontimes.append(time1 - time0)
+            print('Advancing time')
 
         print('Final time:')
         print(solver.t)
