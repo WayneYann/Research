@@ -368,24 +368,24 @@ pyl.xlabel('Time (sec)')
 pyl.ylabel('Integration time (sec)')
 pyl.xlim(tstart, tstop)
 # pyl.ylim(0, 0.005)
-pyl.plot(tlist, solutiontimes)
+pyl.plot(tlist[1:], solutiontimes)
 if savefigures == 1:
     pyl.savefig('Autoignition_Integration_Times_' + str(dt) +
                 '_' + timer.strftime("%m_%d") +
                 '.' + figformat)
 
 # Plot the stiffness index vs. time
-# Plot the time per integration
 pyl.figure(2)
 pyl.xlabel('Time (sec)')
 pyl.ylabel('Stiffness Index')
 pyl.yscale('log')
 pyl.xlim(tstart, tstop)
-pyl.plot(tlist[:-3], indexvalues[:-3])
+pyl.plot(tlist[1:-3], indexvalues[:-3])
 if savefigures == 1:
     pyl.savefig('Autoignition_Stiffness_Index_' + str(dt) +
                 '_' + timer.strftime("%m_%d") +
                 '.' + figformat)
+
 """
 
 # Plot all of the 2nd derivatives vs stiffness index
