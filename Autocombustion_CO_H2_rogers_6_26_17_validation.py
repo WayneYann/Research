@@ -267,8 +267,8 @@ for particle in [92]:
             print(i)
 
         # Specify the integrator
-        solver = ode(firstderiv  # ,
-                     # jac=jacobval
+        solver = ode(firstderiv,
+                     jac=jacobval
                      ).set_integrator('vode',
                                       method='bdf',
                                       nsteps=99999999,
@@ -297,6 +297,9 @@ for particle in [92]:
             #     print(i)
             solution.append(solver.y)
             solutiontimes.append(time1 - time0)
+
+        print('Final time:')
+        print(solver.t)
 
         # raise Exception('Done finding solution!')
         print('Last solution value:')
