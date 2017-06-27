@@ -190,7 +190,7 @@ figformat = 'png'
 # Define the range of the computation
 dt = 1.e-5
 tstart = 0.
-tstop = 0.2
+tstop = 5. * dt
 tlist = np.arange(tstart, tstop + 0.5 * dt, dt)
 
 # ODE Solver parameters
