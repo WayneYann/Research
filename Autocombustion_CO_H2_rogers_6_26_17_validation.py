@@ -180,13 +180,13 @@ starttime = datetime.datetime.now()
 print('Start time: {}'.format(starttime))
 
 savedata = 0
-savefigures = 0
+savefigures = 1
 figformat = 'png'
 
 # Define the range of the computation
-dt = 1.e-8
+dt = 1.e-5
 tstart = 0.
-tstop = 5 * dt
+tstop = 0.2
 tlist = np.arange(tstart, tstop + 0.5 * dt, dt)
 
 # ODE Solver parameters
@@ -287,21 +287,21 @@ for particle in [92]:
             time0 = timer.time()
             solver.integrate(solver.t + dt)
             time1 = timer.time()
-            print('-----')
-            print('Condition at t = {}'.format(solver.t))
-            for i in solver.y:
-                print(i)
+            # print('-----')
+            # print('Condition at t = {}'.format(solver.t))
+            # for i in solver.y:
+            #     print(i)
             solution.append(solver.y)
             if k == 2:
                 solutiontimes.append(time1 - time0)
             k += 1
 
-        raise Exception('Done finding solution!')
+        # raise Exception('Done finding solution!')
 
         # Convert the solution to an array for ease of use.  Maybe just using
         # numpy function to begin with would be faster?
         solution = np.array(solution)
-        # tempnums = np.array(solution[:, 0])
+        tempnums = np.array(solution[:, 0])
         # Find the stiffness index across the range of the solution and time it
         time2 = timer.time()
         # indexvalues, derivatives = stiffnessindex(stiffnessparams, normweights,
@@ -348,7 +348,7 @@ pyl.close('all')
 # print(np.shape(solution[:, 0]))
 # print('tlist shape:')
 # print(np.shape(tlist[1: len(solution[:, 0])]))
-"""
+
 # Plot the solution of the temperature
 pyl.figure(0)
 pyl.xlabel('Time (sec)')
@@ -356,7 +356,9 @@ pyl.ylabel('Temperature (K)')
 pyl.xlim(tstart, tstop)
 pyl.plot(tlist[: len(tempnums)], tempnums)
 if savefigures == 1:
-    pyl.savefig('Autoignition_Temperature' + str(dt) + '.' + figformat)
+    pyl.savefig('Autoignition_Temperature_' + str(dt) +
+                '_' + timer.strftime("%m_%d") +
+                '.' + figformat)
 
 # Plot the time per integration
 pyl.figure(1)
@@ -366,7 +368,9 @@ pyl.xlim(tstart, tstop)
 # pyl.ylim(0, 0.005)
 pyl.plot(tlist[: len(tempnums)], solutiontimes)
 if savefigures == 1:
-    pyl.savefig('Autoignition_Integration_Times' + str(dt) + '.' + figformat)
+    pyl.savefig('Autoignition_Integration_Times_' + str(dt) +
+                '_' + timer.strftime("%m_%d") +
+                '.' + figformat)
 
 # Plot the stiffness index vs. time
 # Plot the time per integration
@@ -377,9 +381,11 @@ pyl.yscale('log')
 pyl.xlim(tstart, tstop)
 pyl.plot(tlist[: len(solution[:-3, 0])], indexvalues[:-3])
 if savefigures == 1:
-    pyl.savefig('Autoignition_Stiffness_Index' + str(dt) + '.' + figformat)
+    pyl.savefig('Autoignition_Stiffness_Index_' + str(dt) +
+                '_' + timer.strftime("%m_%d") +
+                '.' + figformat)
 """
-"""
+
 # Plot all of the 2nd derivatives vs stiffness index
 for i in range(14):
     for j in range(len(pasrstiffnesses2[0, :, 0])):
@@ -420,7 +426,7 @@ if savefigures == 1:
 
 finishtime = datetime.datetime.now()
 print('Finish time: {}'.format(finishtime))
-"""
+
 
 # Ratios of the stiffness computation times to integration times
 ratios = []
@@ -500,7 +506,7 @@ if savefigures == 1:
                 '.' + figformat)
 
 
-"""
+
 # Plot the stiffness at every point in the PaSR simulation
 # Create a mesh to plot on
 xcoords = np.arange(numparticles)
