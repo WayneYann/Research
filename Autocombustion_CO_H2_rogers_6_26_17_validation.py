@@ -183,7 +183,7 @@ starttime = datetime.datetime.now()
 print('Start time: {}'.format(starttime))
 
 savedata = 0
-savefigures = 1
+savefigures = 0
 figformat = 'png'
 
 # Define the range of the computation
@@ -257,6 +257,7 @@ for particle in [92]:
 
         # Call the integrator and time it
         solution = []
+        # Don't feed pyJac N2
         curstate = Ys[:-1]
         currentt = tstart
 
@@ -301,6 +302,13 @@ for particle in [92]:
         print('Last solution value:')
         for i in solver.y:
             print(i)
+
+        test = jacobval(0.2, solver.y, Y_press)
+
+        print('Last Jacobian value:')
+        for i in test:
+            print(i)
+
         # Convert the solution to an array for ease of use.  Maybe just using
         # numpy function to begin with would be faster?
         solution = np.array(solution)
@@ -347,16 +355,16 @@ for i in range(15):
     pyl.clf()
 pyl.close('all')
 
-print('Solution[:, 0] shape:')
-print(np.shape(solution[:, 0]))
-print('tlist shape:')
-print(np.shape(tlist))
-print('tempnums shape:')
-print(np.shape(tempnums))
-print('solutiontimes shape:')
-print(np.shape(solutiontimes))
-print('indexvalues shape:')
-print(np.shape(indexvalues))
+# print('Solution[:, 0] shape:')
+# print(np.shape(solution[:, 0]))
+# print('tlist shape:')
+# print(np.shape(tlist))
+# print('tempnums shape:')
+# print(np.shape(tempnums))
+# print('solutiontimes shape:')
+# print(np.shape(solutiontimes))
+# print('indexvalues shape:')
+# print(np.shape(indexvalues))
 
 # Plot the solution of the temperature
 pyl.figure(0)
