@@ -41,7 +41,7 @@ def jacobval(time, state, press):
     jacobian = np.reshape(jacobian, (a, a))
     for i in jacobian:
         i = np.hstack((i, 0))
-    jacobian = np.vstack((jacobian, np.zeros(a)))
+    jacobian = np.vstack((jacobian, np.zeros(a+1)))
     return jacobian
 
 
@@ -286,7 +286,6 @@ for particle in [92]:
                                  ).set_f_params(Y_press
                                                 ).set_jac_params(Y_press)
 
-        print('Able to set initial states and functions.')
         # Integrate the ODE across all steps
         # print('Integrating...')
         k = 0
