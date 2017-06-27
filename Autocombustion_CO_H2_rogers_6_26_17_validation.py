@@ -35,6 +35,7 @@ def jacobval(time, state, press):
     # Need to get rid of N2 because PyJac doesn't compute it.
     new = state[:-1]
     a = len(new)
+    print(a)
     jacobian = np.zeros(a**2)
     pyjacob.py_eval_jacobian(time, press, new, jacobian)
     # Re-add the zeros back in
