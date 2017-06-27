@@ -188,7 +188,7 @@ savefigures = 0
 figformat = 'png'
 
 # Define the range of the computation
-dt = 1.e-5
+dt = 1.e-8
 tstart = 0.
 tstop = 5. * dt
 tlist = np.arange(tstart, tstop + 0.5 * dt, dt)
