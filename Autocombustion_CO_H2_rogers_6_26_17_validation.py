@@ -271,7 +271,7 @@ for particle in [92]:
         solver = ode(firstderiv,
                      jac=jacobval
                      ).set_integrator('vode',
-                                      method='bdf',
+                                      # method='bdf',
                                       nsteps=99999999,
                                       atol=abserr,
                                       rtol=relerr,
