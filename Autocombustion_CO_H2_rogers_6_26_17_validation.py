@@ -292,9 +292,7 @@ for particle in [92]:
             # for i in solver.y:
             #     print(i)
             solution.append(solver.y)
-            if k == 2:
-                solutiontimes.append(time1 - time0)
-            k += 1
+            solutiontimes.append(time1 - time0)
 
         # raise Exception('Done finding solution!')
 
