@@ -280,17 +280,16 @@ for particle in [92]:
         # intrange = np.arange(currentt, currentt + dt, dt)
 
         # Set initial conditions
-        solver.set_initial_value(curstate,
-                                 tstart
-                                 ).set_f_params(Y_press
-                                                ).set_jac_params(Y_press)
+        solver.set_initial_value(curstate, tstart)
+        solver.set_f_params(Y_press)
+        solver.set_jac_params(Y_press)
 
         # Integrate the ODE across all steps
         # print('Integrating...')
         k = 0
         while solver.successful() and solver.t <= tstop:
             time0 = timer.time()
-            solver.integrate(solver.t + dt)
+            solver.integrate(solver.t)
             time1 = timer.time()
             # print('-----')
             # print('Condition at t = {}'.format(solver.t))
@@ -360,16 +359,16 @@ for i in range(15):
     pyl.clf()
 pyl.close('all')
 
-# print('Solution[:, 0] shape:')
-# print(np.shape(solution[:, 0]))
-# print('tlist shape:')
-# print(np.shape(tlist))
-# print('tempnums shape:')
-# print(np.shape(tempnums))
-# print('solutiontimes shape:')
-# print(np.shape(solutiontimes))
-# print('indexvalues shape:')
-# print(np.shape(indexvalues))
+print('Solution[:, 0] shape:')
+print(np.shape(solution[:, 0]))
+print('tlist shape:')
+print(np.shape(tlist))
+print('tempnums shape:')
+print(np.shape(tempnums))
+print('solutiontimes shape:')
+print(np.shape(solutiontimes))
+print('indexvalues shape:')
+print(np.shape(indexvalues))
 
 # Plot the solution of the temperature
 pyl.figure(0)
