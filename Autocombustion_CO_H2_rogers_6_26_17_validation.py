@@ -172,6 +172,9 @@ def stiffnessindex(xlist, solution, dfun, jfun, *args, **kwargs):
                 xiterm
         indexlist.append(index)
     indexlist = np.array(indexlist)
+    print('Last Jacobian:')
+    for i in jacobian:
+        print(i)
     return indexlist  # , dydxlist
 
 
