@@ -421,8 +421,8 @@ if savefigures == 1:
 # Plot the stiffness index vs. time
 pyl.figure(2)
 pyl.xlabel('Time (sec)')
-pyl.ylabel('Stiffness Index')
-pyl.yscale('log')
+pyl.ylabel('Stiffness Indicator')
+# pyl.yscale('log')
 pyl.xlim(tstart, tstop)
 pyl.plot(tlist[1:], indexvalues[:])
 if savefigures == 1:
