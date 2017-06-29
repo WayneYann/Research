@@ -46,6 +46,35 @@ def jacobval(time, state, press):
     return jacobian
 
 
+def jacvdp(x, y, eta):
+    """Find the local Jacobian matrix of the Van der Pol equation."""
+    return np.array([[0., 1.], [-1. - 2*y[0]*y[1]*eta, eta-eta*y[0]**2]])
+
+
+def dydx(x, y, eta):
+    """Find the local vector of the first derivative of the Van der Pol eqn."""
+    # Unpack the y vector
+    y1 = y[0]
+    y2 = y[1]
+
+    # Create dydx vector (y1', y2')
+    f = np.array([y2, eta*y2 - y1 - eta*y2*y1**2.])
+    # print(f)
+    return f
+
+
+def d2ydx2(x, y, eta):
+    """Find the local vector of the 2nd derivative of the Van der Pol eqn."""
+    # Unpack the y vector
+    y1 = y[0]
+    y2 = y[1]
+
+    # Create vector of the second derivative
+    y2prime = eta*y2 - y1 - eta*y2*y1**2.
+    f = np.array([y2prime, eta*y2prime - y2 - 2*eta*y1*y2 - eta*y2prime*y1**2])
+    return f
+
+
 def derivcd4(vals, dx):
     """Take the derivative of a series using 4th order central differencing.
 
@@ -443,7 +472,6 @@ if savefigures == 1:
 pyl.figure(2)
 pyl.xlabel('Time (sec)')
 pyl.ylabel('Stiffness Indicator')
-# pyl.yscale('log')
 pyl.xlim(tstart, tstop)
 pyl.plot(tlist[1:], indexvalues)
 if savefigures == 1:
@@ -455,11 +483,10 @@ if savefigures == 1:
 pyl.figure(3)
 pyl.xlabel('Time (sec)')
 pyl.ylabel('Reference Timescale')
-# pyl.yscale('log')
 pyl.xlim(tstart, tstop)
 pyl.plot(tlist[1:], timescales)
 if savefigures == 1:
-    pyl.savefig('Autoignition_Stiffness_Indicator_' + str(dt) +
+    pyl.savefig('Autoignition_Ref_Timescale_' + str(dt) +
                 '_' + timer.strftime("%m_%d") +
                 '.' + figformat)
 
