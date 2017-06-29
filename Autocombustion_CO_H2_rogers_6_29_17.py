@@ -193,18 +193,27 @@ def stiffnessindicator(xlist, solution, jfun, *args):
     indicatorvals = []
     for i in range(len(solution)):
         jacobian = jfun(xlist[i], solution[i], funcparams[0])
-        print('Regular Jacobian:')
-        for j in jacobian:
-            print(j)
-        print('Transposed Jacobian:')
-        for j in np.transpose(jacobian):
-            print(j)
-        raise Exception('Just wanted to get here')
         Hermitian = 0.5 * (jacobian + np.transpose(jacobian))
         eigvals = np.linalg.eigvals(Hermitian)
         indicatorvals.append(0.5 * (min(eigvals) + max(eigvals)))
     return indicatorvals
 
+
+def reftimescale(indicatorvals, Tlen):
+    """
+    Find the reference timescale for the stiffness indicator.
+
+    Given the stiffness indicator values as defined by Soderlind 2013, finds
+    the reference time scale.
+    """
+    timescales = []
+    for i in range(len(indicatorvals)):
+        if indicatorvals[i] >= 0:
+            timescales.append(Tlen)
+        else:
+            timescales.append(min(Tlen, -1/indicatorvals[i]))
+    timescales = np.array(timescales)
+    return timescales
 
 # Finding the current time to time how long the simulation takes
 starttime = datetime.datetime.now()
@@ -294,6 +303,8 @@ for particle in [92]:
         # for i in Ys:
         #     print(i)
 
+        print('Integrating...')
+
         # Specify the integrator
         solver = ode(firstderiv  # ,
                      # jac=jacobval
@@ -316,7 +327,7 @@ for particle in [92]:
         solver.set_jac_params(Y_press)
 
         # Integrate the ODE across all steps
-        # print('Integrating...')
+
         # times = []
         while solver.successful() and solver.t <= tstop:
             time0 = timer.time()
@@ -361,7 +372,10 @@ for particle in [92]:
                                          jacobval,
                                          Y_press
                                          )
-        print('Minimum stiffness indicator value: {}'.format(min(indexvalues)))
+
+        print('Finding reference timescales...')
+        timescales = reftimescale(indexvalues, tstop - tstart)
+
         time3 = timer.time()
         # This statement intended to cut back on the amount of data processed
         # derivatives = derivatives[2]
@@ -425,13 +439,25 @@ if savefigures == 1:
                 '_' + timer.strftime("%m_%d") +
                 '.' + figformat)
 
-# Plot the stiffness index vs. time
+# Plot the stiffness indicator vs. time
 pyl.figure(2)
 pyl.xlabel('Time (sec)')
 pyl.ylabel('Stiffness Indicator')
 # pyl.yscale('log')
 pyl.xlim(tstart, tstop)
-pyl.plot(tlist[1:], indexvalues[:])
+pyl.plot(tlist[1:], indexvalues)
+if savefigures == 1:
+    pyl.savefig('Autoignition_Stiffness_Indicator_' + str(dt) +
+                '_' + timer.strftime("%m_%d") +
+                '.' + figformat)
+
+# Plot the reference timescales vs. time
+pyl.figure(3)
+pyl.xlabel('Time (sec)')
+pyl.ylabel('Stiffness Indicator')
+# pyl.yscale('log')
+pyl.xlim(tstart, tstop)
+pyl.plot(tlist[1:], timescales)
 if savefigures == 1:
     pyl.savefig('Autoignition_Stiffness_Indicator_' + str(dt) +
                 '_' + timer.strftime("%m_%d") +
