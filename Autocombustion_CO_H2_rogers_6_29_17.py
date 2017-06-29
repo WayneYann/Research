@@ -204,7 +204,7 @@ starttime = datetime.datetime.now()
 print('Start time: {}'.format(starttime))
 
 savedata = 0
-savefigures = 0
+savefigures = 1
 figformat = 'png'
 
 # Define the range of the computation
