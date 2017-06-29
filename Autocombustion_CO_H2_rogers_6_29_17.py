@@ -295,10 +295,10 @@ for particle in [92]:
                                       nsteps=99999999,
                                       atol=abserr,
                                       rtol=relerr,
-                                      with_jacobian=True,
+                                      # with_jacobian=True,
                                       # first_step=dt,
-                                      min_step=dt,
-                                      max_step=dt
+                                      # min_step=dt,
+                                      # max_step=dt
                                       )
 
         # intrange = np.arange(currentt, currentt + dt, dt)
