@@ -459,7 +459,7 @@ pyl.ylabel('Reference Timescale')
 pyl.xlim(tstart, tstop)
 pyl.plot(tlist[1:], timescales)
 if savefigures == 1:
-    pyl.savefig('Autoignition_Stiffness_Indicator_' + str(dt) +
+    pyl.savefig('Autoignition_Ref_Timescale_' + str(dt) +
                 '_' + timer.strftime("%m_%d") +
                 '.' + figformat)
 
