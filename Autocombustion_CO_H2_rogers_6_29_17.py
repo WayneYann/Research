@@ -454,7 +454,7 @@ if savefigures == 1:
 # Plot the reference timescales vs. time
 pyl.figure(3)
 pyl.xlabel('Time (sec)')
-pyl.ylabel('Stiffness Indicator')
+pyl.ylabel('Reference Timescale')
 # pyl.yscale('log')
 pyl.xlim(tstart, tstop)
 pyl.plot(tlist[1:], timescales)
