@@ -354,6 +354,7 @@ for particle in [92]:
                                          jacobval,
                                          Y_press
                                          )
+        print('Minimum stiffness indicator value: {}'.format(min(indexvalues)))
         time3 = timer.time()
         # This statement intended to cut back on the amount of data processed
         # derivatives = derivatives[2]
