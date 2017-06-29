@@ -193,6 +193,13 @@ def stiffnessindicator(xlist, solution, jfun, *args):
     indicatorvals = []
     for i in range(len(solution)):
         jacobian = jfun(xlist[i], solution[i], funcparams[0])
+        print('Regular Jacobian:')
+        for j in jacobian:
+            print(j)
+        print('Transposed Jacobian:')
+        for j in np.transpose(jacobian):
+            print(j)
+        raise Exception('Just wanted to get here')
         Hermitian = 0.5 * (jacobian + np.transpose(jacobian))
         eigvals = np.linalg.eigvals(Hermitian)
         indicatorvals.append(0.5 * (min(eigvals) + max(eigvals)))
@@ -253,9 +260,9 @@ for particle in [92]:
         # Get the initial condition.
         Y = pasr[tstep, particle, :].copy()
 
-        print('Initial Condition:')
-        for i in Y:
-            print(i)
+        # print('Initial Condition:')
+        # for i in Y:
+        #     print(i)
 
         # Rearrange the array for the initial condition
         press_pos = 2
@@ -282,10 +289,10 @@ for particle in [92]:
         curstate = Ys[:-1]
         currentt = tstart
 
-        print('-----')
-        print('Modified condition:')
-        for i in Ys:
-            print(i)
+        # print('-----')
+        # print('Modified condition:')
+        # for i in Ys:
+        #     print(i)
 
         # Specify the integrator
         solver = ode(firstderiv  # ,
@@ -323,19 +330,19 @@ for particle in [92]:
             solutiontimes.append(time1 - time0)
             # times.append(solver.t)
 
-        print('Final time:')
-        print(solver.t)
-
+        # print('Final time:')
+        # print(solver.t)
+        #
         # raise Exception('Done finding solution!')
-        print('Last solution value:')
-        for i in solver.y:
-            print(i)
+        # print('Last solution value:')
+        # for i in solver.y:
+        #     print(i)
 
         test = jacobval(0.2, solver.y, Y_press)
 
-        print('Last Jacobian value:')
-        for i in test:
-            print(i)
+        # print('Last Jacobian value:')
+        # for i in test:
+        #     print(i)
 
         # Convert the solution to an array for ease of use.  Maybe just using
         # numpy function to begin with would be faster?
