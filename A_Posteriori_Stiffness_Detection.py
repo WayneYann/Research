@@ -316,7 +316,7 @@ pasrfilesloaded = 1
 # Define the range of the computation
 dt = 1.e-5
 tstart = 0.
-tstop = 0.2
+tstop = 5 * dt
 tlist = np.arange(tstart, tstop + 0.5 * dt, dt)
 
 # ODE Solver parameters
@@ -397,7 +397,8 @@ for particle in particlelist:
                 for i in initcond:
                     print(i)
 
-        print('Integrating...')
+        if not PaSR:
+            print('Integrating...')
         solution = []
         # Specify the integrator
         if usejac:
