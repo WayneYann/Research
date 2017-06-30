@@ -299,7 +299,7 @@ savefigures = 1
 figformat = 'png'
 
 # Possible options will be 'VDP', 'Autoignition', or 'Oregonator'
-equation = 'VDP'
+equation = 'Autoignition'
 
 # Possible options will be 'Stiffness_Index', 'Stiffness_Indicator'
 method = 'Stiffness_Indicator'
@@ -336,11 +336,13 @@ displaysolshapes = False
 
 # To be implemented later.
 makesecondderivplots = False
+makerainbowplot = False
 """
 -------------------------------------------------------------------------------
 """
 
 if equation == 'VDP':
+    # Makes no sense to have PaSR for this, so it won't be allowed.
     PaSR = False
     RHSfunction = dydx
     EQjac = jacvdp
@@ -482,20 +484,22 @@ for particle in particlelist:
             time3 = timer.time()
             stiffcomptimes.append(time3 - time2)
 
-        # This statement intended to cut back on the amount of data processed
-        # derivatives = derivatives[2]
+# CODE GRAVEYARD!!!
+# "Where old code goes to die..."
+# This statement intended to cut back on the amount of data processed
+# derivatives = derivatives[2]
 
-        # stiffvals.append(indexvalues[2])
+# stiffvals.append(indexvalues[2])
 
-        # Commented old code for the maximum eigenvalue or CEMA analysis
-        # expeigs[tstep,particle] = np.log10(maxeig)
-        # Commented old code for just figuring out the PaSR stiffness values
-        # pasrstiffnesses[tstep, particle] = np.log10(indexvalues[2])
-        # pasrstiffnesses[tstep,particle,:] = np.hstack((solution[2],
-        #                                               indexvalues[2]))
-        # This variable includes the values of the derivatives
-        # pasrstiffnesses2[tstep, particle, :] = np.hstack(
-        #    (derivatives, indexvalues[2]))
+# Commented old code for the maximum eigenvalue or CEMA analysis
+# expeigs[tstep,particle] = np.log10(maxeig)
+# Commented old code for just figuring out the PaSR stiffness values
+# pasrstiffnesses[tstep, particle] = np.log10(indexvalues[2])
+# pasrstiffnesses[tstep,particle,:] = np.hstack((solution[2],
+#                                               indexvalues[2]))
+# This variable includes the values of the derivatives
+# pasrstiffnesses2[tstep, particle, :] = np.hstack(
+#    (derivatives, indexvalues[2]))
 
 speciesnames = ['H', 'H$_2$', 'O', 'OH', 'H$_2$O', 'O$_2$', 'HO$_2$',
                 'H$_2$O$_2$', 'Ar', 'He', 'CO', 'CO$_2$', 'N$_2$']
@@ -524,75 +528,184 @@ if displaysolshapes:
     print('stiffvalues shape:')
     print(np.shape(stiffvalues))
 
-normtlist = []
-for i in tlist:
-    normtlist.append(i / (tstop - tstart))
+plotnum = 0
+if PaSR:
+    # Ratios of the stiffness computation times to integration times
+    ratios = []
+    for i in range(len(solutiontimes)):
+        ratios.append(stiffcomptimes[i] / solutiontimes[i])
 
-# Plot the solution of the temperature
-pyl.figure(0)
-if equation == 'VDP':
-    ylab = 'Y_Value'
-    pyl.ylabel(ylab)
-elif equation == 'Autoignition':
-    ylab = 'Temperature'
-    pyl.ylabel(ylab + ' (K)')
-pyl.xlabel('Time (sec)')
-pyl.xlim(tstart, tstop)
-pyl.plot(tlist, primaryvals)
-pyl.grid(b=True, which='both')
-if savefigures == 1:
-    pyl.savefig(equation + '_' +
-                ylab +
-                str(dt) +
-                '_' + timer.strftime("%m_%d") +
-                '.' + figformat)
+    # Average stiffness computation and solution times
+    datanum = len(solutiontimes)
+    solavg = 0.0
+    stiffavg = 0.0
+    for i in range(len(solutiontimes)):
+        solavg += solutiontimes[i]
+        stiffavg += stiffcomptimes[i]
+    solavg = 1000. * (solavg / datanum)
+    stiffavg = 1000. * (stiffavg / datanum)
+    print("Average integration time (ms): {:.7f}".format(solavg))
+    print("Average SI computation time (ms): {:.7f}".format(stiffavg))
+    print("Maximum integration time (ms): {:.7f}".format(
+        max(solutiontimes) * 1000.))
+    print("Maximum SI computation time (ms): {:.7f}".format(max(stiffcomptimes)
+                                                            * 1000.))
 
-# Plot the time per integration
-pyl.figure(1)
-pyl.xlabel('Time (sec)')
-pyl.ylabel('Integration time (sec)')
-# pyl.xlim(tstart, tstop)
-# pyl.ylim(0, 0.005)
-pyl.xlim(0, 1)
-pyl.plot(normtlist, solutiontimes)
-pyl.grid(b=True, which='both')
-if savefigures == 1:
-    pyl.savefig(equation + '_Integration_Times_' +
-                str(dt) +
-                '_' + timer.strftime("%m_%d") +
-                '.' + figformat)
+    # Plot of integration times vs. computation number
+    pyl.figure(0)
+    pyl.xlim(0, datanum)
+    pyl.ylim(0, max(solutiontimes))
+    pyl.xlabel('Computation Number')
+    pyl.ylabel('Integration Time')
+    pyl.scatter(range(datanum), solutiontimes, 0.1)
+    if savefigures == 1:
+        pyl.savefig('Integration_Times_6_24.' + figformat)
+    plotnum += 1
 
-# Plot the stiffness indicator vs. time
-pyl.figure(2)
-pyl.xlabel('Time (sec)')
-pyl.ylabel('Stiffness Indicator')
-# pyl.xlim(tstart, tstop)
-pyl.xlim(0, 1)
-pyl.plot(normtlist, stiffvalues)
-pyl.grid(b=True, which='both')
-if savefigures == 1:
-    pyl.savefig(equation + '_' +
-                method + '_' +
-                str(dt) +
-                '_' + timer.strftime("%m_%d") +
-                '.' + figformat)
+    # Plot of stiffness computation times vs. computation number
+    pyl.figure(plotnum)
+    pyl.xlim(0, datanum)
+    pyl.ylim(0, max(stiffcomptimes))
+    pyl.xlabel('Computation Number')
+    pyl.ylabel('Stiffness Index Computation Time')
+    pyl.scatter(range(datanum), stiffcomptimes, 0.1)
+    if savefigures == 1:
+        pyl.savefig('Stiff_Comp_Times_' + timer.strftime("%m_%d") +
+                    '.' + figformat)
+    plotnum += 1
 
-if findtimescale:
-    # Plot the reference timescales vs. time
-    pyl.figure(3)
+    # Plot of ratio of stiffness computation times vs. integration times
+    pyl.figure(plotnum)
+    pyl.xlim(0, datanum)
+    pyl.ylim(0, max(ratios))
+    pyl.xlabel('Particle Number')
+    pyl.ylabel('Ratio')
+    pyl.scatter(range(datanum), ratios, 0.1)
+    if savefigures == 1:
+        pyl.savefig('Stiff_Comp_Ratios_' + timer.strftime("%m_%d") +
+                    '.' + figformat)
+    plotnum += 1
+
+    # Plot of stiffness computation times vs. stiffness index
+    pyl.figure(plotnum)
+    pyl.ylabel('Stiffness Index ')
+    pyl.xlabel('Stiffness Index Computation Time')
+    pyl.ylim(min(stiffvals), max(stiffvals))
+    pyl.xlim(0., max(stiffcomptimes))
+    pyl.yscale('log')
+    pyl.scatter(stiffcomptimes, stiffvals, 0.1)
+    if savefigures == 1:
+        pyl.savefig('Stiffcomp_Stiffvals_' + timer.strftime("%m_%d") +
+                    '.' + figformat)
+    plotnum += 1
+
+    # Plot of stiffness computation times vs. stiffness index
+    pyl.figure(plotnum)
+    pyl.ylabel('Stiffness Index ')
+    pyl.xlabel('Integration Time')
+    pyl.xlim(0., max(solutiontimes))
+    pyl.ylim(min(stiffvals), max(stiffvals))
+    pyl.yscale('log')
+    pyl.scatter(solutiontimes, stiffvals, 0.1)
+    if savefigures == 1:
+        pyl.savefig('Int_Stiffvals_' + timer.strftime("%m_%d") +
+                    '.' + figformat)
+    plotnum += 1
+
+    # if makerainbowplot:
+    #     # Plot the stiffness at every point in the PaSR simulation
+    #     # Create a mesh to plot on
+    #     xcoords = np.arange(numparticles)
+    #     ycoords = np.arange(numtsteps)
+    #     xmesh, ymesh = np.meshgrid(xcoords, ycoords)
+    #
+    #     pyl.figure(plotnum)
+    #     # pyl.xlim(0,numparticles)
+    #     # pyl.ylim(0,numtsteps)
+    #     pyl.xlabel('Particle Number')
+    #     pyl.ylabel('PaSR Timestep')
+    #     plot = pyl.contourf(xmesh, ymesh, pasrstiffnesses, 50)
+    #     pyl.grid(b=True, which='both')
+    #     cb = pyl.colorbar(plot)
+    #     label = cb.set_label('log$_{10}$ (Stiffness Index)')
+    #     if savefigures == 1:
+    #         pyl.savefig('PaSR_Range_Stiffness_Index.' + figformat)
+
+else:
+    # Create a list of normalized dt values
+    normtlist = []
+    for i in tlist:
+        normtlist.append(i / (tstop - tstart))
+
+    # Plot the solution of the temperature
+    pyl.figure(plotnum)
+    if equation == 'VDP':
+        ylab = 'Y_Value'
+        pyl.ylabel(ylab)
+    elif equation == 'Autoignition':
+        ylab = 'Temperature'
+        pyl.ylabel(ylab + ' (K)')
     pyl.xlabel('Time (sec)')
-    pyl.ylabel('Reference Timescale')
-    pyl.xlim(tstart, tstop)
-    pyl.plot(tlist, timescales)
+    # pyl.xlim(tstart, tstop)
+    pyl.xlim(0, 1)
+    pyl.plot(normtlist, primaryvals)
     pyl.grid(b=True, which='both')
     if savefigures == 1:
-        pyl.savefig(equation + '_Ref_Timescale_' +
+        pyl.savefig(equation + '_' +
+                    ylab +
                     str(dt) +
                     '_' + timer.strftime("%m_%d") +
                     '.' + figformat)
+    plotnum += 1
+
+    # Plot the time per integration
+    pyl.figure(plotnum)
+    pyl.xlabel('Time (sec)')
+    pyl.ylabel('Integration time (sec)')
+    # pyl.xlim(tstart, tstop)
+    # pyl.ylim(0, 0.005)
+    pyl.xlim(0, 1)
+    pyl.plot(normtlist, solutiontimes)
+    pyl.grid(b=True, which='both')
+    if savefigures == 1:
+        pyl.savefig(equation + '_Integration_Times_' +
+                    str(dt) +
+                    '_' + timer.strftime("%m_%d") +
+                    '.' + figformat)
+    plotnum += 1
+
+    # Plot the stiffness indicator vs. time
+    pyl.figure(plotnum)
+    pyl.xlabel('Time (sec)')
+    pyl.ylabel('Stiffness Indicator')
+    # pyl.xlim(tstart, tstop)
+    pyl.xlim(0, 1)
+    pyl.plot(normtlist, stiffvalues)
+    pyl.grid(b=True, which='both')
+    if savefigures == 1:
+        pyl.savefig(equation + '_' +
+                    method + '_' +
+                    str(dt) +
+                    '_' + timer.strftime("%m_%d") +
+                    '.' + figformat)
+    plotnum += 1
+
+    if findtimescale:
+        # Plot the reference timescales vs. time
+        pyl.figure(plotnum)
+        pyl.xlabel('Time (sec)')
+        pyl.ylabel('Reference Timescale')
+        pyl.xlim(tstart, tstop)
+        pyl.plot(tlist, timescales)
+        pyl.grid(b=True, which='both')
+        if savefigures == 1:
+            pyl.savefig(equation + '_Ref_Timescale_' +
+                        str(dt) +
+                        '_' + timer.strftime("%m_%d") +
+                        '.' + figformat)
+        plotnum += 1
 
 """
-
 # Plot all of the 2nd derivatives vs stiffness index
 for i in range(14):
     for j in range(len(pasrstiffnesses2[0, :, 0])):
@@ -631,106 +744,10 @@ if savefigures == 1:
         pyl.figure(i)
         pyl.savefig('COH2_PaSR_SI_p' + str(i) + figformat)
 
+"""
+
 finishtime = datetime.datetime.now()
 print('Finish time: {}'.format(finishtime))
 
-
-# Ratios of the stiffness computation times to integration times
-ratios = []
-for i in range(len(solutiontimes)):
-    ratios.append(stiffcomptimes[i] / solutiontimes[i])
-
-# Average stiffness computation and solution times
-datanum = len(solutiontimes)
-solavg = 0.0
-stiffavg = 0.0
-for i in range(len(solutiontimes)):
-    solavg += solutiontimes[i]
-    stiffavg += stiffcomptimes[i]
-solavg = 1000. * (solavg / datanum)
-stiffavg = 1000. * (stiffavg / datanum)
-print("Average integration time (ms): {:.7f}".format(solavg))
-print("Average SI computation time (ms): {:.7f}".format(stiffavg))
-print("Maximum integration time (ms): {:.7f}".format(
-    max(solutiontimes) * 1000.))
-print("Maximum SI computation time (ms): {:.7f}".format(max(stiffcomptimes)
-                                                        * 1000.))
-
-# Plot of integration times vs. computation number
-pyl.figure(0)
-pyl.xlim(0, datanum)
-pyl.ylim(0, max(solutiontimes))
-pyl.xlabel('Computation Number')
-pyl.ylabel('Integration Time')
-pyl.scatter(range(datanum), solutiontimes, 0.1)
-if savefigures == 1:
-    pyl.savefig('Integration_Times_6_24.' + figformat)
-
-# Plot of stiffness computation times vs. computation number
-pyl.figure(1)
-pyl.xlim(0, datanum)
-pyl.ylim(0, max(stiffcomptimes))
-pyl.xlabel('Computation Number')
-pyl.ylabel('Stiffness Index Computation Time')
-pyl.scatter(range(datanum), stiffcomptimes, 0.1)
-if savefigures == 1:
-    pyl.savefig('Stiff_Comp_Times_' + timer.strftime("%m_%d") +
-                '.' + figformat)
-
-# Plot of ratio of stiffness computation times vs. integration times
-pyl.figure(2)
-pyl.xlim(0, datanum)
-pyl.ylim(0, max(ratios))
-pyl.xlabel('Particle Number')
-pyl.ylabel('Ratio')
-pyl.scatter(range(datanum), ratios, 0.1)
-if savefigures == 1:
-    pyl.savefig('Stiff_Comp_Ratios_' + timer.strftime("%m_%d") +
-                '.' + figformat)
-
-# Plot of stiffness computation times vs. stiffness index
-pyl.figure(3)
-pyl.ylabel('Stiffness Index ')
-pyl.xlabel('Stiffness Index Computation Time')
-pyl.ylim(min(stiffvals), max(stiffvals))
-pyl.xlim(0., max(stiffcomptimes))
-pyl.yscale('log')
-pyl.scatter(stiffcomptimes, stiffvals, 0.1)
-if savefigures == 1:
-    pyl.savefig('Stiffcomp_Stiffvals_' + timer.strftime("%m_%d") +
-                '.' + figformat)
-
-# Plot of stiffness computation times vs. stiffness index
-pyl.figure(4)
-pyl.ylabel('Stiffness Index ')
-pyl.xlabel('Integration Time')
-pyl.xlim(0., max(solutiontimes))
-pyl.ylim(min(stiffvals), max(stiffvals))
-pyl.yscale('log')
-pyl.scatter(solutiontimes, stiffvals, 0.1)
-if savefigures == 1:
-    pyl.savefig('Int_Stiffvals_' + timer.strftime("%m_%d") +
-                '.' + figformat)
-
-
-
-# Plot the stiffness at every point in the PaSR simulation
-# Create a mesh to plot on
-xcoords = np.arange(numparticles)
-ycoords = np.arange(numtsteps)
-xmesh, ymesh = np.meshgrid(xcoords, ycoords)
-
-pyl.figure(3)
-# pyl.xlim(0,numparticles)
-# pyl.ylim(0,numtsteps)
-pyl.xlabel('Particle Number')
-pyl.ylabel('PaSR Timestep')
-plot = pyl.contourf(xmesh, ymesh, pasrstiffnesses, 50)
-pyl.grid(b=True, which='both')
-cb = pyl.colorbar(plot)
-label = cb.set_label('log$_{10}$ (Stiffness Index)')
-if savefigures == 1:
-    pyl.savefig('PaSR_Range_Stiffness_Index.' + figformat)
-"""
 # pyl.close('all')
 # pyl.show()
