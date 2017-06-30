@@ -333,7 +333,7 @@ useN2 = False
 displayconditions = False
 
 # Display the solution shape for plotting/debugging
-displaysolshapes = False
+displaysolshapes = True
 
 # To be implemented later.
 makesecondderivplots = False
