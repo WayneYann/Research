@@ -551,9 +551,10 @@ if savefigures == 1:
 pyl.figure(1)
 pyl.xlabel('Time (sec)')
 pyl.ylabel('Integration time (sec)')
-pyl.xlim(tstart, tstop)
+# pyl.xlim(tstart, tstop)
 # pyl.ylim(0, 0.005)
-pyl.plot(tlist, solutiontimes)
+pyl.xlim(0, 1)
+pyl.plot(normtlist, solutiontimes)
 pyl.grid(b=True, which='both')
 if savefigures == 1:
     pyl.savefig(equation + '_Integration_Times_' +
@@ -565,7 +566,8 @@ if savefigures == 1:
 pyl.figure(2)
 pyl.xlabel('Time (sec)')
 pyl.ylabel('Stiffness Indicator')
-pyl.xlim(tstart, tstop)
+# pyl.xlim(tstart, tstop)
+pyl.xlim(0, 1)
 pyl.plot(normtlist, stiffvalues)
 pyl.grid(b=True, which='both')
 if savefigures == 1:
