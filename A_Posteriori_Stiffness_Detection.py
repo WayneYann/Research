@@ -296,7 +296,7 @@ savefigures = 1
 figformat = 'png'
 
 # Possible options will be 'VDP', 'Autoignition', or 'Oregonator'
-equation = 'Autoignition'
+equation = 'VDP'
 
 # Possible options will be 'Stiffness_Index', 'Stiffness_Indicator'
 method = 'Stiffness_Indicator'
@@ -307,13 +307,13 @@ findtimescale = False
 
 # Make this true if you want to test all of the values across the PaSR.
 # Otherwise, this will run a single autoignition at particle 92, timestep 4.
-PaSR = True
+PaSR = False
 pasrfilesloaded = 9
 
 # Define the range of the computation
-dt = 1.e-8
+dt = 1.e-2
 tstart = 0.
-tstop = 5 * dt
+tstop = 400.
 tlist = np.arange(tstart, tstop + 0.5 * dt, dt)
 
 # ODE Solver parameters
@@ -330,7 +330,7 @@ useN2 = False
 displayconditions = False
 
 # Display the solution shape for plotting/debugging
-displaysolshapes = True
+displaysolshapes = False
 
 # To be implemented later.
 makesecondderivplots = False
