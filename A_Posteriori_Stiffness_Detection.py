@@ -406,14 +406,14 @@ for particle in particlelist:
         else:
             intj = None
 
-        solver = ode(RHSfunction,
-                     jac=intj
+        solver = ode(RHSfunction  # ,
+                     # jac=intj
                      ).set_integrator('vode',
                                       method='bdf',
                                       nsteps=99999999,
                                       atol=abserr,
                                       rtol=relerr,
-                                      with_jacobian=usejac,
+                                      # with_jacobian=usejac,
                                       # first_step=dt,
                                       # min_step=dt,
                                       # max_step=dt
