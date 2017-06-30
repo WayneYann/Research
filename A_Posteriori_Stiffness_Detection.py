@@ -698,7 +698,7 @@ else:
     else:
         plotx = tstart, tstop
 
-    # Plot the solution of the temperature
+    # Plot the solution of the temperature or Y value
     pyl.figure(plotnum)
     if equation == 'VDP':
         ylab = 'Y_Value'
@@ -707,7 +707,6 @@ else:
         ylab = 'Temperature'
         pyl.ylabel(ylab + ' (K)')
     pyl.xlabel('Time (sec)')
-    # pyl.xlim(tstart, tstop)
     pyl.xlim(plotx)
     pyl.plot(tlist, primaryvals)
     pyl.grid(b=True, which='both')
@@ -724,7 +723,6 @@ else:
     pyl.figure(plotnum)
     pyl.xlabel('Time (sec)')
     pyl.ylabel('Integration time (sec)')
-    # pyl.xlim(tstart, tstop)
     # pyl.ylim(0, 0.005)
     pyl.xlim(plotx)
     pyl.plot(tlist, solutiontimes)
@@ -737,13 +735,14 @@ else:
                     '.' + figformat)
     plotnum += 1
 
-    # Plot the stiffness indicator vs. time
+    # Plot the stiffness metric vs. time
     pyl.figure(plotnum)
     pyl.xlabel('Time (sec)')
     pyl.ylabel(method)
-    # pyl.xlim(tstart, tstop)
     pyl.xlim(plotx)
     pyl.plot(tlist, stiffvalues)
+    if method == 'Stiffness_Index':
+        pyl.yscale('log')
     pyl.grid(b=True, which='both')
     if savefigures == 1:
         pyl.savefig(output_folder +
@@ -759,7 +758,7 @@ else:
         pyl.figure(plotnum)
         pyl.xlabel('Time (sec)')
         pyl.ylabel('Reference Timescale')
-        pyl.xlim(tstart, tstop)
+        pyl.xlim(plotx)
         pyl.plot(tlist, timescales)
         pyl.grid(b=True, which='both')
         if savefigures == 1:
