@@ -518,7 +518,7 @@ speciesnames = ['H', 'H$_2$', 'O', 'OH', 'H$_2$O', 'O$_2$', 'HO$_2$',
 
 # Get the current working directory
 my_path = os.path.abspath(__file__)
-output_folder = '/Output_Plots/'
+output_folder = 'Output_Plots/'
 
 # Plot the results
 
