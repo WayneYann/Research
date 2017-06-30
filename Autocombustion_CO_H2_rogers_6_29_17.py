@@ -299,7 +299,7 @@ savefigures = 1
 figformat = 'png'
 
 # Possible options will be 'VDP', 'Autoignition', or 'Oregonator'
-equation = 'Autoignition'
+equation = 'VDP'
 
 # Possible options will be 'Stiffness_Index', 'Stiffness_Indicator'
 method = 'Stiffness_Indicator'
@@ -313,9 +313,9 @@ findtimescale = False
 PaSR = False
 
 # Define the range of the computation
-dt = 1.e-5
+dt = 1.e-2
 tstart = 0.
-tstop = 0.2
+tstop = 400.
 tlist = np.arange(tstart, tstop + 0.5 * dt, dt)
 
 # ODE Solver parameters
@@ -440,7 +440,7 @@ for particle in particlelist:
             for i in solver.y:
                 print(i)
 
-            lastjac = jacobval(0.2, solver.y, Y_press)
+            lastjac = jacobval(0.2, solver.y, RHSparam)
 
             print('Last Jacobian value:')
             for i in lastjac:
@@ -564,17 +564,18 @@ if savefigures == 1:
                 '_' + timer.strftime("%m_%d") +
                 '.' + figformat)
 
-# Plot the reference timescales vs. time
-pyl.figure(3)
-pyl.xlabel('Time (sec)')
-pyl.ylabel('Reference Timescale')
-pyl.xlim(tstart, tstop)
-pyl.plot(tlist[1:], timescales)
-if savefigures == 1:
-    pyl.savefig(equation + '_Ref_Timescale_' +
-                str(dt) +
-                '_' + timer.strftime("%m_%d") +
-                '.' + figformat)
+if findtimescale:
+    # Plot the reference timescales vs. time
+    pyl.figure(3)
+    pyl.xlabel('Time (sec)')
+    pyl.ylabel('Reference Timescale')
+    pyl.xlim(tstart, tstop)
+    pyl.plot(tlist[1:], timescales)
+    if savefigures == 1:
+        pyl.savefig(equation + '_Ref_Timescale_' +
+                    str(dt) +
+                    '_' + timer.strftime("%m_%d") +
+                    '.' + figformat)
 
 """
 
