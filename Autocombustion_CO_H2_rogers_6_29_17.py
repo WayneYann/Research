@@ -324,6 +324,9 @@ if equation == 'Autoignition':
 
     numparticles = len(pasr[0, :, 0])
     numtsteps = len(pasr[:, 0, 0])
+elif equation == 'VDP':
+    initcond = [2, 0]
+    RHSparam = 200.
 
 # Cheated a little here and entered the number of variables to code faster
 numparams = 15
@@ -350,7 +353,8 @@ for particle in particlelist:
         print(particle)
     for tstep in timelist:
         # Get the initial condition.
-        Y = pasr[tstep, particle, :].copy()
+        if equation == 'Autoignition':
+            Y = pasr[tstep, particle, :].copy()
 
         if displayconditions:
             print('Initial Condition:')
@@ -385,10 +389,6 @@ for particle in particlelist:
             else:
                 initcond = Ys[:-1]
             RHSparam = Y_press
-
-        elif equation == 'VDP':
-            initcond = [2, 0]
-            RHSparam = 200.
 
         if displayconditions:
             print('-----')
