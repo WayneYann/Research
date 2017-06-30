@@ -460,35 +460,35 @@ for particle in particlelist:
         # print(np.shape(tlist2))
         # print(dt*100.)
         # print(np.shape(solution))
-        if method == 'Stiffness_Indicator':
-            # if not PaSR:
-            #     print('Finding Stiffness Indicator...')
-            time2 = timer.time()
-            stiffvalues = stiffnessindicator(tlist,
-                                             solution,
-                                             EQjac,
-                                             RHSparam
-                                             )
-            time3 = timer.time()
-            # if findtimescale:
-            #     if not PaSR:
-            #         print('Finding reference timescales...')
-            #     timescales = reftimescale(stiffvalues, tstop - tstart)
-            stiffcomptimes.append(time3 - time2)
-        elif method == 'Stiffness_Index':
-            if not PaSR:
-                print('Finding Stiffness Index...')
-            time2 = timer.time()
-            stiffvalues = stiffnessindex(tlist,
-                                         solution,
-                                         RHSfunction,
-                                         EQjac,
-                                         RHSparam
-                                         )
-            time3 = timer.time()
-            stiffcomptimes.append(time3 - time2)
-        if PaSR:
-            stiffvals.append(stiffvalues[2])
+        # if method == 'Stiffness_Indicator':
+        #     # if not PaSR:
+        #     #     print('Finding Stiffness Indicator...')
+        #     time2 = timer.time()
+        #     stiffvalues = stiffnessindicator(tlist,
+        #                                      solution,
+        #                                      EQjac,
+        #                                      RHSparam
+        #                                      )
+        #     time3 = timer.time()
+        #     # if findtimescale:
+        #     #     if not PaSR:
+        #     #         print('Finding reference timescales...')
+        #     #     timescales = reftimescale(stiffvalues, tstop - tstart)
+        #     stiffcomptimes.append(time3 - time2)
+        # elif method == 'Stiffness_Index':
+        #     if not PaSR:
+        #         print('Finding Stiffness Index...')
+        #     time2 = timer.time()
+        #     stiffvalues = stiffnessindex(tlist,
+        #                                  solution,
+        #                                  RHSfunction,
+        #                                  EQjac,
+        #                                  RHSparam
+        #                                  )
+        #     time3 = timer.time()
+        #     stiffcomptimes.append(time3 - time2)
+        # if PaSR:
+        #     stiffvals.append(stiffvalues[2])
 
 # CODE GRAVEYARD!!!
 # "Where old code goes to die..."
