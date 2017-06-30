@@ -580,7 +580,8 @@ if PaSR:
     pyl.ylabel('Integration Time')
     pyl.scatter(range(datanum), solutiontimes, 0.1)
     if savefigures == 1:
-        pyl.savefig(my_path + output_folder +
+        pyl.savefig(  # my_path +
+                    output_folder +
                     'Integration_Times_' +
                     str(dt) +
                     '_' + timer.strftime("%m_%d") +
@@ -595,7 +596,8 @@ if PaSR:
     pyl.ylabel('Stiffness Metric Computation Time')
     pyl.scatter(range(datanum), stiffcomptimes, 0.1)
     if savefigures == 1:
-        pyl.savefig(my_path + output_folder +
+        pyl.savefig(  # my_path +
+                    output_folder +
                     'Stiff_Comp_Times_' +
                     str(dt) +
                     '_' + timer.strftime("%m_%d") +
@@ -610,7 +612,8 @@ if PaSR:
     pyl.ylabel('Ratio')
     pyl.scatter(range(datanum), ratios, 0.1)
     if savefigures == 1:
-        pyl.savefig(my_path + output_folder +
+        pyl.savefig(  # my_path +
+                    output_folder +
                     'Stiff_Comp_Ratios_' +
                     str(dt) +
                     '_' + timer.strftime("%m_%d") +
@@ -627,7 +630,8 @@ if PaSR:
         pyl.yscale('log')
     pyl.scatter(stiffcomptimes, stiffvals, 0.1)
     if savefigures == 1:
-        pyl.savefig(my_path + output_folder +
+        pyl.savefig(  # my_path +
+                    output_folder +
                     'Stiffcomp_Stiffvals_' +
                     str(dt) +
                     '_' + timer.strftime("%m_%d") +
@@ -644,7 +648,8 @@ if PaSR:
         pyl.xscale('log')
     pyl.scatter(stiffvals, solutiontimes, 0.1)
     if savefigures == 1:
-        pyl.savefig(my_path + output_folder +
+        pyl.savefig(  # my_path +
+                    output_folder +
                     'Int_Stiffvals_' +
                     str(dt) +
                     '_' + timer.strftime("%m_%d") +
@@ -690,7 +695,9 @@ else:
     pyl.plot(normtlist, primaryvals)
     pyl.grid(b=True, which='both')
     if savefigures == 1:
-        pyl.savefig(equation + '_' +
+        pyl.savefig(  # my_path +
+                    output_folder +
+                    equation + '_' +
                     ylab +
                     str(dt) +
                     '_' + timer.strftime("%m_%d") +
@@ -707,7 +714,8 @@ else:
     pyl.plot(normtlist, solutiontimes)
     pyl.grid(b=True, which='both')
     if savefigures == 1:
-        pyl.savefig(my_path + output_folder +
+        pyl.savefig(  # my_path +
+                    output_folder +
                     equation + '_Integration_Times_' +
                     str(dt) +
                     '_' + timer.strftime("%m_%d") +
@@ -723,7 +731,8 @@ else:
     pyl.plot(normtlist, stiffvalues)
     pyl.grid(b=True, which='both')
     if savefigures == 1:
-        pyl.savefig(my_path + output_folder +
+        pyl.savefig(  # my_path +
+                    output_folder +
                     equation + '_' +
                     method + '_' +
                     str(dt) +
@@ -740,7 +749,8 @@ else:
         pyl.plot(tlist, timescales)
         pyl.grid(b=True, which='both')
         if savefigures == 1:
-            pyl.savefig(my_path + output_folder +
+            pyl.savefig(  # my_path +
+                        output_folder +
                         equation + '_Ref_Timescale_' +
                         str(dt) +
                         '_' + timer.strftime("%m_%d") +
