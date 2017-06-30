@@ -244,13 +244,32 @@ def reftimescale(indicatorvals, Tlen):
     timescales = np.array(timescales)
     return timescales
 
+
 # Finding the current time to time how long the simulation takes
 starttime = datetime.datetime.now()
 print('Start time: {}'.format(starttime))
 
+"""
+------------------------------------------------------
+All of the values that need to be adjusted should be in this section.
+"""
+# Specify how you want to save the figures/data
 savedata = 0
 savefigures = 1
 figformat = 'png'
+
+# Possible options will be 'VDP', 'Stiffness_Indicator', or 'Oregonator'
+equation = 'VDP'
+
+method = 'Stiffness_Indicator'
+
+# Make this true if you want to obtain the reference timescale of the stiffness
+# indicator.
+findtimescale = True
+
+# Make this true if you want to test all of the values across the PaSR.
+# Otherwise, this will run a single autoignition at particle 92, timestep 4.
+PaSR = False
 
 # Define the range of the computation
 dt = 1.e-6
@@ -262,19 +281,49 @@ tlist = np.arange(tstart, tstop + 0.5 * dt, dt)
 abserr = 1.0e-17
 relerr = 1.0e-15
 
-# Load the initial conditions from the PaSR files
-pasrarrays = []
-print('Loading data...')
-for i in range(9):
-    filepath = os.path.join(os.getcwd(), 'pasr_out_h2-co_' + str(i) + '.npy')
-    filearray = np.load(filepath)
-    pasrarrays.append(filearray)
+# Keep this at false, something isn't working with using the jacobian yet.
+usejac = False
 
-pasr = np.concatenate(pasrarrays, 1)
+# Decide if you want to give pyJac N2 or not
+useN2 = False
 
-# Initialize the array of stiffness index values
-numparticles = len(pasr[0, :, 0])
-numtsteps = len(pasr[:, 0, 0])
+# Used if you want to check that the PaSR data is being properly conditioned
+displayconditions = False
+
+# Display the solution shape for plotting/debugging
+displaysolshapes = False
+
+# To be implemented later.
+makesecondderivplots = False
+"""
+------------------------------------------------------
+"""
+
+if equation == 'VDP':
+    PaSR = False
+    RHSfunction = dydx
+    EQjac = jacvdp
+    EQ2deriv = d2ydx2
+elif equation == 'Autoignition':
+    RHSfunction = firstderiv
+    EQjac = jacobval
+
+if equation == 'Autoignition':
+    # Load the initial conditions from the PaSR files
+    pasrarrays = []
+    print('Loading data...')
+    for i in range(9):
+        filepath = os.path.join(os.getcwd(),
+                                'pasr_out_h2-co_' +
+                                str(i) +
+                                '.npy')
+        filearray = np.load(filepath)
+        pasrarrays.append(filearray)
+
+    pasr = np.concatenate(pasrarrays, 1)
+
+    numparticles = len(pasr[0, :, 0])
+    numtsteps = len(pasr[:, 0, 0])
 
 # Cheated a little here and entered the number of variables to code faster
 numparams = 15
@@ -283,87 +332,106 @@ numparams = 15
 
 # Create vectors for that time how long it takes to compute stiffness index and
 # the solution itself
-solutiontimes, stiffcomptimes = [], []
-stiffvals = []
+solutiontimes, stiffcomptimes, stiffvals = [], [], []
 
 # expeigs = np.zeros((numtsteps, numparticles))
 
 # Loop through the PaSR file for initial conditions
+if PaSR:
+    print('Code progress:')
+    particlelist = range(numparticles)
+    timelist = range(numtsteps)
+else:
+    particlelist = [92]
+    timelist = [4]
 
-# print('Code progress:')
-for particle in [92]:
-    # print(particle)
-    for tstep in [4]:
-        #        print(tstep)
+for particle in particlelist:
+    if PaSR:
+        print(particle)
+    for tstep in timelist:
         # Get the initial condition.
         Y = pasr[tstep, particle, :].copy()
 
-        # print('Initial Condition:')
-        # for i in Y:
-        #     print(i)
+        if displayconditions:
+            print('Initial Condition:')
+            for i in Y:
+                print(i)
 
-        # Rearrange the array for the initial condition
-        press_pos = 2
-        temp_pos = 1
-        arraylen = len(Y)
+        if equation == 'Autoignition':
+            # Rearrange the array for the initial condition
+            press_pos = 2
+            temp_pos = 1
+            arraylen = len(Y)
 
-        Y_press = Y[press_pos]
-        Y_temp = Y[temp_pos]
-        Y_species = Y[3:arraylen]
-        Ys = np.hstack((Y_temp, Y_species))
+            Y_press = Y[press_pos]
+            Y_temp = Y[temp_pos]
+            Y_species = Y[3:arraylen]
+            Ys = np.hstack((Y_temp, Y_species))
 
-        # Put N2 to the last value of the mass species
-        N2_pos = 9
-        newarlen = len(Ys)
-        Y_N2 = Ys[N2_pos]
-        Y_x = Ys[newarlen - 1]
-        for i in range(N2_pos, newarlen - 1):
-            Ys[i] = Ys[i + 1]
-        Ys[newarlen - 1] = Y_N2
+            # Put N2 to the last value of the mass species
+            N2_pos = 9
+            newarlen = len(Ys)
+            Y_N2 = Ys[N2_pos]
+            Y_x = Ys[newarlen - 1]
+            for i in range(N2_pos, newarlen - 1):
+                Ys[i] = Ys[i + 1]
+            Ys[newarlen - 1] = Y_N2
 
-        # Call the integrator and time it
-        solution = []
-        # Don't feed pyJac N2
-        curstate = Ys[:-1]
-        currentt = tstart
+            # Call the integrator and time it
+            solution = []
 
-        # Switch this to the van der Pol equation
+            if useN2:
+                initcond = Ys
+            else:
+                initcond = Ys[:-1]
+            RHSparam = Y_press
 
-        curstate = [2, 0]
+        elif equation == 'VDP':
+            initcond = [2, 0]
+            RHSparam = 200.
 
-        Y_press = 200.
-
-        # print('-----')
-        # print('Modified condition:')
-        # for i in Ys:
-        #     print(i)
+        if displayconditions:
+            print('-----')
+            print('Modified condition:')
+            for i in initcond:
+                print(i)
 
         print('Integrating...')
 
         # Specify the integrator
-        solver = ode(dydx  # ,
-                     # jac=jacobval
-                     ).set_integrator('vode',
-                                      method='bdf',
-                                      nsteps=99999999,
-                                      atol=abserr,
-                                      rtol=relerr,
-                                      # with_jacobian=True,
-                                      # first_step=dt,
-                                      # min_step=dt,
-                                      # max_step=dt
-                                      )
-
-        # intrange = np.arange(currentt, currentt + dt, dt)
+        if usejac:
+            solver = ode(RHSfunction,
+                         jac=jacobval
+                         ).set_integrator('vode',
+                                          method='bdf',
+                                          nsteps=99999999,
+                                          atol=abserr,
+                                          rtol=relerr,
+                                          with_jacobian=True,
+                                          # first_step=dt,
+                                          # min_step=dt,
+                                          # max_step=dt
+                                          )
+        else:
+            solver = ode(RHSfunction  # ,
+                         # jac=jacobval
+                         ).set_integrator('vode',
+                                          method='bdf',
+                                          nsteps=99999999,
+                                          atol=abserr,
+                                          rtol=relerr,
+                                          with_jacobian=False
+                                          # first_step=dt,
+                                          # min_step=dt,
+                                          # max_step=dt
+                                          )
 
         # Set initial conditions
-        solver.set_initial_value(curstate, tstart)
-        solver.set_f_params(Y_press)
-        solver.set_jac_params(Y_press)
+        solver.set_initial_value(initcond, tstart)
+        solver.set_f_params(RHSparam)
+        solver.set_jac_params(RHSparam)
 
         # Integrate the ODE across all steps
-
-        # times = []
         while solver.successful() and solver.t <= tstop:
             time0 = timer.time()
             solver.integrate(solver.t + dt)
@@ -374,48 +442,58 @@ for particle in [92]:
             #     print(i)
             solution.append(solver.y)
             solutiontimes.append(time1 - time0)
-            # times.append(solver.t)
 
-        # print('Final time:')
-        # print(solver.t)
-        #
-        # raise Exception('Done finding solution!')
-        # print('Last solution value:')
-        # for i in solver.y:
-        #     print(i)
+        if displayconditions:
+            print('Final time:')
+            print(solver.t)
+            print('Last solution value:')
+            for i in solver.y:
+                print(i)
 
-        test = jacobval(0.2, solver.y, Y_press)
+            lastjac = jacobval(0.2, solver.y, Y_press)
 
-        # print('Last Jacobian value:')
-        # for i in test:
-        #     print(i)
+            print('Last Jacobian value:')
+            for i in lastjac:
+                print(i)
 
         # Convert the solution to an array for ease of use.  Maybe just using
         # numpy function to begin with would be faster?
         solution = np.array(solution)
-        tempnums = np.array(solution[:, 0])
+        primaryvals = np.array(solution[:, 0])
         # Find the stiffness index across the range of the solution and time it
-        time2 = timer.time()
-        # indexvalues, derivatives = stiffnessindex(stiffnessparams, normweights,
+
+        # indexvalues, derivatives = stiffnessindex(stiffnessparams,
+        #                                           normweights,
         # print(np.shape(tlist2))
         # print(dt*100.)
         # print(np.shape(solution))
-        print('Finding Stiffness Indicator...')
-        indexvalues = stiffnessindicator(tlist,
+        if method == 'Stiffness_Indicator':
+            print('Finding Stiffness Indicator...')
+            time2 = timer.time()
+            indexvalues = stiffnessindicator(tlist,
+                                             solution,
+                                             EQjac,
+                                             RHSparam
+                                             )
+            time3 = timer.time()
+            if findtimescale:
+                print('Finding reference timescales...')
+                timescales = reftimescale(indexvalues, tstop - tstart)
+            stiffcomptimes.append(time3 - time2)
+        elif method == 'Stiffness_Index':
+            print('Finding Stiffness Index...')
+            time2 = timer.time()
+            indexvalues = stiffnessindex(tlist,
                                          solution,
-                                         # firstderiv,
-                                         jacvdp,
-                                         Y_press
+                                         RHSfunction,
+                                         EQjac,
+                                         RHSparam
                                          )
+            time3 = timer.time()
+            stiffcomptimes.append(time3 - time2)
 
-        print('Finding reference timescales...')
-        timescales = reftimescale(indexvalues, tstop - tstart)
-
-        time3 = timer.time()
         # This statement intended to cut back on the amount of data processed
         # derivatives = derivatives[2]
-
-        stiffcomptimes.append(time3 - time2)
 
         # stiffvals.append(indexvalues[2])
 
@@ -440,25 +518,33 @@ for i in range(15):
     pyl.clf()
 pyl.close('all')
 
-print('Solution[:, 0] shape:')
-print(np.shape(solution[:, 0]))
-print('tlist shape:')
-print(np.shape(tlist))
-print('tempnums shape:')
-print(np.shape(tempnums))
-print('solutiontimes shape:')
-print(np.shape(solutiontimes))
-print('indexvalues shape:')
-print(np.shape(indexvalues))
+if displaysolshapes:
+    print('Solution[:, 0] shape:')
+    print(np.shape(solution[:, 0]))
+    print('tlist shape:')
+    print(np.shape(tlist))
+    print('primaryvals shape:')
+    print(np.shape(primaryvals))
+    print('solutiontimes shape:')
+    print(np.shape(solutiontimes))
+    print('indexvalues shape:')
+    print(np.shape(indexvalues))
 
 # Plot the solution of the temperature
 pyl.figure(0)
+if equation == 'VDP':
+    ylab = 'Y_Value'
+    pyl.ylabel(ylab)
+elif equation == 'Autoignition':
+    ylab = 'Temperature'
+    pyl.ylabel(ylab + ' (K)')
 pyl.xlabel('Time (sec)')
-pyl.ylabel('Temperature (K)')
 pyl.xlim(tstart, tstop)
-pyl.plot(tlist[1:], tempnums)
+pyl.plot(tlist[1:], primaryvals)
 if savefigures == 1:
-    pyl.savefig('VDP_Temperature_' + str(dt) +
+    pyl.savefig(equation + '_' +
+                ylab +
+                str(dt) +
                 '_' + timer.strftime("%m_%d") +
                 '.' + figformat)
 
@@ -470,7 +556,8 @@ pyl.xlim(tstart, tstop)
 # pyl.ylim(0, 0.005)
 pyl.plot(tlist[1:], solutiontimes)
 if savefigures == 1:
-    pyl.savefig('VDP_Integration_Times_' + str(dt) +
+    pyl.savefig(equation + '_Integration_Times_' +
+                str(dt) +
                 '_' + timer.strftime("%m_%d") +
                 '.' + figformat)
 
@@ -481,7 +568,9 @@ pyl.ylabel('Stiffness Indicator')
 pyl.xlim(tstart, tstop)
 pyl.plot(tlist[1:], indexvalues)
 if savefigures == 1:
-    pyl.savefig('VDP_Stiffness_Indicator_' + str(dt) +
+    pyl.savefig(equation + '_' +
+                method + '_' +
+                str(dt) +
                 '_' + timer.strftime("%m_%d") +
                 '.' + figformat)
 
@@ -492,7 +581,8 @@ pyl.ylabel('Reference Timescale')
 pyl.xlim(tstart, tstop)
 pyl.plot(tlist[1:], timescales)
 if savefigures == 1:
-    pyl.savefig('VDP_Ref_Timescale_' + str(dt) +
+    pyl.savefig(equation + '_Ref_Timescale_' +
+                str(dt) +
                 '_' + timer.strftime("%m_%d") +
                 '.' + figformat)
 
