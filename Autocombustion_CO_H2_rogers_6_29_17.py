@@ -255,7 +255,7 @@ figformat = 'png'
 # Define the range of the computation
 dt = 1.e-6
 tstart = 0.
-tstop = 0.2
+tstop = 400.
 tlist = np.arange(tstart, tstop + 0.5 * dt, dt)
 
 # ODE Solver parameters
@@ -327,6 +327,12 @@ for particle in [92]:
         curstate = Ys[:-1]
         currentt = tstart
 
+        # Switch this to the van der Pol equation
+
+        curstate = [2, 0]
+
+        Y_press = 200.
+
         # print('-----')
         # print('Modified condition:')
         # for i in Ys:
@@ -335,7 +341,7 @@ for particle in [92]:
         print('Integrating...')
 
         # Specify the integrator
-        solver = ode(firstderiv  # ,
+        solver = ode(dydx  # ,
                      # jac=jacobval
                      ).set_integrator('vode',
                                       method='bdf',
@@ -398,7 +404,7 @@ for particle in [92]:
         indexvalues = stiffnessindicator(tlist,
                                          solution,
                                          # firstderiv,
-                                         jacobval,
+                                         jacvdp,
                                          Y_press
                                          )
 
@@ -452,7 +458,7 @@ pyl.ylabel('Temperature (K)')
 pyl.xlim(tstart, tstop)
 pyl.plot(tlist[1:], tempnums)
 if savefigures == 1:
-    pyl.savefig('Autoignition_Temperature_' + str(dt) +
+    pyl.savefig('VDP_Temperature_' + str(dt) +
                 '_' + timer.strftime("%m_%d") +
                 '.' + figformat)
 
@@ -464,7 +470,7 @@ pyl.xlim(tstart, tstop)
 # pyl.ylim(0, 0.005)
 pyl.plot(tlist[1:], solutiontimes)
 if savefigures == 1:
-    pyl.savefig('Autoignition_Integration_Times_' + str(dt) +
+    pyl.savefig('VDP_Integration_Times_' + str(dt) +
                 '_' + timer.strftime("%m_%d") +
                 '.' + figformat)
 
@@ -475,7 +481,7 @@ pyl.ylabel('Stiffness Indicator')
 pyl.xlim(tstart, tstop)
 pyl.plot(tlist[1:], indexvalues)
 if savefigures == 1:
-    pyl.savefig('Autoignition_Stiffness_Indicator_' + str(dt) +
+    pyl.savefig('VDP_Stiffness_Indicator_' + str(dt) +
                 '_' + timer.strftime("%m_%d") +
                 '.' + figformat)
 
@@ -486,7 +492,7 @@ pyl.ylabel('Reference Timescale')
 pyl.xlim(tstart, tstop)
 pyl.plot(tlist[1:], timescales)
 if savefigures == 1:
-    pyl.savefig('Autoignition_Ref_Timescale_' + str(dt) +
+    pyl.savefig('VDP_Ref_Timescale_' + str(dt) +
                 '_' + timer.strftime("%m_%d") +
                 '.' + figformat)
 
