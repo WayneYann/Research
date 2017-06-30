@@ -299,7 +299,7 @@ findtimescale = False
 # Make this true if you want to test all of the values across the PaSR.
 # Otherwise, this will run a single autoignition at particle 92, timestep 4.
 PaSR = True
-pasrfilesloaded = 1
+pasrfilesloaded = 9
 
 # Define the range of the computation.
 dt = 1.e-8
