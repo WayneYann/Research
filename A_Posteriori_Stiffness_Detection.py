@@ -681,6 +681,11 @@ else:
     normtlist = []
     for i in tlist:
         normtlist.append(i / (tstop - tstart))
+    if method == 'Stiffness_Indicator':
+        tlist = normtlist
+        plotx = 0, 1
+    else:
+        plotx = tstart, tstop
 
     # Plot the solution of the temperature
     pyl.figure(plotnum)
@@ -692,12 +697,11 @@ else:
         pyl.ylabel(ylab + ' (K)')
     pyl.xlabel('Time (sec)')
     # pyl.xlim(tstart, tstop)
-    pyl.xlim(0, 1)
-    pyl.plot(normtlist, primaryvals)
+    pyl.xlim(plotx)
+    pyl.plot(tlist, primaryvals)
     pyl.grid(b=True, which='both')
     if savefigures == 1:
-        pyl.savefig(  # my_path +
-                    output_folder +
+        pyl.savefig(output_folder +
                     equation + '_' +
                     ylab +
                     str(dt) +
@@ -711,12 +715,11 @@ else:
     pyl.ylabel('Integration time (sec)')
     # pyl.xlim(tstart, tstop)
     # pyl.ylim(0, 0.005)
-    pyl.xlim(0, 1)
-    pyl.plot(normtlist, solutiontimes)
+    pyl.xlim(plotx)
+    pyl.plot(tlist, solutiontimes)
     pyl.grid(b=True, which='both')
     if savefigures == 1:
-        pyl.savefig(  # my_path +
-                    output_folder +
+        pyl.savefig(output_folder +
                     equation + '_Integration_Times_' +
                     str(dt) +
                     '_' + timer.strftime("%m_%d") +
@@ -728,12 +731,11 @@ else:
     pyl.xlabel('Time (sec)')
     pyl.ylabel(method)
     # pyl.xlim(tstart, tstop)
-    pyl.xlim(0, 1)
-    pyl.plot(normtlist, stiffvalues)
+    pyl.xlim(plotx)
+    pyl.plot(tlist, stiffvalues)
     pyl.grid(b=True, which='both')
     if savefigures == 1:
-        pyl.savefig(  # my_path +
-                    output_folder +
+        pyl.savefig(output_folder +
                     equation + '_' +
                     method + '_' +
                     str(dt) +
@@ -750,8 +752,7 @@ else:
         pyl.plot(tlist, timescales)
         pyl.grid(b=True, which='both')
         if savefigures == 1:
-            pyl.savefig(  # my_path +
-                        output_folder +
+            pyl.savefig(output_folder +
                         equation + '_Ref_Timescale_' +
                         str(dt) +
                         '_' + timer.strftime("%m_%d") +
