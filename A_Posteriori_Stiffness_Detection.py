@@ -314,7 +314,7 @@ PaSR = True
 pasrfilesloaded = 9
 
 # Define the range of the computation
-dt = 1.e-10
+dt = 1.e-8
 tstart = 0.
 tstop = 5 * dt
 tlist = np.arange(tstart, tstop + 0.5 * dt, dt)
@@ -579,6 +579,7 @@ if PaSR:
     pyl.xlabel('Computation Number')
     pyl.ylabel('Integration Time')
     pyl.scatter(range(datanum), solutiontimes, 0.1)
+    pyl.grid(b=True, which='both')
     if savefigures == 1:
         pyl.savefig(  # my_path +
                     output_folder +
@@ -595,6 +596,7 @@ if PaSR:
     pyl.xlabel('Computation Number')
     pyl.ylabel('Stiffness Metric Computation Time')
     pyl.scatter(range(datanum), stiffcomptimes, 0.1)
+    pyl.grid(b=True, which='both')
     if savefigures == 1:
         pyl.savefig(  # my_path +
                     output_folder +
@@ -611,6 +613,7 @@ if PaSR:
     pyl.xlabel('Particle Number')
     pyl.ylabel('Ratio')
     pyl.scatter(range(datanum), ratios, 0.1)
+    pyl.grid(b=True, which='both')
     if savefigures == 1:
         pyl.savefig(  # my_path +
                     output_folder +
@@ -629,6 +632,7 @@ if PaSR:
     if method == 'Stiffness_Index':
         pyl.yscale('log')
     pyl.scatter(stiffcomptimes, stiffvals, 0.1)
+    pyl.grid(b=True, which='both')
     if savefigures == 1:
         pyl.savefig(  # my_path +
                     output_folder +
@@ -647,6 +651,7 @@ if PaSR:
     if method == 'Stiffness_Index':
         pyl.xscale('log')
     pyl.scatter(stiffvals, solutiontimes, 0.1)
+    pyl.grid(b=True, which='both')
     if savefigures == 1:
         pyl.savefig(  # my_path +
                     output_folder +
