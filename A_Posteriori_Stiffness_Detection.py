@@ -368,7 +368,7 @@ else:
     makerainbowplot = False
 
 # Don't need to find the timescale if the stiffness index is being computed.
-if method = 'Stiffness_Index':
+if method == 'Stiffness_Index':
     findtimescale = False
 
 for particle in particlelist:
