@@ -380,10 +380,6 @@ for particle in particlelist:
             for i in range(N2_pos, newarlen - 1):
                 Ys[i] = Ys[i + 1]
             Ys[newarlen - 1] = Y_N2
-
-            # Call the integrator and time it
-            solution = []
-
             if useN2:
                 initcond = Ys
             else:
@@ -397,7 +393,7 @@ for particle in particlelist:
                 print(i)
 
         print('Integrating...')
-
+        solution = []
         # Specify the integrator
         if usejac:
             solver = ode(RHSfunction,
