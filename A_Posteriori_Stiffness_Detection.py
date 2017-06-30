@@ -287,7 +287,7 @@ figformat = 'png'
 
 # Possible options will be 'VDP', 'Autoignition', or 'Oregonator'
 # Oregonator not yet implemented
-equation = 'VDP'
+equation = 'Autoignition'
 
 # Possible options will be 'Stiffness_Index', 'Stiffness_Indicator'
 method = 'Stiffness_Index'
@@ -302,9 +302,9 @@ PaSR = True
 pasrfilesloaded = 1
 
 # Define the range of the computation.
-dt = 1.e-3
+dt = 1.e-8
 tstart = 0.
-tstop = 1000.
+tstop = 5 * dt
 tlist = np.arange(tstart, tstop + 0.5 * dt, dt)
 
 # ODE Solver parameters.
