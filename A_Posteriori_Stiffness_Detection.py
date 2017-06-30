@@ -311,10 +311,10 @@ findtimescale = False
 # Make this true if you want to test all of the values across the PaSR.
 # Otherwise, this will run a single autoignition at particle 92, timestep 4.
 PaSR = True
-pasrfilesloaded = 1
+pasrfilesloaded = 9
 
 # Define the range of the computation
-dt = 1.e-8
+dt = 1.e-10
 tstart = 0.
 tstop = 5 * dt
 tlist = np.arange(tstart, tstop + 0.5 * dt, dt)
