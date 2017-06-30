@@ -508,6 +508,10 @@ for i in range(15):
     pyl.clf()
 pyl.close('all')
 
+# Something is causing a bug in the tlist and this is intended to fix it
+if len(tlist) == len(primaryvals) + 1:
+    tlist = tlist[1:]
+
 if displaysolshapes:
     print('Solution[:, 0] shape:')
     print(np.shape(solution[:, 0]))
@@ -530,7 +534,7 @@ elif equation == 'Autoignition':
     pyl.ylabel(ylab + ' (K)')
 pyl.xlabel('Time (sec)')
 pyl.xlim(tstart, tstop)
-pyl.plot(tlist[1:], primaryvals)
+pyl.plot(tlist, primaryvals)
 if savefigures == 1:
     pyl.savefig(equation + '_' +
                 ylab +
@@ -544,7 +548,7 @@ pyl.xlabel('Time (sec)')
 pyl.ylabel('Integration time (sec)')
 pyl.xlim(tstart, tstop)
 # pyl.ylim(0, 0.005)
-pyl.plot(tlist[1:], solutiontimes)
+pyl.plot(tlist, solutiontimes)
 if savefigures == 1:
     pyl.savefig(equation + '_Integration_Times_' +
                 str(dt) +
@@ -556,7 +560,7 @@ pyl.figure(2)
 pyl.xlabel('Time (sec)')
 pyl.ylabel('Stiffness Indicator')
 pyl.xlim(tstart, tstop)
-pyl.plot(tlist[1:], indexvalues)
+pyl.plot(tlist, indexvalues)
 if savefigures == 1:
     pyl.savefig(equation + '_' +
                 method + '_' +
@@ -570,7 +574,7 @@ if findtimescale:
     pyl.xlabel('Time (sec)')
     pyl.ylabel('Reference Timescale')
     pyl.xlim(tstart, tstop)
-    pyl.plot(tlist[1:], timescales)
+    pyl.plot(tlist, timescales)
     if savefigures == 1:
         pyl.savefig(equation + '_Ref_Timescale_' +
                     str(dt) +
