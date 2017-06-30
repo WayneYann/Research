@@ -245,6 +245,46 @@ def reftimescale(indicatorvals, Tlen):
     return timescales
 
 
+def loadpasrdata():
+    """Load the initial conditions from the PaSR files."""
+    pasrarrays = []
+    print('Loading data...')
+    for i in range(9):
+        filepath = os.path.join(os.getcwd(),
+                                'pasr_out_h2-co_' +
+                                str(i) +
+                                '.npy')
+        filearray = np.load(filepath)
+        pasrarrays.append(filearray)
+    return np.concatenate(pasrarrays, 1)
+
+
+def rearrangepasr(Y):
+    "Rearrange the PaSR data so it works with pyJac"
+    press_pos = 2
+    temp_pos = 1
+    arraylen = len(Y)
+
+    Y_press = Y[press_pos]
+    Y_temp = Y[temp_pos]
+    Y_species = Y[3:arraylen]
+    Ys = np.hstack((Y_temp, Y_species))
+
+    # Put N2 to the last value of the mass species
+    N2_pos = 9
+    newarlen = len(Ys)
+    Y_N2 = Ys[N2_pos]
+    # Y_x = Ys[newarlen - 1]
+    for i in range(N2_pos, newarlen - 1):
+        Ys[i] = Ys[i + 1]
+    Ys[newarlen - 1] = Y_N2
+    if useN2:
+        initcond = Ys
+    else:
+        initcond = Ys[:-1]
+    return initcond, Y_press
+
+
 # Finding the current time to time how long the simulation takes
 starttime = datetime.datetime.now()
 print('Start time: {}'.format(starttime))
@@ -258,9 +298,10 @@ savedata = 0
 savefigures = 1
 figformat = 'png'
 
-# Possible options will be 'VDP', 'Stiffness_Indicator', or 'Oregonator'
+# Possible options will be 'VDP', 'Autoignition', or 'Oregonator'
 equation = 'VDP'
 
+# Possible options will be 'Stiffness_Index', 'Stiffness_Indicator'
 method = 'Stiffness_Indicator'
 
 # Make this true if you want to obtain the reference timescale of the stiffness
@@ -310,17 +351,7 @@ elif equation == 'Autoignition':
 
 if equation == 'Autoignition':
     # Load the initial conditions from the PaSR files
-    pasrarrays = []
-    print('Loading data...')
-    for i in range(9):
-        filepath = os.path.join(os.getcwd(),
-                                'pasr_out_h2-co_' +
-                                str(i) +
-                                '.npy')
-        filearray = np.load(filepath)
-        pasrarrays.append(filearray)
-
-    pasr = np.concatenate(pasrarrays, 1)
+    pasr = loadpasrdata()
 
     numparticles = len(pasr[0, :, 0])
     numtsteps = len(pasr[:, 0, 0])
@@ -352,75 +383,38 @@ for particle in particlelist:
     if PaSR:
         print(particle)
     for tstep in timelist:
-        # Get the initial condition.
         if equation == 'Autoignition':
+            # Set up the initial conditions for autoignition
             Y = pasr[tstep, particle, :].copy()
-
-        if displayconditions:
-            print('Initial Condition:')
-            for i in Y:
-                print(i)
-
-        if equation == 'Autoignition':
-            # Rearrange the array for the initial condition
-            press_pos = 2
-            temp_pos = 1
-            arraylen = len(Y)
-
-            Y_press = Y[press_pos]
-            Y_temp = Y[temp_pos]
-            Y_species = Y[3:arraylen]
-            Ys = np.hstack((Y_temp, Y_species))
-
-            # Put N2 to the last value of the mass species
-            N2_pos = 9
-            newarlen = len(Ys)
-            Y_N2 = Ys[N2_pos]
-            Y_x = Ys[newarlen - 1]
-            for i in range(N2_pos, newarlen - 1):
-                Ys[i] = Ys[i + 1]
-            Ys[newarlen - 1] = Y_N2
-            if useN2:
-                initcond = Ys
-            else:
-                initcond = Ys[:-1]
-            RHSparam = Y_press
-
-        if displayconditions:
-            print('-----')
-            print('Modified condition:')
-            for i in initcond:
-                print(i)
+            initcond, RHSparam = rearrangepasr(Y)
+            if displayconditions:
+                print('Initial Condition:')
+                for i in Y:
+                    print(i)
+                print('Modified condition:')
+                for i in initcond:
+                    print(i)
 
         print('Integrating...')
         solution = []
         # Specify the integrator
         if usejac:
-            solver = ode(RHSfunction,
-                         jac=jacobval
-                         ).set_integrator('vode',
-                                          method='bdf',
-                                          nsteps=99999999,
-                                          atol=abserr,
-                                          rtol=relerr,
-                                          with_jacobian=True,
-                                          # first_step=dt,
-                                          # min_step=dt,
-                                          # max_step=dt
-                                          )
+            intj = EQjac
         else:
-            solver = ode(RHSfunction  # ,
-                         # jac=jacobval
-                         ).set_integrator('vode',
-                                          method='bdf',
-                                          nsteps=99999999,
-                                          atol=abserr,
-                                          rtol=relerr,
-                                          with_jacobian=False
-                                          # first_step=dt,
-                                          # min_step=dt,
-                                          # max_step=dt
-                                          )
+            intj = None
+
+        solver = ode(RHSfunction,
+                     jac=intj
+                     ).set_integrator('vode',
+                                      method='bdf',
+                                      nsteps=99999999,
+                                      atol=abserr,
+                                      rtol=relerr,
+                                      with_jacobian=usejac,
+                                      # first_step=dt,
+                                      # min_step=dt,
+                                      # max_step=dt
+                                      )
 
         # Set initial conditions
         solver.set_initial_value(initcond, tstart)
