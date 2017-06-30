@@ -126,16 +126,6 @@ def stiffnessindex(xlist, solution, dfun, jfun, *args, **kwargs):
     Function that uses stiffness parameters, the local Jacobian matrix,
     and a vector of the local function values to determine the local stiffness
     index as defined in 1985 Shampine.
-
-    Future optimizations:
-        1.  Use a different integrator that saves the values of the derivative
-        as it goes so that we don't need to calculate each derivative twice.
-        Same goes with the Jacobian, it would be much faster to evaluate
-        it on the fly.
-        2.  Implement this index in the integrator itself so that it makes all
-        of the values as the integration goes.  This would eliminate the need
-        to save the dydx list beyond a few variables that would be needed to
-        compute the higher level derivatives.
     """
     SIparams = {'method': 2,
                 'gamma': 1,
@@ -257,7 +247,7 @@ def loadpasrdata(num):
 
 
 def rearrangepasr(Y):
-    "Rearrange the PaSR data so it works with pyJac"
+    """Rearrange the PaSR data so it works with pyJac."""
     press_pos = 2
     temp_pos = 1
     arraylen = len(Y)
@@ -296,10 +286,10 @@ savefigures = 1
 figformat = 'png'
 
 # Possible options will be 'VDP', 'Autoignition', or 'Oregonator'
-equation = 'VDP'
+equation = 'Autoignition'
 
 # Possible options will be 'Stiffness_Index', 'Stiffness_Indicator'
-method = 'Stiffness_Indicator'
+method = 'Stiffness_Index'
 
 # Make this true if you want to obtain the reference timescale of the stiffness
 # indicator.
@@ -307,34 +297,36 @@ findtimescale = False
 
 # Make this true if you want to test all of the values across the PaSR.
 # Otherwise, this will run a single autoignition at particle 92, timestep 4.
-PaSR = False
-pasrfilesloaded = 9
+PaSR = True
+pasrfilesloaded = 1
 
-# Define the range of the computation
-dt = 1.e-2
+# Define the range of the computation.
+dt = 1.e-8
 tstart = 0.
-tstop = 400.
+tstop = 5*dt
 tlist = np.arange(tstart, tstop + 0.5 * dt, dt)
 
-# ODE Solver parameters
+# ODE Solver parameters.
 abserr = 1.0e-17
 relerr = 1.0e-15
 
 # Keep this at false, something isn't working with using the jacobian yet.
 usejac = False
 
-# Decide if you want to give pyJac N2 or not
+# Decide if you want to give pyJac N2 or not.
 useN2 = False
 
-# Used if you want to check that the PaSR data is being properly conditioned
+# Used if you want to check that the PaSR data is being properly conditioned.
 displayconditions = False
 
-# Display the solution shape for plotting/debugging
+# Display the solution shape for plotting/debugging.
 displaysolshapes = False
+
+# Make the plot of the stiffness across the entire PaSR data range.
+makerainbowplot = True
 
 # To be implemented later.
 makesecondderivplots = False
-makerainbowplot = False
 """
 -------------------------------------------------------------------------------
 """
@@ -354,20 +346,14 @@ if equation == 'Autoignition':
     pasr = loadpasrdata(pasrfilesloaded)
     numparticles = len(pasr[0, :, 0])
     numtsteps = len(pasr[:, 0, 0])
+    pasrstiffnesses = np.zeros((numtsteps, numparticles))
 elif equation == 'VDP':
     initcond = [2, 0]
     RHSparam = 200.
 
-# Cheated a little here and entered the number of variables to code faster
-numparams = 15
-# pasrstiffnesses = np.zeros((numtsteps, numparticles))
-# pasrstiffnesses2 = np.zeros((numtsteps, numparticles, numparams))
-
 # Create vectors for that time how long it takes to compute stiffness index and
 # the solution itself
 solutiontimes, stiffcomptimes, stiffvals = [], [], []
-
-# expeigs = np.zeros((numtsteps, numparticles))
 
 # Loop through the PaSR file for initial conditions
 if PaSR:
@@ -377,6 +363,8 @@ if PaSR:
 else:
     particlelist = [92]
     timelist = [4]
+    # Can only do this plot for PaSR, so shutting it off here
+    makerainbowplot = False
 
 for particle in particlelist:
     if PaSR:
@@ -397,12 +385,12 @@ for particle in particlelist:
         if not PaSR:
             print('Integrating...')
         solution = []
+
         # Specify the integrator
         if usejac:
             intj = EQjac
         else:
             intj = None
-
         solver = ode(RHSfunction,
                      jac=intj
                      ).set_integrator('vode',
@@ -415,7 +403,6 @@ for particle in particlelist:
                                       # min_step=dt,
                                       # max_step=dt
                                       )
-
         # Set initial conditions
         solver.set_initial_value(initcond, tstart)
         solver.set_f_params(RHSparam)
@@ -445,9 +432,7 @@ for particle in particlelist:
             print('Last solution value:')
             for i in solver.y:
                 print(i)
-
             lastjac = jacobval(0.2, solver.y, RHSparam)
-
             print('Last Jacobian value:')
             for i in lastjac:
                 print(i)
@@ -456,13 +441,8 @@ for particle in particlelist:
         # numpy function to begin with would be faster?
         solution = np.array(solution)
         primaryvals = np.array(solution[:, 0])
-        # Find the stiffness index across the range of the solution and time it
 
-        # indexvalues, derivatives = stiffnessindex(stiffnessparams,
-        #                                           normweights,
-        # print(np.shape(tlist2))
-        # print(dt*100.)
-        # print(np.shape(solution))
+        # Find the stiffness index across the range of the solution and time it
         if method == 'Stiffness_Indicator':
             if not PaSR:
                 print('Finding Stiffness Indicator...')
@@ -494,21 +474,40 @@ for particle in particlelist:
                 stiffcomptimes.append(time3 - time2)
         if PaSR:
             stiffvals.append(stiffvalues[2])
+            if makerainbowplot:
+                if method == 'Stiffness_Index':
+                    pasrstiffnesses[tstep, particle] = np.log10(stiffvalues[2])
+                else:
+                    pasrstiffnesses[tstep, particle] = stiffvalues[2]
 
 # CODE GRAVEYARD!!!
 # "Where old code goes to die..."
+
 # This statement intended to cut back on the amount of data processed
 # derivatives = derivatives[2]
 
 # Commented old code for the maximum eigenvalue or CEMA analysis
 # expeigs[tstep,particle] = np.log10(maxeig)
 # Commented old code for just figuring out the PaSR stiffness values
-# pasrstiffnesses[tstep, particle] = np.log10(indexvalues[2])
+
 # pasrstiffnesses[tstep,particle,:] = np.hstack((solution[2],
 #                                               indexvalues[2]))
 # This variable includes the values of the derivatives
 # pasrstiffnesses2[tstep, particle, :] = np.hstack(
 #    (derivatives, indexvalues[2]))
+
+# Cheated a little here and entered the number of variables to code faster
+# numparams = 15
+
+# pasrstiffnesses2 = np.zeros((numtsteps, numparticles, numparams))
+
+# indexvalues, derivatives = stiffnessindex(stiffnessparams,
+#                                           normweights,
+# print(np.shape(tlist2))
+# print(dt*100.)
+# print(np.shape(solution))
+
+# expeigs = np.zeros((numtsteps, numparticles))
 
 speciesnames = ['H', 'H$_2$', 'O', 'OH', 'H$_2$O', 'O$_2$', 'HO$_2$',
                 'H$_2$O$_2$', 'Ar', 'He', 'CO', 'CO$_2$', 'N$_2$']
@@ -575,8 +574,7 @@ if PaSR:
     pyl.scatter(range(datanum), solutiontimes, 0.1)
     pyl.grid(b=True, which='both')
     if savefigures == 1:
-        pyl.savefig(  # my_path +
-                    output_folder +
+        pyl.savefig(output_folder +
                     'Integration_Times_' +
                     str(dt) +
                     '_' + timer.strftime("%m_%d") +
@@ -592,8 +590,7 @@ if PaSR:
     pyl.scatter(range(datanum), stiffcomptimes, 0.1)
     pyl.grid(b=True, which='both')
     if savefigures == 1:
-        pyl.savefig(  # my_path +
-                    output_folder +
+        pyl.savefig(output_folder +
                     'Stiff_Comp_Times_' +
                     str(dt) +
                     '_' + timer.strftime("%m_%d") +
@@ -609,8 +606,7 @@ if PaSR:
     pyl.scatter(range(datanum), ratios, 0.1)
     pyl.grid(b=True, which='both')
     if savefigures == 1:
-        pyl.savefig(  # my_path +
-                    output_folder +
+        pyl.savefig(output_folder +
                     'Stiff_Comp_Ratios_' +
                     str(dt) +
                     '_' + timer.strftime("%m_%d") +
@@ -628,8 +624,7 @@ if PaSR:
     pyl.scatter(stiffcomptimes, stiffvals, 0.1)
     pyl.grid(b=True, which='both')
     if savefigures == 1:
-        pyl.savefig(  # my_path +
-                    output_folder +
+        pyl.savefig(output_folder +
                     'Stiffcomp_Stiffvals_' +
                     str(dt) +
                     '_' + timer.strftime("%m_%d") +
@@ -647,32 +642,39 @@ if PaSR:
     pyl.scatter(stiffvals, solutiontimes, 0.1)
     pyl.grid(b=True, which='both')
     if savefigures == 1:
-        pyl.savefig(  # my_path +
-                    output_folder +
+        pyl.savefig(output_folder +
                     'Int_Stiffvals_' +
                     str(dt) +
                     '_' + timer.strftime("%m_%d") +
                     '.' + figformat)
     plotnum += 1
 
-    # if makerainbowplot:
-    #     # Plot the stiffness at every point in the PaSR simulation
-    #     # Create a mesh to plot on
-    #     xcoords = np.arange(numparticles)
-    #     ycoords = np.arange(numtsteps)
-    #     xmesh, ymesh = np.meshgrid(xcoords, ycoords)
-    #
-    #     pyl.figure(plotnum)
-    #     # pyl.xlim(0,numparticles)
-    #     # pyl.ylim(0,numtsteps)
-    #     pyl.xlabel('Particle Number')
-    #     pyl.ylabel('PaSR Timestep')
-    #     plot = pyl.contourf(xmesh, ymesh, pasrstiffnesses, 50)
-    #     pyl.grid(b=True, which='both')
-    #     cb = pyl.colorbar(plot)
-    #     label = cb.set_label('log$_{10}$ (Stiffness Index)')
-    #     if savefigures == 1:
-    #         pyl.savefig('PaSR_Range_Stiffness_Index.' + figformat)
+    if makerainbowplot:
+        # Plot the stiffness at every point in the PaSR simulation
+        # Create a mesh to plot on
+        xcoords = np.arange(numparticles)
+        ycoords = np.arange(numtsteps)
+        xmesh, ymesh = np.meshgrid(xcoords, ycoords)
+
+        pyl.figure(plotnum)
+        # pyl.xlim(0,numparticles)
+        # pyl.ylim(0,numtsteps)
+        pyl.xlabel('Particle Number')
+        pyl.ylabel('PaSR Timestep')
+        plot = pyl.contourf(xmesh, ymesh, pasrstiffnesses, 50)
+        pyl.grid(b=True, which='both')
+        cb = pyl.colorbar(plot)
+        if method == 'Stiffness_Index':
+            label = cb.set_label('log$_{10}$ (' + method + ')')
+        else:
+            label = cb.set_label(method)
+        if savefigures == 1:
+            pyl.savefig(output_folder +
+                        'PaSR_' +
+                        method +
+                        '_' + timer.strftime("%m_%d") +
+                        '.' + figformat)
+        plotnum += 1
 
 else:
     # Create a list of normalized dt values

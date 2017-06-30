@@ -32,7 +32,7 @@ def jacobval(state, time, press):
     a = len(new)
     jacobian = np.zeros(a**2)
     pyjacob.py_eval_jacobian(time, press, new, jacobian)
-    jacobian = np.reshape(jacobian, (a,a))
+    jacobian = np.reshape(jacobian, (a, a))
     return jacobian
 
 
@@ -42,12 +42,12 @@ def derivcd4(vals, dx):
     backward differencing at the boundaries."""
     deriv = []
     for i in range(2):
-        deriv.append((-3*vals[i] + 4*vals[i+1] - vals[i+2]) / (2*dx))
+        deriv.append((-3 * vals[i] + 4 * vals[i + 1] - vals[i + 2]) / (2 * dx))
     for i in range(2, len(vals) - 2):
-        deriv.append((-1*vals[i-2] + 8*vals[i-1] + 8*vals[i+1] -\
-                          vals[i+2]) / (12*dx))
+        deriv.append((-1 * vals[i - 2] + 8 * vals[i - 1] + 8 * vals[i + 1] -
+                      vals[i + 2]) / (12 * dx))
     for i in range((len(vals) - 2), len(vals)):
-        deriv.append((vals[i] - vals[i-1]) / dx)
+        deriv.append((vals[i] - vals[i - 1]) / dx)
     return deriv
 
 
@@ -68,7 +68,7 @@ def weightednorm(matrix, weights):
         return np.max(colsums) / wi
     except TypeError:
         matrixcol = wj * np.abs(matrix)
-        return np.sum(matrixcol)/wi
+        return np.sum(matrixcol) / wi
 
 
 def stiffnessindex(sp, normweights, xlist, dx, solution, press):
@@ -98,7 +98,7 @@ def stiffnessindex(sp, normweights, xlist, dx, solution, press):
     # Obtain the derivative values for the derivative of order p
     dydxlist = []
     for i in range(len(solution)):
-        dydxlist.append(firstderiv(solution[i,:],xlist[i],press))
+        dydxlist.append(firstderiv(solution[i, :], xlist[i], press))
     # Raise the derivative to the order we need it
     for i in range(order):
         dydxlist = derivcd4(dydxlist, dx)
@@ -113,28 +113,29 @@ def stiffnessindex(sp, normweights, xlist, dx, solution, press):
 
     # Figure out some of the values that will be multiplied many times, so that
     # each computation only needs to happen once.
-    exponent = 1./(order + 1)
+    exponent = 1. / (order + 1)
     xiterm = ((np.abs(xi)**(-1 * exponent)) / np.abs(gamma))
     toleranceterm = tolerance**exponent
 
     # Actual computation of the stiffness index for the method specified.
     for i in range(len(solution)):
-        jacobian = jacobval(solution[i,:],xlist[i],Y_press)
+        jacobian = jacobval(solution[i, :], xlist[i], Y_press)
         if method == 1:
             index = toleranceterm *\
-                    weightednorm(jacobian, normweights) *\
-                    weightednorm(dydxlist[:,i], normweights)**(-1 * exponent) *\
-                    xiterm
+                weightednorm(jacobian, normweights) *\
+                weightednorm(dydxlist[:, i], normweights)**(-1 * exponent) *\
+                xiterm
         else:
             eigenvalues = np.linalg.eigvals(jacobian)
             maxeig = max(eigenvalues)
             index = toleranceterm *\
-                    np.max(np.abs(eigenvalues)) *\
-                    weightednorm(dydxlist[:,i], normweights)**(-1 * exponent) *\
-                    xiterm
+                np.max(np.abs(eigenvalues)) *\
+                weightednorm(dydxlist[:, i], normweights)**(-1 * exponent) *\
+                xiterm
         indexlist.append(index)
     indexlist = np.array(indexlist)
-    return indexlist, maxeig#, dydxlist
+    return indexlist, maxeig  # , dydxlist
+
 
 # Finding the current time to time how long the simulation takes
 starttime = datetime.datetime.now()
@@ -157,8 +158,8 @@ normweights = wi, wj
 # Define the range of the computation
 dt = 1.e-7
 tstart = 0
-tstop = 5*dt
-tlist = np.arange(tstart, tstop+0.5*dt, dt)
+tstop = 5 * dt
+tlist = np.arange(tstart, tstop + 0.5 * dt, dt)
 
 # ODE Solver parameters
 abserr = 1.0e-15
@@ -168,34 +169,34 @@ relerr = 1.0e-13
 pasrarrays = []
 print('Loading data...')
 for i in range(9):
-    filepath = os.path.join(os.getcwd(),'pasr_out_h2-co_' + str(i) + '.npy')
+    filepath = os.path.join(os.getcwd(), 'pasr_out_h2-co_' + str(i) + '.npy')
     filearray = np.load(filepath)
     pasrarrays.append(filearray)
 
 pasr = np.concatenate(pasrarrays, 1)
 
 # Initialize the array of stiffness index values
-numparticles = len(pasr[0,:,0])
+numparticles = len(pasr[0, :, 0])
 #numparticles = 200
-numtsteps = len(pasr[:,0,0])
+numtsteps = len(pasr[:, 0, 0])
 #numtsteps = 1
 # Cheated a little here to make coding faster
 numparams = 15
-pasrstiffnesses = np.zeros((numtsteps,numparticles))
+pasrstiffnesses = np.zeros((numtsteps, numparticles))
 #pasrstiffnesses2 = np.zeros((numtsteps,numparticles,numparams))
 
 # Create vectors for that time how long it takes to compute stiffness index and
 # the solution itself
 #solutiontimes, stiffcomptimes = [], []
 
-expeigs = np.zeros((numtsteps,numparticles))
+expeigs = np.zeros((numtsteps, numparticles))
 
 # Loop through the PaSR file for initial conditions
 print('Code progress:')
 for particle in range(numparticles):
     print(particle)
     for tstep in range(numtsteps):
-#        print(tstep)
+        #        print(tstep)
         # Get the initial condition.
         Y = pasr[tstep, particle, :].copy()
         #Y = pasr[50, particle, :].copy()
@@ -208,46 +209,48 @@ for particle in range(numparticles):
         Y_press = Y[press_pos]
         Y_temp = Y[temp_pos]
         Y_species = Y[3:arraylen]
-        Ys = np.hstack((Y_temp,Y_species))
+        Ys = np.hstack((Y_temp, Y_species))
 
         # Put N2 to the last value of the mass species
         N2_pos = 9
         newarlen = len(Ys)
         Y_N2 = Ys[N2_pos]
         Y_x = Ys[newarlen - 1]
-        for i in range(N2_pos,newarlen-1):
-            Ys[i] = Ys[i+1]
+        for i in range(N2_pos, newarlen - 1):
+            Ys[i] = Ys[i + 1]
         Ys[newarlen - 1] = Y_N2
 
         # Call the integrator and time it
         #time0 = timer.time()
-        solution = sci.integrate.odeint(firstderiv, # Call the dydt function
+        solution = sci.integrate.odeint(firstderiv,  # Call the dydt function
                                         # Pass it initial conditions
                                         Ys,
                                         # Pass it time steps to be evaluated
                                         tlist,
-                                        # Pass any additional information needed
+                                        # Pass any additional information
+                                        # needed
                                         args=(Y_press,),
                                         # Pass it the Jacobian (not sure if needed)
-        #                                Dfun=jacobval,
-                                        # Pass it the absolute and relative tolerances
+                                        #                                Dfun=jacobval,
+                                        # Pass it the absolute and relative
+                                        # tolerances
                                         atol=abserr, rtol=relerr,
-                                        # Print a message stating if it worked or not
+                                        # Print a message stating if it worked
+                                        # or not
                                         printmessg=0
                                         )
         #time1 = timer.time()
 
-
         # Find the stiffness index across the range of the solution and time it
         indexvalues, maxeig = stiffnessindex(stiffnessparams, normweights,
-                                                  tlist, dt, solution, Y_press)
+                                             tlist, dt, solution, Y_press)
         #time2 = timer.time()
 
         #solutiontimes.append(time1 - time0)
         #stiffcomptimes.append(time2 - time1)
 
-        expeigs[tstep,particle] = np.log10(maxeig)
-        pasrstiffnesses[tstep,particle] = np.log10(indexvalues[2])
+        expeigs[tstep, particle] = np.log10(maxeig)
+        pasrstiffnesses[tstep, particle] = np.log10(indexvalues[2])
 #        pasrstiffnesses[tstep,particle,:] = np.hstack((solution[2],indexvalues[2]))
 #        pasrstiffnesses2[tstep,particle,:] = np.hstack(
 #                (np.transpose(derivatives[:,2]),indexvalues[2]))
@@ -289,7 +292,7 @@ print('Finish time: {}'.format(finishtime))
 """
 
 #ratios = []
-#for i in range(len(solutiontimes)):
+# for i in range(len(solutiontimes)):
 #    ratios.append(stiffcomptimes[i] / solutiontimes[i])
 """
 pyl.figure(0, figsize=(6,4.5), dpi=400)
@@ -317,14 +320,14 @@ pyl.scatter(range(numparticles), ratios)
 # Create a mesh to plot on
 xcoords = np.arange(numparticles)
 ycoords = np.arange(numtsteps)
-xmesh, ymesh = np.meshgrid(xcoords,ycoords)
+xmesh, ymesh = np.meshgrid(xcoords, ycoords)
 
 pyl.figure(0, dpi=800)
-#pyl.xlim(0,numparticles)
-#pyl.ylim(0,numtsteps)
+# pyl.xlim(0,numparticles)
+# pyl.ylim(0,numtsteps)
 pyl.xlabel('Particle Number')
 pyl.ylabel('PaSR Timestep')
-plot = pyl.contourf(xmesh,ymesh,pasrstiffnesses,50)
+plot = pyl.contourf(xmesh, ymesh, pasrstiffnesses, 50)
 pyl.grid(b=True, which='both')
 cb = pyl.colorbar(plot)
 label = cb.set_label('log$_{10}$ (Stiffness Index)', fontsize=12)
@@ -332,11 +335,11 @@ label = cb.set_label('log$_{10}$ (Stiffness Index)', fontsize=12)
 pyl.savefig('PaSR_Range_Stiffness_Index.png')
 
 pyl.figure(1, dpi=800)
-#pyl.xlim(0,numparticles)
-#pyl.ylim(0,numtsteps)
+# pyl.xlim(0,numparticles)
+# pyl.ylim(0,numtsteps)
 pyl.xlabel('Particle Number')
 pyl.ylabel('PaSR Timestep')
-plot2 = pyl.contourf(xmesh,ymesh,expeigs,50)
+plot2 = pyl.contourf(xmesh, ymesh, expeigs, 50)
 pyl.grid(b=True, which='both')
 cb2 = pyl.colorbar(plot2)
 label2 = cb2.set_label('log$_{10}$ $\lambda_{+}$', fontsize=12)
@@ -349,12 +352,12 @@ pyl.savefig('PaSR_Range_Pos_Eig.png')
 #ycoords = np.arange(numtsteps)
 #xmesh, ymesh = np.meshgrid(xcoords,ycoords)
 #pyl.figure(i, figsize=(6, 4.5), dpi=600)
-#pyl.xlabel('Particle')
-#pyl.ylabel('Timestep')
+# pyl.xlabel('Particle')
+# pyl.ylabel('Timestep')
 #plot = pyl.contourf(xmesh,ymesh,np.log(pasrstiffnesses2[:,:,14]),50)
 #pyl.grid(b=True, which='both')
-#pyl.colorbar(plot)
-#pyl.savefig('Particle_Timestep_All.jpg')
+# pyl.colorbar(plot)
+# pyl.savefig('Particle_Timestep_All.jpg')
 #
 #numparticles = 100
 
