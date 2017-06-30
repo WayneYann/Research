@@ -286,7 +286,7 @@ savefigures = 1
 figformat = 'png'
 
 # Possible options will be 'VDP', 'Autoignition', or 'Oregonator'
-equation = 'Autoignition'
+equation = 'VDP'
 
 # Possible options will be 'Stiffness_Index', 'Stiffness_Indicator'
 method = 'Stiffness_Index'
@@ -301,9 +301,9 @@ PaSR = True
 pasrfilesloaded = 1
 
 # Define the range of the computation.
-dt = 1.e-8
+dt = 1.e-3
 tstart = 0.
-tstop = 5*dt
+tstop = 1000.
 tlist = np.arange(tstart, tstop + 0.5 * dt, dt)
 
 # ODE Solver parameters.
@@ -349,7 +349,7 @@ if equation == 'Autoignition':
     pasrstiffnesses = np.zeros((numtsteps, numparticles))
 elif equation == 'VDP':
     initcond = [2, 0]
-    RHSparam = 200.
+    RHSparam = 1000.
 
 # Create vectors for that time how long it takes to compute stiffness index and
 # the solution itself
