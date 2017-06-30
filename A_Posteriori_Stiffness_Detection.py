@@ -202,9 +202,6 @@ def stiffnessindex(xlist, solution, dfun, jfun, *args, **kwargs):
                 xiterm
         indexlist.append(index)
     indexlist = np.array(indexlist)
-    # print('Last Jacobian:')
-    # for i in jacobian:
-    #     print(i)
     return indexlist  # , dydxlist
 
 
@@ -406,14 +403,14 @@ for particle in particlelist:
         else:
             intj = None
 
-        solver = ode(RHSfunction  # ,
-                     # jac=intj
+        solver = ode(RHSfunction,
+                     jac=intj
                      ).set_integrator('vode',
                                       method='bdf',
                                       nsteps=99999999,
                                       atol=abserr,
                                       rtol=relerr,
-                                      # with_jacobian=usejac,
+                                      with_jacobian=usejac,
                                       # first_step=dt,
                                       # min_step=dt,
                                       # max_step=dt
@@ -467,8 +464,8 @@ for particle in particlelist:
         # print(dt*100.)
         # print(np.shape(solution))
         if method == 'Stiffness_Indicator':
-            # if not PaSR:
-            #     print('Finding Stiffness Indicator...')
+            if not PaSR:
+                print('Finding Stiffness Indicator...')
             time2 = timer.time()
             stiffvalues = stiffnessindicator(tlist,
                                              solution,
@@ -626,7 +623,7 @@ if PaSR:
     # Plot of stiffness computation times vs. stiffness index
     pyl.figure(plotnum)
     pyl.ylabel(method)
-    pyl.xlabel(method + 'Computation Time')
+    pyl.xlabel(method + ' Computation Time')
     pyl.ylim(min(stiffvals), max(stiffvals))
     pyl.xlim(0., max(stiffcomptimes))
     if method == 'Stiffness_Index':
@@ -730,7 +727,7 @@ else:
     # Plot the stiffness indicator vs. time
     pyl.figure(plotnum)
     pyl.xlabel('Time (sec)')
-    pyl.ylabel('Stiffness Indicator')
+    pyl.ylabel(method)
     # pyl.xlim(tstart, tstop)
     pyl.xlim(0, 1)
     pyl.plot(normtlist, stiffvalues)
