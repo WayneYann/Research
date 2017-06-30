@@ -470,10 +470,10 @@ for particle in particlelist:
                                              RHSparam
                                              )
             time3 = timer.time()
-            # if findtimescale:
-            #     if not PaSR:
-            #         print('Finding reference timescales...')
-            #     timescales = reftimescale(stiffvalues, tstop - tstart)
+            if findtimescale:
+                if not PaSR:
+                    print('Finding reference timescales...')
+                timescales = reftimescale(stiffvalues, tstop - tstart)
             stiffcomptimes.append(time3 - time2)
         elif method == 'Stiffness_Index':
             if not PaSR:
