@@ -520,6 +520,9 @@ for i in range(15):
     pyl.clf()
 pyl.close('all')
 
+print(len(tlist))
+print(len(primaryvals))
+
 # Something is causing a bug in the tlist and this is intended to fix it
 if len(tlist) == len(primaryvals) + 1:
     tlist = tlist[1:]
@@ -535,6 +538,8 @@ if displaysolshapes:
     print(np.shape(solutiontimes))
     print('stiffvalues shape:')
     print(np.shape(stiffvalues))
+    print('stiffcomptimes shape')
+    print(np.shape(stiffcomptimes))
 
 plotnum = 0
 if PaSR:
