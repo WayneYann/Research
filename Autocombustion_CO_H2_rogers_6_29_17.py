@@ -290,7 +290,7 @@ starttime = datetime.datetime.now()
 print('Start time: {}'.format(starttime))
 
 """
-------------------------------------------------------
+-------------------------------------------------------------------------------
 All of the values that need to be adjusted should be in this section.
 """
 # Specify how you want to save the figures/data
@@ -332,12 +332,12 @@ useN2 = False
 displayconditions = False
 
 # Display the solution shape for plotting/debugging
-displaysolshapes = True
+displaysolshapes = False
 
 # To be implemented later.
 makesecondderivplots = False
 """
-------------------------------------------------------
+-------------------------------------------------------------------------------
 """
 
 if equation == 'VDP':
@@ -460,7 +460,7 @@ for particle in particlelist:
         if method == 'Stiffness_Indicator':
             print('Finding Stiffness Indicator...')
             time2 = timer.time()
-            indexvalues = stiffnessindicator(tlist,
+            stiffvalues = stiffnessindicator(tlist,
                                              solution,
                                              EQjac,
                                              RHSparam
@@ -468,12 +468,12 @@ for particle in particlelist:
             time3 = timer.time()
             if findtimescale:
                 print('Finding reference timescales...')
-                timescales = reftimescale(indexvalues, tstop - tstart)
+                timescales = reftimescale(stiffvalues, tstop - tstart)
             stiffcomptimes.append(time3 - time2)
         elif method == 'Stiffness_Index':
             print('Finding Stiffness Index...')
             time2 = timer.time()
-            indexvalues = stiffnessindex(tlist,
+            stiffvalues = stiffnessindex(tlist,
                                          solution,
                                          RHSfunction,
                                          EQjac,
@@ -521,8 +521,12 @@ if displaysolshapes:
     print(np.shape(primaryvals))
     print('solutiontimes shape:')
     print(np.shape(solutiontimes))
-    print('indexvalues shape:')
-    print(np.shape(indexvalues))
+    print('stiffvalues shape:')
+    print(np.shape(stiffvalues))
+
+normtlist = []
+for i in tlist:
+    normtlist.append(i / (tstop - tstart))
 
 # Plot the solution of the temperature
 pyl.figure(0)
@@ -535,6 +539,7 @@ elif equation == 'Autoignition':
 pyl.xlabel('Time (sec)')
 pyl.xlim(tstart, tstop)
 pyl.plot(tlist, primaryvals)
+pyl.grid(b=True, which='both')
 if savefigures == 1:
     pyl.savefig(equation + '_' +
                 ylab +
@@ -549,6 +554,7 @@ pyl.ylabel('Integration time (sec)')
 pyl.xlim(tstart, tstop)
 # pyl.ylim(0, 0.005)
 pyl.plot(tlist, solutiontimes)
+pyl.grid(b=True, which='both')
 if savefigures == 1:
     pyl.savefig(equation + '_Integration_Times_' +
                 str(dt) +
@@ -560,7 +566,8 @@ pyl.figure(2)
 pyl.xlabel('Time (sec)')
 pyl.ylabel('Stiffness Indicator')
 pyl.xlim(tstart, tstop)
-pyl.plot(tlist, indexvalues)
+pyl.plot(normtlist, stiffvalues)
+pyl.grid(b=True, which='both')
 if savefigures == 1:
     pyl.savefig(equation + '_' +
                 method + '_' +
@@ -575,6 +582,7 @@ if findtimescale:
     pyl.ylabel('Reference Timescale')
     pyl.xlim(tstart, tstop)
     pyl.plot(tlist, timescales)
+    pyl.grid(b=True, which='both')
     if savefigures == 1:
         pyl.savefig(equation + '_Ref_Timescale_' +
                     str(dt) +
