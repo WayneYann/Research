@@ -389,16 +389,16 @@ for particle in particlelist:
             # Set up the initial conditions for autoignition
             Y = pasr[tstep, particle, :].copy()
             initcond, RHSparam = rearrangepasr(Y)
-            if displayconditions:
-                print('Initial Condition:')
-                for i in Y:
-                    print(i)
-                print('Modified condition:')
-                for i in initcond:
-                    print(i)
+            # if displayconditions:
+            #     print('Initial Condition:')
+            #     for i in Y:
+            #         print(i)
+            #     print('Modified condition:')
+            #     for i in initcond:
+            #         print(i)
 
-        if not PaSR:
-            print('Integrating...')
+        # if not PaSR:
+        #     print('Integrating...')
         solution = []
         # Specify the integrator
         if usejac:
@@ -436,18 +436,18 @@ for particle in particlelist:
             solution.append(solver.y)
             solutiontimes.append(time1 - time0)
 
-        if displayconditions:
-            print('Final time:')
-            print(solver.t)
-            print('Last solution value:')
-            for i in solver.y:
-                print(i)
-
-            lastjac = jacobval(0.2, solver.y, RHSparam)
-
-            print('Last Jacobian value:')
-            for i in lastjac:
-                print(i)
+        # if displayconditions:
+        #     print('Final time:')
+        #     print(solver.t)
+        #     print('Last solution value:')
+        #     for i in solver.y:
+        #         print(i)
+        #
+        #     lastjac = jacobval(0.2, solver.y, RHSparam)
+        #
+        #     print('Last Jacobian value:')
+        #     for i in lastjac:
+        #         print(i)
 
         # Convert the solution to an array for ease of use.  Maybe just using
         # numpy function to begin with would be faster?
@@ -461,8 +461,8 @@ for particle in particlelist:
         # print(dt*100.)
         # print(np.shape(solution))
         if method == 'Stiffness_Indicator':
-            if not PaSR:
-                print('Finding Stiffness Indicator...')
+            # if not PaSR:
+            #     print('Finding Stiffness Indicator...')
             time2 = timer.time()
             stiffvalues = stiffnessindicator(tlist,
                                              solution,
@@ -470,23 +470,23 @@ for particle in particlelist:
                                              RHSparam
                                              )
             time3 = timer.time()
-            if findtimescale:
-                if not PaSR:
-                    print('Finding reference timescales...')
-                timescales = reftimescale(stiffvalues, tstop - tstart)
+            # if findtimescale:
+            #     if not PaSR:
+            #         print('Finding reference timescales...')
+            #     timescales = reftimescale(stiffvalues, tstop - tstart)
             stiffcomptimes.append(time3 - time2)
-        elif method == 'Stiffness_Index':
-            if not PaSR:
-                print('Finding Stiffness Index...')
-            time2 = timer.time()
-            stiffvalues = stiffnessindex(tlist,
-                                         solution,
-                                         RHSfunction,
-                                         EQjac,
-                                         RHSparam
-                                         )
-            time3 = timer.time()
-            stiffcomptimes.append(time3 - time2)
+        # elif method == 'Stiffness_Index':
+        #     if not PaSR:
+        #         print('Finding Stiffness Index...')
+        #     time2 = timer.time()
+        #     stiffvalues = stiffnessindex(tlist,
+        #                                  solution,
+        #                                  RHSfunction,
+        #                                  EQjac,
+        #                                  RHSparam
+        #                                  )
+        #     time3 = timer.time()
+        #     stiffcomptimes.append(time3 - time2)
         if PaSR:
             stiffvals.append(stiffvalues[2])
 
