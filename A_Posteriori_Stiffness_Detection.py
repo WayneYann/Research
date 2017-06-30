@@ -475,18 +475,18 @@ for particle in particlelist:
             #         print('Finding reference timescales...')
             #     timescales = reftimescale(stiffvalues, tstop - tstart)
             stiffcomptimes.append(time3 - time2)
-        # elif method == 'Stiffness_Index':
-        #     if not PaSR:
-        #         print('Finding Stiffness Index...')
-        #     time2 = timer.time()
-        #     stiffvalues = stiffnessindex(tlist,
-        #                                  solution,
-        #                                  RHSfunction,
-        #                                  EQjac,
-        #                                  RHSparam
-        #                                  )
-        #     time3 = timer.time()
-        #     stiffcomptimes.append(time3 - time2)
+        elif method == 'Stiffness_Index':
+            if not PaSR:
+                print('Finding Stiffness Index...')
+            time2 = timer.time()
+            stiffvalues = stiffnessindex(tlist,
+                                         solution,
+                                         RHSfunction,
+                                         EQjac,
+                                         RHSparam
+                                         )
+            time3 = timer.time()
+            stiffcomptimes.append(time3 - time2)
         if PaSR:
             stiffvals.append(stiffvalues[2])
 
