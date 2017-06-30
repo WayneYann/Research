@@ -286,6 +286,7 @@ savefigures = 1
 figformat = 'png'
 
 # Possible options will be 'VDP', 'Autoignition', or 'Oregonator'
+# Oregonator not yet implemented
 equation = 'VDP'
 
 # Possible options will be 'Stiffness_Index', 'Stiffness_Indicator'
@@ -363,8 +364,12 @@ if PaSR:
 else:
     particlelist = [92]
     timelist = [4]
-    # Can only do this plot for PaSR, so shutting it off here
+    # Can only do this plot for PaSR, so shutting it off here.
     makerainbowplot = False
+
+# Don't need to find the timescale if the stiffness index is being computed.
+if method = 'Stiffness_Index':
+    findtimescale = False
 
 for particle in particlelist:
     if PaSR:
@@ -677,6 +682,12 @@ if PaSR:
         plotnum += 1
 
 else:
+    # Deleting a few values that weren't found using CD formula
+    if method == 'Stiffness_Index':
+        tlist = tlist[:-3]
+        primaryvals = primaryvals[:-3]
+        solutiontimes = solutiontimes[:-3]
+        stiffvalues = stiffvalues[:-3]
     # Create a list of normalized dt values
     normtlist = []
     for i in tlist:
