@@ -461,7 +461,8 @@ for particle in particlelist:
         # print(dt*100.)
         # print(np.shape(solution))
         if method == 'Stiffness_Indicator':
-            print('Finding Stiffness Indicator...')
+            if not PaSR:
+                print('Finding Stiffness Indicator...')
             time2 = timer.time()
             stiffvalues = stiffnessindicator(tlist,
                                              solution,
@@ -470,11 +471,13 @@ for particle in particlelist:
                                              )
             time3 = timer.time()
             if findtimescale:
-                print('Finding reference timescales...')
+                if not PaSR:
+                    print('Finding reference timescales...')
                 timescales = reftimescale(stiffvalues, tstop - tstart)
             stiffcomptimes.append(time3 - time2)
         elif method == 'Stiffness_Index':
-            print('Finding Stiffness Index...')
+            if not PaSR:
+                print('Finding Stiffness Index...')
             time2 = timer.time()
             stiffvalues = stiffnessindex(tlist,
                                          solution,
