@@ -302,7 +302,7 @@ figformat = 'png'
 equation = 'Autoignition'
 
 # Possible options will be 'Stiffness_Index', 'Stiffness_Indicator'
-method = 'Stiffness_Indicator'
+method = 'Stiffness_Index'
 
 # Make this true if you want to obtain the reference timescale of the stiffness
 # indicator.
