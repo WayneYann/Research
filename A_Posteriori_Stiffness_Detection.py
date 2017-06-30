@@ -425,6 +425,7 @@ for particle in particlelist:
         solver.set_jac_params(RHSparam)
 
         # Integrate the ODE across all steps
+        k = 0
         while solver.successful() and solver.t <= tstop:
             time0 = timer.time()
             solver.integrate(solver.t + dt)
@@ -434,7 +435,12 @@ for particle in particlelist:
             # for i in solver.y:
             #     print(i)
             solution.append(solver.y)
-            solutiontimes.append(time1 - time0)
+            if PaSR:
+                if k == 2:
+                    solutiontimes.append(time1 - time0)
+                k += 1
+            else:
+                solutiontimes.append(time1 - time0)
 
         if displayconditions:
             print('Final time:')
@@ -474,7 +480,8 @@ for particle in particlelist:
                 if not PaSR:
                     print('Finding reference timescales...')
                 timescales = reftimescale(stiffvalues, tstop - tstart)
-            stiffcomptimes.append(time3 - time2)
+            if PaSR:
+                stiffcomptimes.append(time3 - time2)
         elif method == 'Stiffness_Index':
             if not PaSR:
                 print('Finding Stiffness Index...')
@@ -486,7 +493,8 @@ for particle in particlelist:
                                          RHSparam
                                          )
             time3 = timer.time()
-            stiffcomptimes.append(time3 - time2)
+            if PaSR:
+                stiffcomptimes.append(time3 - time2)
         if PaSR:
             stiffvals.append(stiffvalues[2])
 
