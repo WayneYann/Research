@@ -290,7 +290,7 @@ figformat = 'png'
 equation = 'Autoignition'
 
 # Possible options will be 'Stiffness_Index', 'Stiffness_Indicator'
-method = 'Stiffness_Index'
+method = 'Stiffness_Indicator'
 
 # Make this true if you want to obtain the reference timescale of the stiffness
 # indicator.
@@ -298,13 +298,13 @@ findtimescale = False
 
 # Make this true if you want to test all of the values across the PaSR.
 # Otherwise, this will run a single autoignition at particle 92, timestep 4.
-PaSR = True
+PaSR = False
 pasrfilesloaded = 9
 
 # Define the range of the computation.
-dt = 1.e-8
+dt = 1.e-6
 tstart = 0.
-tstop = 5 * dt
+tstop = 0.2
 tlist = np.arange(tstart, tstop + 0.5 * dt, dt)
 
 # ODE Solver parameters.
@@ -751,6 +751,26 @@ else:
     if savefigures == 1:
         pyl.savefig(output_folder +
                     equation + '_' +
+                    method + '_' +
+                    str(dt) +
+                    '_' + timer.strftime("%m_%d") +
+                    '.' + figformat)
+    plotnum += 1
+
+    # Plot the stiffness metric vs. integration time
+    pyl.figure(plotnum)
+    pyl.xlabel(method)
+    pyl.ylabel('Integration Time (sec)')
+    pyl.xlim(min(stiffvals), max(stiffvals))
+    pyl.ylim(0, max(solutiontimes))
+    pyl.scatter(stiffvalues, solutiontimes)
+    if method == 'Stiffness_Index':
+        pyl.xscale('log')
+    pyl.grid(b=True, which='both')
+    if savefigures == 1:
+        pyl.savefig(output_folder +
+                    equation + '_' +
+                    'Int_Times_' +
                     method + '_' +
                     str(dt) +
                     '_' + timer.strftime("%m_%d") +
