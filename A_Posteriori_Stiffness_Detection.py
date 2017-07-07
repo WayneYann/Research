@@ -321,7 +321,7 @@ useN2 = False
 displayconditions = False
 
 # Display the solution shape for plotting/debugging.
-displaysolshapes = False
+displaysolshapes = True
 
 # Make the plot of the stiffness across the entire PaSR data range.
 makerainbowplot = True
@@ -761,7 +761,7 @@ else:
     pyl.figure(plotnum)
     pyl.xlabel(method)
     pyl.ylabel('Integration Time (sec)')
-    pyl.xlim(min(stiffvals), max(stiffvals))
+    pyl.xlim(min(stiffvalues), max(stiffvalues))
     pyl.ylim(0, max(solutiontimes))
     pyl.scatter(stiffvalues, solutiontimes)
     if method == 'Stiffness_Index':
