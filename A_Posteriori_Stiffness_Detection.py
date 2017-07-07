@@ -302,7 +302,7 @@ PaSR = True
 pasrfilesloaded = 9
 
 # Define the range of the computation.
-dt = 1.e-6
+dt = 1.e-7
 tstart = 0.
 tstop = 5 * dt
 tlist = np.arange(tstart, tstop + 0.5 * dt, dt)
