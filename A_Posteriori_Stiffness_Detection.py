@@ -302,7 +302,7 @@ PaSR = True
 pasrfilesloaded = 9
 
 # Define the range of the computation.
-dt = 1.e-8
+dt = 1.e-6
 tstart = 0.
 tstop = 5 * dt
 tlist = np.arange(tstart, tstop + 0.5 * dt, dt)
@@ -580,7 +580,7 @@ if PaSR:
     pyl.grid(b=True, which='both')
     if savefigures == 1:
         pyl.savefig(output_folder +
-                    'Integration_Times_' +
+                    'PaSR_Integration_Times_' +
                     str(dt) +
                     '_' + timer.strftime("%m_%d") +
                     '.' + figformat)
@@ -596,6 +596,7 @@ if PaSR:
     pyl.grid(b=True, which='both')
     if savefigures == 1:
         pyl.savefig(output_folder +
+                    'PaSR_' +
                     method +
                     '_Comp_Times_' +
                     str(dt) +
@@ -613,6 +614,7 @@ if PaSR:
     pyl.grid(b=True, which='both')
     if savefigures == 1:
         pyl.savefig(output_folder +
+                    'PaSR_' +
                     method +
                     '_Comp_Ratios_' +
                     str(dt) +
@@ -622,16 +624,17 @@ if PaSR:
 
     # Plot of stiffness computation times vs. stiffness metric
     pyl.figure(plotnum)
-    pyl.ylabel(method)
-    pyl.xlabel(method + ' Computation Time')
-    pyl.ylim(min(stiffvals), max(stiffvals))
-    pyl.xlim(0., max(stiffcomptimes))
+    pyl.xlabel(method)
+    pyl.ylabel(method + ' Computation Time')
+    pyl.xlim(min(stiffvals), max(stiffvals))
+    pyl.ylim(0., max(stiffcomptimes))
     if method == 'Stiffness_Index':
-        pyl.yscale('log')
-    pyl.scatter(stiffcomptimes, stiffvals, 0.1)
+        pyl.xscale('log')
+    pyl.scatter(stiffvals, stiffcomptimes, 0.1)
     pyl.grid(b=True, which='both')
     if savefigures == 1:
         pyl.savefig(output_folder +
+                    'PaSR_' +
                     method + '_' +
                     'Times_Vals_' +
                     str(dt) +
@@ -651,7 +654,7 @@ if PaSR:
     pyl.grid(b=True, which='both')
     if savefigures == 1:
         pyl.savefig(output_folder +
-                    'Int_Times_' +
+                    'PaSR_Int_Times_' +
                     method +
                     '_' + str(dt) +
                     '_' + timer.strftime("%m_%d") +
