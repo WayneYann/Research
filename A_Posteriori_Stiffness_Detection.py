@@ -596,7 +596,8 @@ if PaSR:
     pyl.grid(b=True, which='both')
     if savefigures == 1:
         pyl.savefig(output_folder +
-                    'Stiff_Comp_Times_' +
+                    method +
+                    '_Comp_Times_' +
                     str(dt) +
                     '_' + timer.strftime("%m_%d") +
                     '.' + figformat)
@@ -612,13 +613,14 @@ if PaSR:
     pyl.grid(b=True, which='both')
     if savefigures == 1:
         pyl.savefig(output_folder +
-                    'Stiff_Comp_Ratios_' +
+                    method +
+                    '_Comp_Ratios_' +
                     str(dt) +
                     '_' + timer.strftime("%m_%d") +
                     '.' + figformat)
     plotnum += 1
 
-    # Plot of stiffness computation times vs. stiffness index
+    # Plot of stiffness computation times vs. stiffness metric
     pyl.figure(plotnum)
     pyl.ylabel(method)
     pyl.xlabel(method + ' Computation Time')
@@ -630,13 +632,14 @@ if PaSR:
     pyl.grid(b=True, which='both')
     if savefigures == 1:
         pyl.savefig(output_folder +
-                    'Stiffcomp_Stiffvals_' +
+                    method + '_' +
+                    'Times_Vals_' +
                     str(dt) +
                     '_' + timer.strftime("%m_%d") +
                     '.' + figformat)
     plotnum += 1
 
-    # Plot of integration times vs. stiffness index
+    # Plot of integration times vs. stiffness metric
     pyl.figure(plotnum)
     pyl.xlabel(method)
     pyl.ylabel('Integration Time')
@@ -648,8 +651,9 @@ if PaSR:
     pyl.grid(b=True, which='both')
     if savefigures == 1:
         pyl.savefig(output_folder +
-                    'Int_Stiffvals_' +
-                    str(dt) +
+                    'Int_Times_' +
+                    method +
+                    '_' + str(dt) +
                     '_' + timer.strftime("%m_%d") +
                     '.' + figformat)
     plotnum += 1
