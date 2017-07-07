@@ -373,6 +373,7 @@ if method == 'Stiffness_Index':
 
 for particle in particlelist:
     if PaSR:
+        # Provide code progress
         print(particle)
     for tstep in timelist:
         if equation == 'Autoignition':
