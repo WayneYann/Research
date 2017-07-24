@@ -354,19 +354,16 @@ if equation == 'VDP':
     RHSfunction = dydx
     EQjac = jacvdp
     EQ2deriv = d2ydx2
+    initcond = [2, 0]
+    RHSparam = 1000.
 elif equation == 'Autoignition':
     RHSfunction = firstderiv
     EQjac = jacobval
-
-if equation == 'Autoignition':
     # Load the initial conditions from the PaSR files
     pasr = loadpasrdata(pasrfilesloaded)
     numparticles = len(pasr[0, :, 0])
     numtsteps = len(pasr[:, 0, 0])
     pasrstiffnesses = np.zeros((numtsteps, numparticles))
-elif equation == 'VDP':
-    initcond = [2, 0]
-    RHSparam = 1000.
 
 # Create vectors for that time how long it takes to compute stiffness index and
 # the solution itself
@@ -758,7 +755,7 @@ else:
     if savefigures == 1:
         pyl.savefig(output_folder +
                     equation + '_' +
-                    ylab +
+                    ylab + '_' +
                     str(dt) +
                     '_' + timer.strftime("%m_%d") +
                     '.' + figformat)
