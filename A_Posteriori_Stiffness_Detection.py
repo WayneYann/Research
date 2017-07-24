@@ -307,7 +307,7 @@ figformat = 'png'
 equation = 'Autoignition'
 
 # Possible options are 'Stiffness_Index', 'Stiffness_Indicator', 'CEMA'
-method = 'Stiffness_Index'
+method = 'CEMA'
 
 # Make this true if you want to obtain the reference timescale of the stiffness
 # indicator.
@@ -315,14 +315,13 @@ findtimescale = False
 
 # Make this true if you want to test all of the values across the PaSR.
 # Otherwise, this will run a single autoignition at particle 92, timestep 4.
-PaSR = True
+PaSR = False
 pasrfilesloaded = 9
 
 # Define the range of the computation.
 dt = 1.e-7
 tstart = 0.
-tstop = 5 * dt
-tlist = np.arange(tstart, tstop + 0.5 * dt, dt)
+tstop = 0.2
 
 # ODE Solver parameters.
 abserr = 1.0e-17
@@ -338,10 +337,10 @@ useN2 = False
 displayconditions = False
 
 # Display the solution shape for plotting/debugging.
-displaysolshapes = True
+displaysolshapes = False
 
 # Make the plot of the stiffness across the entire PaSR data range.
-makerainbowplot = True
+makerainbowplot = False
 
 # To be implemented later.
 makesecondderivplots = False
@@ -378,11 +377,17 @@ if PaSR:
     print('Code progress:')
     particlelist = range(numparticles)
     timelist = range(numtsteps)
+    # We don't want long integrations for every point in the PaSR
+    tstart = 0.
+    tstop = 5 * dt
 else:
     particlelist = [92]
     timelist = [4]
     # Can only do this plot for PaSR, so shutting it off here.
     makerainbowplot = False
+
+# Create the list of times to compute
+tlist = np.arange(tstart, tstop + 0.5 * dt, dt)
 
 # Don't need to find the timescale if the stiffness index is being computed.
 if method == 'Stiffness_Index':
