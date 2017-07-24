@@ -567,6 +567,13 @@ pyl.close('all')
 if len(tlist) == len(primaryvals) + 1:
     tlist = tlist[1:]
 
+# Make the metric values a numpy array to make things easier
+stiffvalues = np.array(stiffvalues)
+
+# Make all of the CEMA values real numbers
+if method == 'CEMA':
+    stiffvalues = stiffvalues.real
+
 # A bunch of print statements used for debugging
 if displaysolshapes:
     print('Solution[:, 0] shape:')
