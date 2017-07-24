@@ -692,6 +692,9 @@ if PaSR:
     pyl.xlim(min(stiffvals), max(stiffvals))
     if method == 'Stiffness_Index':
         pyl.xscale('log')
+    elif method == 'CEMA':
+        pyl.ylim(0, 0.001)
+        pyl.xlim(0, 1.e6)
     pyl.scatter(stiffvals, solutiontimes, 0.1)
     pyl.grid(b=True, which='both')
     if savefigures == 1:
