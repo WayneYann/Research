@@ -800,7 +800,10 @@ else:
     pyl.xlabel(method)
     pyl.ylabel('Integration Time (sec)')
     pyl.xlim(min(stiffvalues), max(stiffvalues))
-    pyl.ylim(0, max(solutiontimes))
+    if method == 'CEMA':
+        pyl.ylim(0, 0.00025)
+    else:
+        pyl.ylim(0, max(solutiontimes))
     pyl.scatter(stiffvalues, solutiontimes, 0.1)
     if method == 'Stiffness_Index':
         pyl.xscale('log')
