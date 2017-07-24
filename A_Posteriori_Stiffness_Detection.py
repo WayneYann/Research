@@ -232,6 +232,23 @@ def reftimescale(indicatorvals, Tlen):
     return timescales
 
 
+def CEMA(xlist, solution, jfun, *args):
+    """
+    Find values for the chemical explosive mode analysis.
+
+    Same thing as finding the maximum eigenvalue across the solution.
+    """
+    funcparams = []
+    for arg in args:
+        funcparams.append(arg)
+
+    values = []
+    for i in range(len(solution)):
+        jacobian = jfun(xlist[i], solution[i], funcparams[0])
+        values.append(max(np.linalg.eigvals(jacobian)))
+    return values
+
+
 def loadpasrdata(num):
     """Load the initial conditions from the PaSR files."""
     pasrarrays = []
@@ -289,7 +306,7 @@ figformat = 'png'
 # Oregonator not yet implemented
 equation = 'Autoignition'
 
-# Possible options will be 'Stiffness_Index', 'Stiffness_Indicator'
+# Possible options are 'Stiffness_Index', 'Stiffness_Indicator', 'CEMA'
 method = 'Stiffness_Index'
 
 # Make this true if you want to obtain the reference timescale of the stiffness
@@ -448,7 +465,7 @@ for particle in particlelist:
         solution = np.array(solution)
         primaryvals = np.array(solution[:, 0])
 
-        # Find the stiffness index across the range of the solution and time it
+        # Find the stiffness metric across the solution and time it
         if method == 'Stiffness_Indicator':
             if not PaSR:
                 print('Finding Stiffness Indicator...')
@@ -478,6 +495,19 @@ for particle in particlelist:
             time3 = timer.time()
             if PaSR:
                 stiffcomptimes.append(time3 - time2)
+        elif method == 'CEMA':
+            if not PaSR:
+                print('Finding chemical explosive mode...')
+            time2 = timer.time()
+            stiffvalues = CEMA(tlist,
+                               solution,
+                               EQjac,
+                               RHSparam
+                               )
+            time3 = timer.time()
+            if PaSR:
+                stiffcomptimes.append(time3 - time2)
+
         if PaSR:
             stiffvals.append(stiffvalues[2])
             if makerainbowplot:
@@ -522,6 +552,7 @@ speciesnames = ['H', 'H$_2$', 'O', 'OH', 'H$_2$O', 'O$_2$', 'HO$_2$',
 my_path = os.path.abspath(__file__)
 output_folder = 'Output_Plots/'
 
+# ----------------------------------------------------------
 # Plot the results
 
 # Clear all previous figures and close them all
@@ -534,6 +565,7 @@ pyl.close('all')
 if len(tlist) == len(primaryvals) + 1:
     tlist = tlist[1:]
 
+# A bunch of print statements used for debugging
 if displaysolshapes:
     print('Solution[:, 0] shape:')
     print(np.shape(solution[:, 0]))
