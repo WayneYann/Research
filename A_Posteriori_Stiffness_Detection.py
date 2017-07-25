@@ -301,47 +301,35 @@ All of the values that need to be adjusted should be in this section.
 savedata = 0
 savefigures = 1
 figformat = 'png'
-
 # Possible options will be 'VDP', 'Autoignition', or 'Oregonator'
 # Oregonator not yet implemented
 equation = 'Autoignition'
-
 # Possible options are 'Stiffness_Index', 'Stiffness_Indicator', 'CEMA'
 method = 'CEMA'
-
 # Make this true if you want to obtain the reference timescale of the stiffness
 # indicator.
 findtimescale = False
-
 # Make this true if you want to test all of the values across the PaSR.
 # Otherwise, this will run a single autoignition at particle 92, timestep 4.
 PaSR = True
 pasrfilesloaded = 9
-
 # Define the range of the computation.
 dt = 1.e-7
 tstart = 0.
 tstop = 0.2
-
 # ODE Solver parameters.
 abserr = 1.0e-17
 relerr = 1.0e-15
-
 # Keep this at false, something isn't working with using the jacobian yet.
 usejac = False
-
 # Decide if you want to give pyJac N2 or not.
 useN2 = False
-
 # Used if you want to check that the PaSR data is being properly conditioned.
 displayconditions = False
-
 # Display the solution shape for plotting/debugging.
 displaysolshapes = False
-
 # Make the plot of the stiffness across the entire PaSR data range.
 makerainbowplot = False
-
 # To be implemented later.
 makesecondderivplots = False
 """
