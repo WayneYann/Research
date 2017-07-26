@@ -249,6 +249,26 @@ def CEMA(xlist, solution, jfun, *args):
     return values
 
 
+def stiffnessratio(xlist, solution, jfun, *args):
+    """
+    Find values of the stiffness ratio.
+
+    Ratio of the eigenvalue with the largest absolute value over the eigenvalue
+    with the smallest absolute value. Ignores eigenvalues of zero.
+    """
+    funcparams = []
+    for arg in args:
+        funcparams.append(arg)
+
+    values = []
+    for i in range(len(solution)):
+        jacobian = jfun(xlist[i], solution[i], funcparams[0])
+        eigvals = np.array([abs(j) for j in np.linalg.eigvals(jacobian)
+                            if j != 0])
+        values.append(max(eigvals)/min(eigvals))
+    return values
+
+
 def loadpasrdata(num):
     """Load the initial conditions from the PaSR files."""
     pasrarrays = []
@@ -311,12 +331,12 @@ method = 'CEMA'
 findtimescale = False
 # Make this true if you want to test all of the values across the PaSR.
 # Otherwise, this will run a single autoignition at particle 92, timestep 4.
-PaSR = True
+PaSR = False
 pasrfilesloaded = 9
 # Define the range of the computation.
 dt = 1.e-7
 tstart = 0.
-tstop = 0.2
+tstop = 0.5
 # ODE Solver parameters.
 abserr = 1.0e-17
 relerr = 1.0e-15
@@ -494,6 +514,18 @@ for particle in particlelist:
                                EQjac,
                                RHSparam
                                )
+            time3 = timer.time()
+            if PaSR:
+                stiffcomptimes.append(time3 - time2)
+        elif method == 'Stiffness_Ratio':
+            if not PaSR:
+                print('Finding stiffness ratio...')
+            time2 = timer.time()
+            stiffvalues = stiffnessratio(tlist,
+                                         solution,
+                                         EQjac,
+                                         RHSparam
+                                         )
             time3 = timer.time()
             if PaSR:
                 stiffcomptimes.append(time3 - time2)
@@ -781,7 +813,7 @@ else:
     pyl.ylabel(method)
     pyl.xlim(plotx)
     pyl.plot(tlist, stiffvalues)
-    if method == 'Stiffness_Index':
+    if method == 'Stiffness_Index' or method == 'Stiffness_Ratio':
         pyl.yscale('log')
     pyl.grid(b=True, which='both')
     if savefigures == 1:
