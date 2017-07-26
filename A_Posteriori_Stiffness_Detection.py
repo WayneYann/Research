@@ -324,8 +324,9 @@ figformat = 'png'
 # Possible options will be 'VDP', 'Autoignition', or 'Oregonator'
 # Oregonator not yet implemented
 equation = 'Autoignition'
-# Possible options are 'Stiffness_Index', 'Stiffness_Indicator', 'CEMA'
-method = 'CEMA'
+# Possible options are 'Stiffness_Index', 'Stiffness_Indicator', 'CEMA',
+# 'Stiffness_Ratio'
+method = 'Stiffness_Indicator'
 # Make this true if you want to obtain the reference timescale of the stiffness
 # indicator.
 findtimescale = False
@@ -334,7 +335,7 @@ findtimescale = False
 PaSR = False
 pasrfilesloaded = 9
 # Define the range of the computation.
-dt = 1.e-7
+dt = 1.e-6
 tstart = 0.
 tstop = 0.5
 # ODE Solver parameters.
@@ -812,7 +813,10 @@ else:
     pyl.xlabel('Time (sec)')
     pyl.ylabel(method)
     pyl.xlim(plotx)
-    pyl.plot(tlist, stiffvalues)
+    if method == 'Stiffness_Ratio':
+        pyl.scatter(tlist, stiffvalues, 0.1)
+    else:
+        pyl.plot(tlist, stiffvalues)
     if method == 'Stiffness_Index' or method == 'Stiffness_Ratio':
         pyl.yscale('log')
     pyl.grid(b=True, which='both')
