@@ -48,7 +48,7 @@ findtimescale = False
 PaSR = False
 pasrfilesloaded = 9
 # Define the range of the computation.
-dt = 1.e-5
+dt = 1.e-6
 tstart = 0.
 tstop = 0.2
 # Make the plot of the stiffness across the entire PaSR data range.
