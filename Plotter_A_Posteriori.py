@@ -45,10 +45,10 @@ equation = 'Autoignition'
 findtimescale = False
 # Make this true if you want to test all of the values across the PaSR.
 # Otherwise, this will run a single autoignition at particle 92, timestep 4.
-PaSR = False
+PaSR = True
 pasrfilesloaded = 9
 # Define the range of the computation.
-dt = 1.e-6
+dt = 1.e-8
 tstart = 0.
 tstop = 0.2
 # Make the plot of the stiffness across the entire PaSR data range.
@@ -122,6 +122,8 @@ speciesnames = ['H', 'H$_2$', 'O', 'OH', 'H$_2$O', 'O$_2$', 'HO$_2$',
 
 tlist = np.arange(tstart, tstop + 0.5 * dt, dt)
 
+print('Plotting...')
+
 # Clear all previous figures and close them all
 for i in range(15):
     pyl.figure(i)
@@ -129,9 +131,10 @@ for i in range(15):
 pyl.close('all')
 
 # Something is causing a bug in the tlist and this is intended to fix it
-primaryvals = np.array(solution[:, 0])
-if len(tlist) == len(primaryvals) + 1:
-    tlist = tlist[1:]
+if not PaSR:
+    primaryvals = np.array(solution[:, 0])
+    if len(tlist) == len(primaryvals) + 1:
+        tlist = tlist[1:]
 
 plotnum = 0
 if PaSR:

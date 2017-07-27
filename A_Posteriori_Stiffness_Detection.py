@@ -6,21 +6,15 @@ Created on Fri Feb 17 14:54:13 2017
 @author: andrewalferman
 """
 
-# import matplotlib
-# matplotlib.use('Agg')
 import os as os
 import numpy as np
 import pyjacob as pyjacob
-# import pylab as pyl
 # import scipy as sci
 import datetime
 import time as timer
 
 # from scipy.integrate import odeint
 from scipy.integrate import ode
-
-# pyl.ioff()
-
 
 def firstderiv(time, state, press):
     """Force the integrator to use the right arguments."""
@@ -620,3 +614,6 @@ if savedata == 1:
     np.save(data_folder + metrictimingfilename, stiffcomptimes)
     if findtimescale:
         np.save(data_folder + timescalefilename, timescales)
+
+finishtime = datetime.datetime.now()
+print('Finish time: {}'.format(finishtime))
