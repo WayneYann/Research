@@ -318,8 +318,8 @@ print('Start time: {}'.format(starttime))
 All of the values that need to be adjusted should be in this section.
 """
 # Specify how you want to save the figures/data
-savedata = 0
-savefigures = 1
+savedata = 1
+savefigures = 0
 figformat = 'png'
 # Possible options will be 'VDP', 'Autoignition', or 'Oregonator'
 # Oregonator not yet implemented
@@ -335,9 +335,9 @@ findtimescale = False
 PaSR = False
 pasrfilesloaded = 9
 # Define the range of the computation.
-dt = 1.e-6
+dt = 1.e-7
 tstart = 0.
-tstop = 0.5
+tstop = 0.2
 # ODE Solver parameters.
 abserr = 1.0e-17
 relerr = 1.0e-15
@@ -474,7 +474,6 @@ for particle in particlelist:
         # Convert the solution to an array for ease of use.  Maybe just using
         # numpy function to begin with would be faster?
         solution = np.array(solution)
-        primaryvals = np.array(solution[:, 0])
 
         # Find the stiffness metric across the solution and time it
         if method == 'Stiffness_Indicator':
@@ -539,6 +538,7 @@ for particle in particlelist:
                 else:
                     pasrstiffnesses[tstep, particle] = stiffvalues[2]
 
+# ----------------------------------------------------------
 # CODE GRAVEYARD!!!
 # "Where old code goes to die..."
 
@@ -568,12 +568,60 @@ for particle in particlelist:
 
 # expeigs = np.zeros((numtsteps, numparticles))
 
+# ----------------------------------------------------------
+# A bunch of print statements used for debugging
+if displaysolshapes:
+    print('Solution shape:')
+    print(np.shape(solution))
+    print('tlist shape:')
+    print(np.shape(tlist))
+    print('solutiontimes shape:')
+    print(np.shape(solutiontimes))
+    print('stiffvalues shape:')
+    print(np.shape(stiffvalues))
+    print('stiffcomptimes shape')
+    print(np.shape(stiffcomptimes))
+
 speciesnames = ['H', 'H$_2$', 'O', 'OH', 'H$_2$O', 'O$_2$', 'HO$_2$',
                 'H$_2$O$_2$', 'Ar', 'He', 'CO', 'CO$_2$', 'N$_2$']
 
 # Get the current working directory
 my_path = os.path.abspath(__file__)
 output_folder = 'Output_Plots/'
+data_folder = 'Output_Data/'
+
+# ----------------------------------------------------------
+# Save the data
+
+# A little bit of data conditioning first
+# Make the metric values a numpy array to make things easier
+stiffvalues = np.array(stiffvalues)
+# Make all of the stiffness metric values real numbers
+stiffvalues = stiffvalues.real
+
+# Create filenames of all the data generated
+solfilename = equation + '_Solution_' + str(dt)
+metricfilename = equation + '_' + method + '_Vals_' + str(dt)
+inttimingfilename = equation + '_Int_Times_' + str(dt) + '_' +\
+                    timer.strftime("%m_%d")
+metrictimingfilename = equation + '_' + method + '_Timing_' + str(dt) +\
+                    timer.strftime("%m_%d")
+
+# Append 'PaSR' to the filename if it is used
+if PaSR:
+    metricfilename = 'PaSR_' + metricfilename
+    inttimingfilename = 'PaSR_' + inttimingfilename
+    metrictimingfilename = 'PaSR_' + metrictimingfilename
+    pasrstiffnessfilename = 'PaSR_Stiffnesses_' + method + '_' + str(dt)
+if PaSR:
+    np.save(data_folder + metricfilename, stiffvals)
+    if makerainbowplot:
+        np.save(data_folder + pasrstiffnessfilename, pasrstiffnesses)
+else:
+    np.save(data_folder + solfilename, solution)
+    np.save(data_folder + metricfilename, stiffvalues)
+np.save(data_folder + inttimingfilename, solutiontimes)
+np.save(data_folder + metrictimingfilename, stiffcomptimes)
 
 # ----------------------------------------------------------
 # Plot the results
@@ -585,30 +633,9 @@ for i in range(15):
 pyl.close('all')
 
 # Something is causing a bug in the tlist and this is intended to fix it
+primaryvals = np.array(solution[:, 0])
 if len(tlist) == len(primaryvals) + 1:
     tlist = tlist[1:]
-
-# Make the metric values a numpy array to make things easier
-stiffvalues = np.array(stiffvalues)
-
-# Make all of the CEMA values real numbers
-if method == 'CEMA':
-    stiffvalues = stiffvalues.real
-
-# A bunch of print statements used for debugging
-if displaysolshapes:
-    print('Solution[:, 0] shape:')
-    print(np.shape(solution[:, 0]))
-    print('tlist shape:')
-    print(np.shape(tlist))
-    print('primaryvals shape:')
-    print(np.shape(primaryvals))
-    print('solutiontimes shape:')
-    print(np.shape(solutiontimes))
-    print('stiffvalues shape:')
-    print(np.shape(stiffvalues))
-    print('stiffcomptimes shape')
-    print(np.shape(stiffcomptimes))
 
 plotnum = 0
 if PaSR:
@@ -617,7 +644,7 @@ if PaSR:
     for i in range(len(solutiontimes)):
         ratios.append(stiffcomptimes[i] / solutiontimes[i])
 
-    # Average stiffness computation and solution times
+    # Print the average stiffness computation and solution times
     datanum = len(solutiontimes)
     solavg = 0.0
     stiffavg = 0.0
