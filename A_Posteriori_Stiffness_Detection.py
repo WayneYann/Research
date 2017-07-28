@@ -318,10 +318,10 @@ savedata = 1
 equation = 'Autoignition'
 # Possible options are 'Stiffness_Index', 'Stiffness_Indicator', 'CEMA',
 # 'Stiffness_Ratio'
-method = 'Stiffness_Indicator'
+method = 'Stiffness_Index'
 # Make this true if you want to obtain the reference timescale of the stiffness
 # indicator.
-findtimescale = True
+findtimescale = False
 # Make this true if you want to test all of the values across the PaSR.
 # Otherwise, this will run a single autoignition at particle 92, timestep 4.
 PaSR = True
