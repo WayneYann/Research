@@ -321,13 +321,13 @@ equation = 'Autoignition'
 method = 'Stiffness_Indicator'
 # Make this true if you want to obtain the reference timescale of the stiffness
 # indicator.
-findtimescale = False
+findtimescale = True
 # Make this true if you want to test all of the values across the PaSR.
 # Otherwise, this will run a single autoignition at particle 92, timestep 4.
 PaSR = True
 pasrfilesloaded = 9
 # Define the range of the computation.
-dt = 1.e-8
+dt = 1.e-6
 tstart = 0.
 tstop = 0.2
 # ODE Solver parameters.
