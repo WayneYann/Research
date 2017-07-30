@@ -36,13 +36,13 @@ targetdate = '07_28'
 # targetdate = timer.strftime("%m_%d")
 # Possible options are 'Stiffness_Index', 'Stiffness_Indicator', 'CEMA',
 # 'Stiffness_Ratio'
-method = 'Stiffness_Indicator'
+method = 'Stiffness_Index'
 # Possible options will be 'VDP', 'Autoignition', or 'Oregonator'
 # Oregonator not yet implemented
 equation = 'Autoignition'
 # Make this true if you want to plot the reference timescale of the stiffness
 # indicator.
-findtimescale = True
+findtimescale = False
 # Make this true if you want to test all of the values across the PaSR.
 # Otherwise, this will run a single autoignition at particle 92, timestep 4.
 PaSR = True
