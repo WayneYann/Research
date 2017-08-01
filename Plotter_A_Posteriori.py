@@ -32,7 +32,7 @@ def loadpasrdata(num):
 All of the values that need to be adjusted should be in this section.
 """
 # Describe the data files to be loaded
-targetdate = '07_29'
+targetdate = '07_31'
 # targetdate = timer.strftime("%m_%d")
 # Possible options are 'Stiffness_Index', 'Stiffness_Indicator', 'CEMA',
 # 'Stiffness_Ratio'
@@ -240,7 +240,7 @@ if PaSR:
     pyl.ylabel('Integration Time')
     pyl.ylim(0., max(solutiontimes))
     pyl.xlim(min(stiffvals), max(stiffvals))
-    if method == 'Stiffness_Index':
+    if method == 'Stiffness_Index' or method == 'Stiffness_Ratio':
         pyl.xscale('log')
     elif method == 'CEMA':
         pyl.ylim(0, 0.001)
