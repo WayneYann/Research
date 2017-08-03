@@ -16,11 +16,16 @@ import time as timer
 # from scipy.integrate import odeint
 from scipy.integrate import ode
 
+global functioncalls
+
+
 def firstderiv(time, state, press):
     """Force the integrator to use the right arguments."""
     # Need to make sure that N2 is at the end of the state array
     dy = np.zeros_like(state)
     pyjacob.py_dydt(time, press, state, dy)
+    global functioncalls
+    functioncalls += 1
     return dy
 
 
@@ -368,7 +373,7 @@ elif equation == 'Autoignition':
 
 # Create vectors for that time how long it takes to compute stiffness index and
 # the solution itself
-solutiontimes, stiffcomptimes, stiffvals = [], [], []
+solutiontimes, stiffcomptimes, stiffvals, functionwork = [], [], [], []
 
 # Loop through the PaSR file for initial conditions
 if PaSR:
@@ -437,6 +442,8 @@ for particle in particlelist:
         # Integrate the ODE across all steps
         k = 0
         while solver.successful() and solver.t <= tstop:
+            # Initialize global variable for counting RHS function calls
+            functioncalls = 0
             time0 = timer.time()
             solver.integrate(solver.t + dt)
             time1 = timer.time()
@@ -444,6 +451,7 @@ for particle in particlelist:
             # print('Condition at t = {}'.format(solver.t))
             # for i in solver.y:
             #     print(i)
+            functionwork.append(functioncalls)
             solution.append(solver.y)
             if PaSR:
                 if k == 2:
@@ -584,6 +592,7 @@ data_folder = 'Output_Data/'
 # A little bit of data conditioning first
 # Make the metric values a numpy array to make things easier
 stiffvalues = np.array(stiffvalues)
+functionwork = np.array(functionwork)
 # Make all of the stiffness metric values real numbers
 stiffvalues = stiffvalues.real
 
@@ -596,6 +605,7 @@ if savedata == 1:
     metrictimingfilename = equation + '_' + method + '_Timing_' + str(dt) +\
         timer.strftime("%m_%d")
     timescalefilename = equation + '_Indicator_Timescales_' + str(dt)
+    workfilename = equation + '_FunctionWork_' + str(dt)
 
     # Append 'PaSR' to the filename if it is used
     if PaSR:
@@ -603,6 +613,7 @@ if savedata == 1:
         inttimingfilename = 'PaSR_' + inttimingfilename
         metrictimingfilename = 'PaSR_' + metrictimingfilename
         timescalefilename = 'PaSR_' + timescalefilename
+        workfilename = 'PaSR_' + workfilename
         pasrstiffnessfilename = 'PaSR_Stiffnesses_' + method + '_' + str(dt)
         np.save(data_folder + metricfilename, stiffvals)
         if makerainbowplot:
@@ -612,8 +623,14 @@ if savedata == 1:
         np.save(data_folder + metricfilename, stiffvalues)
     np.save(data_folder + inttimingfilename, solutiontimes)
     np.save(data_folder + metrictimingfilename, stiffcomptimes)
+    np.save(data_folder + workfilename, functionwork)
     if findtimescale:
         np.save(data_folder + timescalefilename, timescales)
+
+funsum = 0
+for i in functionwork:
+    funsum += i
+print('Average function calls: {}'.format(funsum/len(functionwork)))
 
 finishtime = datetime.datetime.now()
 print('Finish time: {}'.format(finishtime))

@@ -33,7 +33,7 @@ def loadpasrdata(num):
 All of the values that need to be adjusted should be in this section.
 """
 # Describe the data files to be loaded
-targetdate = '08_02'
+targetdate = '07_27'
 # targetdate = timer.strftime("%m_%d")
 # Possible options are 'Stiffness_Index', 'Stiffness_Indicator', 'CEMA',
 # 'Stiffness_Ratio'
@@ -324,7 +324,7 @@ else:
         pyl.ylabel(ylab + ' (K)')
     pyl.xlabel('Time (sec)')
     pyl.xlim(plotx)
-    pyl.scatter(tlist, primaryvals, 0.1)
+    pyl.scatter(tlist, primaryvals, c=tlist, cmap='jet', lw=0)
     pyl.grid(b=True, which='both')
     if savefigures == 1:
         pyl.savefig(output_folder +
@@ -341,7 +341,7 @@ else:
     pyl.ylabel('Integration time (sec)')
     pyl.ylim(0, max(solutiontimes))
     pyl.xlim(plotx)
-    pyl.scatter(tlist, solutiontimes, 0.1)
+    pyl.scatter(tlist, solutiontimes, 0.5, c=tlist, cmap='jet', lw=0)
     pyl.grid(b=True, which='both')
     if savefigures == 1:
         pyl.savefig(output_folder +
@@ -357,9 +357,9 @@ else:
     pyl.ylabel(method)
     pyl.xlim(plotx)
     if method == 'Stiffness_Ratio':
-        pyl.scatter(tlist, stiffvalues, 0.1)
+        pyl.scatter(tlist, stiffvalues, 0.5, c=tlist, cmap='jet', lw=0)
     else:
-        pyl.scatter(tlist, stiffvalues, 0.1)
+        pyl.scatter(tlist, stiffvalues, 0.5, c=tlist, cmap='jet', lw=0)
     if method == 'Stiffness_Index' or method == 'Stiffness_Ratio':
         pyl.yscale('log')
     pyl.grid(b=True, which='both')
@@ -381,7 +381,7 @@ else:
         pyl.ylim(0, 0.00025)
     else:
         pyl.ylim(0, max(solutiontimes))
-    pyl.scatter(stiffvalues, solutiontimes, 0.1)
+    pyl.scatter(stiffvalues, solutiontimes, 0.5, c=tlist, cmap='jet', lw=0)
     if method == 'Stiffness_Index':
         pyl.xscale('log')
     pyl.grid(b=True, which='both')
