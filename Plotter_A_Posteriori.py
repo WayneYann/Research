@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Thu Jul 27 13:34:13 2017
+Created on Thu Jul 27 13:34 2017
 
 @author: andrewalferman
 """
@@ -33,11 +33,11 @@ def loadpasrdata(num):
 All of the values that need to be adjusted should be in this section.
 """
 # Describe the data files to be loaded
-targetdate = '08_03'
+targetdate = '08_04'
 # targetdate = timer.strftime("%m_%d")
 # Possible options are 'Stiffness_Index', 'Stiffness_Indicator', 'CEMA',
 # 'Stiffness_Ratio'
-method = 'Stiffness_Ratio'
+method = 'CEMA'
 # Possible options will be 'VDP', 'Autoignition', or 'Oregonator'
 # Oregonator not yet implemented
 equation = 'Autoignition'
@@ -46,15 +46,17 @@ equation = 'Autoignition'
 findtimescale = False
 # Make this true if you want to test all of the values across the PaSR.
 # Otherwise, this will run a single autoignition at particle 92, timestep 4.
-PaSR = False
+PaSR = True
 pasrfilesloaded = 9
-diffcolors = False
+diffcolors = True
 # Define the range of the computation.
 dt = 1.e-6
 tstart = 0.
 tstop = 0.2
 # Make the plot of the stiffness across the entire PaSR data range.
 makerainbowplot = False
+# Plot how long it takes to compute stiffness metric
+showstiffcomptime = False
 # To be implemented later.
 makesecondderivplots = False
 
@@ -78,15 +80,17 @@ if equation == 'Autoignition':
 solfilename = equation + '_Solution_' + str(dt)
 metricfilename = equation + '_' + method + '_Vals_' + str(dt)
 inttimingfilename = equation + '_Int_Times_' + str(dt) + '_' + targetdate
-metrictimingfilename = equation + '_' + method + '_Timing_' + str(dt) +\
-    targetdate
+if showstiffcomptime:
+    metrictimingfilename = equation + '_' + method + '_Timing_' + str(dt) +\
+        targetdate
 workfilename = equation + '_FunctionWork_' + str(dt)
 timescalefilename = equation + '_Indicator_Timescales_' + str(dt)
 # Append 'PaSR' to the filename if it is used
 if PaSR:
     metricfilename = 'PaSR_' + metricfilename
     inttimingfilename = 'PaSR_' + inttimingfilename
-    metrictimingfilename = 'PaSR_' + metrictimingfilename
+    if showstiffcomptime:
+        metrictimingfilename = 'PaSR_' + metrictimingfilename
     timescalefilename = 'PaSR_' + timescalefilename
     workfilename = 'PaSR_' + workfilename
     pasrstiffnessfilename = 'PaSR_Stiffnesses_' + method + '_' + str(dt)
@@ -120,10 +124,11 @@ solutiontimes = np.load(os.path.join(os.getcwd(),
                                      data_folder +
                                      inttimingfilename +
                                      '.npy'))
-stiffcomptimes = np.load(os.path.join(os.getcwd(),
-                                      data_folder +
-                                      metrictimingfilename +
-                                      '.npy'))
+if showstiffcomptime:
+    stiffcomptimes = np.load(os.path.join(os.getcwd(),
+                                          data_folder +
+                                          metrictimingfilename +
+                                          '.npy'))
 functionwork = np.load(os.path.join(os.getcwd(),
                                     data_folder +
                                     workfilename +
@@ -150,10 +155,11 @@ if not PaSR:
 
 plotnum = 0
 if PaSR:
-    # Ratios of the stiffness computation times to integration times
-    ratios = []
-    for i in range(len(solutiontimes)):
-        ratios.append(stiffcomptimes[i] / solutiontimes[i])
+    if showstiffcomptime:
+        # Ratios of the stiffness computation times to integration times
+        ratios = []
+        for i in range(len(solutiontimes)):
+            ratios.append(stiffcomptimes[i] / solutiontimes[i])
 
     # Print the average stiffness computation and solution times
     datanum = len(solutiontimes)
@@ -161,15 +167,19 @@ if PaSR:
     stiffavg = 0.0
     for i in range(len(solutiontimes)):
         solavg += solutiontimes[i]
-        stiffavg += stiffcomptimes[i]
+        if showstiffcomptime:
+            stiffavg += stiffcomptimes[i]
     solavg = 1000. * (solavg / datanum)
     stiffavg = 1000. * (stiffavg / datanum)
     print("Average integration time (ms): {:.7f}".format(solavg))
-    print("Average stiffness metric comp time (ms): {:.7f}".format(stiffavg))
+    if showstiffcomptime:
+        print("Average stiffness metric comp time (ms):" +
+              " {:.7f}".format(stiffavg))
     print("Maximum integration time (ms): {:.7f}".format(
         max(solutiontimes) * 1000.))
-    print("Maximum SI computation time (ms): {:.7f}".format(max(stiffcomptimes)
-                                                            * 1000.))
+    if showstiffcomptime:
+        print("Maximum stiffness metric computation time (ms):" +
+              " {:.7f}".format(max(stiffcomptimes) * 1000.))
 
     # Plot of integration times vs. computation number
     pyl.figure(0)
@@ -204,60 +214,63 @@ if PaSR:
     plotnum += 1
 
     # Plot of stiffness computation times vs. computation number
-    pyl.figure(plotnum)
-    pyl.xlim(0, datanum)
-    pyl.ylim(0, max(stiffcomptimes))
-    pyl.xlabel('Computation Number')
-    pyl.ylabel('Stiffness Metric Computation Time')
-    pyl.scatter(range(datanum), stiffcomptimes, 0.1)
-    pyl.grid(b=True, which='both')
-    if savefigures == 1:
-        pyl.savefig(output_folder +
-                    'PaSR_' +
-                    method +
-                    '_Comp_Times_' +
-                    str(dt) +
-                    '_' + targetdate +
-                    '.' + figformat)
-    plotnum += 1
+    if showstiffcomptime:
+        pyl.figure(plotnum)
+        pyl.xlim(0, datanum)
+        pyl.ylim(0, max(stiffcomptimes))
+        pyl.xlabel('Computation Number')
+        pyl.ylabel('Stiffness Metric Computation Time')
+        pyl.scatter(range(datanum), stiffcomptimes, 0.1)
+        pyl.grid(b=True, which='both')
+        if savefigures == 1:
+            pyl.savefig(output_folder +
+                        'PaSR_' +
+                        method +
+                        '_Comp_Times_' +
+                        str(dt) +
+                        '_' + targetdate +
+                        '.' + figformat)
+        plotnum += 1
 
     # Plot of ratio of stiffness computation times vs. integration times
-    pyl.figure(plotnum)
-    pyl.xlim(0, datanum)
-    pyl.ylim(0, max(ratios))
-    pyl.xlabel('Particle Number')
-    pyl.ylabel('Ratio')
-    pyl.scatter(range(datanum), ratios, 0.1)
-    pyl.grid(b=True, which='both')
-    if savefigures == 1:
-        pyl.savefig(output_folder +
-                    'PaSR_' +
-                    method +
-                    '_Comp_Ratios_' +
-                    str(dt) +
-                    '_' + targetdate +
-                    '.' + figformat)
-    plotnum += 1
+    if showstiffcomptime:
+        pyl.figure(plotnum)
+        pyl.xlim(0, datanum)
+        pyl.ylim(0, max(ratios))
+        pyl.xlabel('Particle Number')
+        pyl.ylabel('Ratio')
+        pyl.scatter(range(datanum), ratios, 0.1)
+        pyl.grid(b=True, which='both')
+        if savefigures == 1:
+            pyl.savefig(output_folder +
+                        'PaSR_' +
+                        method +
+                        '_Comp_Ratios_' +
+                        str(dt) +
+                        '_' + targetdate +
+                        '.' + figformat)
+        plotnum += 1
 
     # Plot of stiffness computation times vs. stiffness metric
-    pyl.figure(plotnum)
-    pyl.xlabel(method)
-    pyl.ylabel(method + ' Computation Time')
-    pyl.xlim(min(stiffvals), max(stiffvals))
-    pyl.ylim(0., max(stiffcomptimes))
-    if method == 'Stiffness_Index':
-        pyl.xscale('log')
-    pyl.scatter(stiffvals, stiffcomptimes, 0.1)
-    pyl.grid(b=True, which='both')
-    if savefigures == 1:
-        pyl.savefig(output_folder +
-                    'PaSR_' +
-                    method + '_' +
-                    'Times_Vals_' +
-                    str(dt) +
-                    '_' + targetdate +
-                    '.' + figformat)
-    plotnum += 1
+    if showstiffcomptime:
+        pyl.figure(plotnum)
+        pyl.xlabel(method)
+        pyl.ylabel(method + ' Computation Time')
+        pyl.xlim(min(stiffvals), max(stiffvals))
+        pyl.ylim(0., max(stiffcomptimes))
+        if method == 'Stiffness_Index':
+            pyl.xscale('log')
+        pyl.scatter(stiffvals, stiffcomptimes, 0.1)
+        pyl.grid(b=True, which='both')
+        if savefigures == 1:
+            pyl.savefig(output_folder +
+                        'PaSR_' +
+                        method + '_' +
+                        'Times_Vals_' +
+                        str(dt) +
+                        '_' + targetdate +
+                        '.' + figformat)
+        plotnum += 1
 
     # Plot of integration times vs. stiffness metric
     fig = pyl.figure(plotnum)
@@ -307,7 +320,7 @@ if PaSR:
         pyl.xscale('log')
         # pyl.ylim(0, 0.001)
     # colors = plt.cm.spectral(np.linspace(0, 1, pasrfilesloaded))
-    ax2 = fig.add_subplot(111)
+    ax2 = fig2.add_subplot(111)
     if diffcolors:
         for i in range(pasrfilesloaded):
             ax2.scatter(stiffvals[i*100100:(i+1)*100100],
