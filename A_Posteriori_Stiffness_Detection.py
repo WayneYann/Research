@@ -451,14 +451,15 @@ for particle in particlelist:
             # print('Condition at t = {}'.format(solver.t))
             # for i in solver.y:
             #     print(i)
-            functionwork.append(functioncalls)
             solution.append(solver.y)
             if PaSR:
                 if k == 2:
                     solutiontimes.append(time1 - time0)
+                    functionwork.append(functioncalls)
                 k += 1
             else:
                 solutiontimes.append(time1 - time0)
+                functionwork.append(functioncalls)
 
         if displayconditions:
             print('Final time:')
