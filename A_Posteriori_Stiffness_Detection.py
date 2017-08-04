@@ -329,7 +329,7 @@ method = 'Stiffness_Indicator'
 findtimescale = False
 # Make this true if you want to test all of the values across the PaSR.
 # Otherwise, this will run a single autoignition at particle 92, timestep 4.
-PaSR = True
+PaSR = False
 pasrfilesloaded = 9
 # Define the range of the computation.
 dt = 1.e-6
@@ -620,13 +620,13 @@ if savedata == 1:
         if makerainbowplot:
             np.save(data_folder + pasrstiffnessfilename, pasrstiffnesses)
     else:
-        np.save(data_folder + solfilename, solution)
-        np.save(data_folder + metricfilename, stiffvalues)
-    np.save(data_folder + inttimingfilename, solutiontimes)
-    np.save(data_folder + metrictimingfilename, stiffcomptimes)
-    np.save(data_folder + workfilename, functionwork)
+        np.save(data_folder + solfilename + '_892', solution)
+        np.save(data_folder + metricfilename + '_892', stiffvalues)
+    np.save(data_folder + inttimingfilename + '_892', solutiontimes)
+    np.save(data_folder + metrictimingfilename + '_892', stiffcomptimes)
+    np.save(data_folder + workfilename + '_892', functionwork)
     if findtimescale:
-        np.save(data_folder + timescalefilename, timescales)
+        np.save(data_folder + timescalefilename + '_892', timescales)
 
 funsum = 0
 for i in functionwork:
