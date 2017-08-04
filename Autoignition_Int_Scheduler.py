@@ -24,8 +24,8 @@ def firstderiv(time, state, press):
     # Need to make sure that N2 is at the end of the state array
     dy = np.zeros_like(state)
     pyjacob.py_dydt(time, press, state, dy)
-    global functioncalls
-    functioncalls += 1
+    # global functioncalls
+    # functioncalls += 1
     return dy
 
 

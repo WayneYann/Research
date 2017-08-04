@@ -103,6 +103,10 @@ if PaSR:
                                      data_folder +
                                      metricfilename +
                                      '.npy'))
+    temps = np.load(os.path.join(os.getcwd(),
+                                 data_folder +
+                                 metricfilename +
+                                 '.npy'))
     if makerainbowplot:
         pasrstiffnesses = np.load(os.path.join(os.getcwd(),
                                                data_folder +
@@ -344,32 +348,25 @@ if PaSR:
 
     # Plot of function calls vs. temperature
     fig3 = pyl.figure(plotnum)
-    pyl.xlabel(method)
-    pyl.ylabel('Temperature')
-    pyl.ylim(0., max(functionwork))
-    pyl.xlim(min(stiffvals), max(stiffvals))
-    if method == 'Stiffness_Index' or method == 'Stiffness_Ratio':
-        pyl.xscale('log')
-    elif method == 'CEMA':
-        pyl.xlim(1e-16, max(stiffvals))
-        # pyl.ylim(0., 0.03)
-        pyl.xscale('log')
-        # pyl.ylim(0, 0.001)
+    pyl.xlabel('Temperature')
+    pyl.ylabel('Function Calls')
+    # pyl.ylim(0., max(functionwork))
+    # pyl.xlim(min(temps), max(temps))
     # colors = plt.cm.spectral(np.linspace(0, 1, pasrfilesloaded))
-    ax2 = fig2.add_subplot(111)
+    ax3 = fig3.add_subplot(111)
     if diffcolors:
         for i in range(pasrfilesloaded):
-            ax2.scatter(stiffvals[i*100100:(i+1)*100100],
+            ax3.scatter(temps[i*100100:(i+1)*100100],
                         functionwork[i*100100:(i+1)*100100],
                         color=colors[i],
                         label='PaSR ' + str(i) + ' Data'
                         )
         ax2.legend(fontsize='small')
     else:
-        ax2.scatter(stiffvals, functionwork, 0.1)
+        ax2.scatter(temps, functionwork, 0.1)
     pyl.grid(b=True, which='both')
     if savefigures == 1:
-        name = output_folder + 'PaSR_Fn_Work_' + method + '_' + str(dt) +\
+        name = output_folder + 'PaSR_Fn_Work_Temps_' + str(dt) +\
             '_' + targetdate
         if diffcolors:
             name += '_color'

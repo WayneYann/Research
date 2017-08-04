@@ -401,8 +401,6 @@ for particle in particlelist:
     if PaSR:
         # Provide code progress
         print(particle)
-        if particle > 2:
-            print(sol)
     for tstep in timelist:
         if equation == 'Autoignition':
             # Set up the initial conditions for autoignition
