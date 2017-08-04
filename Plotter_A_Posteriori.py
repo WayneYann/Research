@@ -44,11 +44,13 @@ equation = 'Autoignition'
 # Make this true if you want to plot the reference timescale of the stiffness
 # indicator.
 findtimescale = False
+# Make this true if you want normalized timescales
+normtime = False
 # Make this true if you want to test all of the values across the PaSR.
 # Otherwise, this will run a single autoignition at particle 92, timestep 4.
 PaSR = False
 pasrfilesloaded = 9
-diffcolors = True
+diffcolors = False
 # Define the range of the computation.
 dt = 1.e-6
 tstart = 0.
@@ -150,7 +152,7 @@ pyl.close('all')
 # Something is causing a bug in the tlist and this is intended to fix it
 if not PaSR:
     primaryvals = np.array(solution[:, 0])
-    if len(tlist) == len(primaryvals) + 1:
+    if len(tlist) == len(primaryvals) + 1 or len(tlist) == len(functionwork) + 1:
         tlist = tlist[1:]
 
 plotnum = 0
@@ -340,6 +342,40 @@ if PaSR:
         pyl.savefig(name + '.' + figformat)
     plotnum += 1
 
+    # Plot of function calls vs. temperature
+    fig3 = pyl.figure(plotnum)
+    pyl.xlabel(method)
+    pyl.ylabel('Temperature')
+    pyl.ylim(0., max(functionwork))
+    pyl.xlim(min(stiffvals), max(stiffvals))
+    if method == 'Stiffness_Index' or method == 'Stiffness_Ratio':
+        pyl.xscale('log')
+    elif method == 'CEMA':
+        pyl.xlim(1e-16, max(stiffvals))
+        # pyl.ylim(0., 0.03)
+        pyl.xscale('log')
+        # pyl.ylim(0, 0.001)
+    # colors = plt.cm.spectral(np.linspace(0, 1, pasrfilesloaded))
+    ax2 = fig2.add_subplot(111)
+    if diffcolors:
+        for i in range(pasrfilesloaded):
+            ax2.scatter(stiffvals[i*100100:(i+1)*100100],
+                        functionwork[i*100100:(i+1)*100100],
+                        color=colors[i],
+                        label='PaSR ' + str(i) + ' Data'
+                        )
+        ax2.legend(fontsize='small')
+    else:
+        ax2.scatter(stiffvals, functionwork, 0.1)
+    pyl.grid(b=True, which='both')
+    if savefigures == 1:
+        name = output_folder + 'PaSR_Fn_Work_' + method + '_' + str(dt) +\
+            '_' + targetdate
+        if diffcolors:
+            name += '_color'
+        pyl.savefig(name + '.' + figformat)
+    plotnum += 1
+
     if makerainbowplot:
         # Plot the stiffness at every point in the PaSR simulation
         # Create a mesh to plot on
@@ -374,11 +410,12 @@ else:
         primaryvals = primaryvals[:-3]
         solutiontimes = solutiontimes[:-3]
         stiffvalues = stiffvalues[:-3]
+        functionwork = functionwork[:-3]
     # Create a list of normalized dt values
     normtlist = []
     for i in tlist:
         normtlist.append(i / (tstop - tstart))
-    if method == 'Stiffness_Indicator':
+    if normtime and method == 'Stiffness_Indicator':
         tlist = normtlist
         plotx = 0, 1
     else:

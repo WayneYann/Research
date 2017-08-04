@@ -373,7 +373,8 @@ elif equation == 'Autoignition':
 
 # Create vectors for that time how long it takes to compute stiffness index and
 # the solution itself
-solutiontimes, stiffcomptimes, stiffvals, functionwork = [], [], [], []
+solutiontimes, stiffcomptimes, stiffvals, functionwork, = [], [], [], []
+temps = []
 
 # Loop through the PaSR file for initial conditions
 if PaSR:
@@ -384,8 +385,8 @@ if PaSR:
     tstart = 0.
     tstop = 5 * dt
 else:
-    particlelist = [892]
-    timelist = [45]
+    particlelist = [92]
+    timelist = [4]
     # Can only do this plot for PaSR, so shutting it off here.
     makerainbowplot = False
 
@@ -447,15 +448,12 @@ for particle in particlelist:
             time0 = timer.time()
             solver.integrate(solver.t + dt)
             time1 = timer.time()
-            # print('-----')
-            # print('Condition at t = {}'.format(solver.t))
-            # for i in solver.y:
-            #     print(i)
             solution.append(solver.y)
             if PaSR:
                 if k == 2:
                     solutiontimes.append(time1 - time0)
                     functionwork.append(functioncalls)
+                    temps.append(solver.y[0])
                 k += 1
             else:
                 solutiontimes.append(time1 - time0)
@@ -616,17 +614,19 @@ if savedata == 1:
         timescalefilename = 'PaSR_' + timescalefilename
         workfilename = 'PaSR_' + workfilename
         pasrstiffnessfilename = 'PaSR_Stiffnesses_' + method + '_' + str(dt)
+        pasrtempsfilename = 'PaSR_Temps_' + str(dt)
         np.save(data_folder + metricfilename, stiffvals)
+        np.save(data_folder + pasrtempsfilename, temps)
         if makerainbowplot:
             np.save(data_folder + pasrstiffnessfilename, pasrstiffnesses)
     else:
-        np.save(data_folder + solfilename + '_892', solution)
-        np.save(data_folder + metricfilename + '_892', stiffvalues)
-    np.save(data_folder + inttimingfilename + '_892', solutiontimes)
-    np.save(data_folder + metrictimingfilename + '_892', stiffcomptimes)
-    np.save(data_folder + workfilename + '_892', functionwork)
+        np.save(data_folder + solfilename, solution)
+        np.save(data_folder + metricfilename, stiffvalues)
+    np.save(data_folder + inttimingfilename, solutiontimes)
+    np.save(data_folder + metrictimingfilename, stiffcomptimes)
+    np.save(data_folder + workfilename, functionwork)
     if findtimescale:
-        np.save(data_folder + timescalefilename + '_892', timescales)
+        np.save(data_folder + timescalefilename, timescales)
 
 finishtime = datetime.datetime.now()
 print('Finish time: {}'.format(finishtime))

@@ -194,41 +194,35 @@ def stiffnessindex(xlist, solution, dfun, jfun, *args, **kwargs):
     return indexlist  # , dydxlist
 
 
-def stiffnessindicator(xlist, solution, jfun, *args):
+def stiffnessindicator(time, solution, jfun, *args):
     """
-    Find the stiffness indicator across a solution.
+    Find the local stiffness indicator after calculating local solution.
 
-    Given the set of values of the solution, find the stiffness indicator as
-    defined by Soderlind 2013.
+    Given the value of the solution, find the stiffness indicator as defined by
+    Soderlind 2013.
     """
     funcparams = []
     for arg in args:
         funcparams.append(arg)
 
-    indicatorvals = []
-    for i in range(len(solution)):
-        jacobian = jfun(xlist[i], solution[i], funcparams[0])
-        Hermitian = 0.5 * (jacobian + np.transpose(jacobian))
-        eigvals = np.linalg.eigvals(Hermitian)
-        indicatorvals.append(0.5 * (min(eigvals) + max(eigvals)))
-    return indicatorvals
+    jacobian = jfun(time, solution, funcparams[0])
+    Hermitian = 0.5 * (jacobian + np.transpose(jacobian))
+    eigvals = np.linalg.eigvals(Hermitian)
+    return 0.5 * (min(eigvals) + max(eigvals))
 
 
-def reftimescale(indicatorvals, Tlen):
+def reftimescale(indicatorval, Tlen):
     """
-    Find the reference timescale for the stiffness indicator.
+    Find the local reference timescale for the stiffness indicator.
 
     Given the stiffness indicator values as defined by Soderlind 2013, finds
     the reference time scale.
     """
-    timescales = []
-    for i in range(len(indicatorvals)):
-        if indicatorvals[i] >= 0:
-            timescales.append(Tlen)
-        else:
-            timescales.append(min(Tlen, -1/indicatorvals[i]))
-    timescales = np.array(timescales)
-    return timescales
+    if indicatorval >= 0:
+        timescale = Tlen
+    else:
+        timescale = min(Tlen, -1/indicatorval)
+    return timescale
 
 
 def CEMA(xlist, solution, jfun, *args):
@@ -436,9 +430,9 @@ for particle in particlelist:
         while solver.successful() and solver.t <= tstop:
             # Initialize global variable for counting RHS function calls
             functioncalls = 0
-            time0 = timer.time()
+            # time0 = timer.time()
             solver.integrate(solver.t + dt)
-            time1 = timer.time()
+            # time1 = timer.time()
             solution.append(solver.y)
 
         if displayconditions:
