@@ -385,7 +385,7 @@ if PaSR:
     tstop = 5 * dt
 else:
     particlelist = [892]
-    timelist = [4]
+    timelist = [45]
     # Can only do this plot for PaSR, so shutting it off here.
     makerainbowplot = False
 

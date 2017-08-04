@@ -37,7 +37,7 @@ targetdate = '08_04'
 # targetdate = timer.strftime("%m_%d")
 # Possible options are 'Stiffness_Index', 'Stiffness_Indicator', 'CEMA',
 # 'Stiffness_Ratio'
-method = 'CEMA'
+method = 'Stiffness_Indicator'
 # Possible options will be 'VDP', 'Autoignition', or 'Oregonator'
 # Oregonator not yet implemented
 equation = 'Autoignition'
@@ -46,7 +46,7 @@ equation = 'Autoignition'
 findtimescale = False
 # Make this true if you want to test all of the values across the PaSR.
 # Otherwise, this will run a single autoignition at particle 92, timestep 4.
-PaSR = True
+PaSR = False
 pasrfilesloaded = 9
 diffcolors = True
 # Define the range of the computation.
@@ -109,29 +109,29 @@ if PaSR:
 else:
     solution = np.load(os.path.join(os.getcwd(),
                                     data_folder +
-                                    solfilename +
+                                    solfilename + '_892' +
                                     '.npy'))
     stiffvalues = np.load(os.path.join(os.getcwd(),
                                        data_folder +
-                                       metricfilename +
+                                       metricfilename + '_892' +
                                        '.npy'))
 if findtimescale:
     timescales = np.load(os.path.join(os.getcwd(),
                                       data_folder +
-                                      timescalefilename +
+                                      timescalefilename + '_892' +
                                       '.npy'))
 solutiontimes = np.load(os.path.join(os.getcwd(),
                                      data_folder +
-                                     inttimingfilename +
+                                     inttimingfilename + '_892' +
                                      '.npy'))
 if showstiffcomptime:
     stiffcomptimes = np.load(os.path.join(os.getcwd(),
                                           data_folder +
-                                          metrictimingfilename +
+                                          metrictimingfilename + '_892' +
                                           '.npy'))
 functionwork = np.load(os.path.join(os.getcwd(),
                                     data_folder +
-                                    workfilename +
+                                    workfilename + '_892' +
                                     '.npy'))
 
 speciesnames = ['H', 'H$_2$', 'O', 'OH', 'H$_2$O', 'O$_2$', 'HO$_2$',
