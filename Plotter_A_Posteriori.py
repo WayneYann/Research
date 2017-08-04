@@ -33,7 +33,7 @@ def loadpasrdata(num):
 All of the values that need to be adjusted should be in this section.
 """
 # Describe the data files to be loaded
-targetdate = '07_27'
+targetdate = '08_03'
 # targetdate = timer.strftime("%m_%d")
 # Possible options are 'Stiffness_Index', 'Stiffness_Indicator', 'CEMA',
 # 'Stiffness_Ratio'
@@ -48,7 +48,7 @@ findtimescale = False
 # Otherwise, this will run a single autoignition at particle 92, timestep 4.
 PaSR = False
 pasrfilesloaded = 9
-diffcolors = True
+diffcolors = False
 # Define the range of the computation.
 dt = 1.e-6
 tstart = 0.
@@ -80,6 +80,7 @@ metricfilename = equation + '_' + method + '_Vals_' + str(dt)
 inttimingfilename = equation + '_Int_Times_' + str(dt) + '_' + targetdate
 metrictimingfilename = equation + '_' + method + '_Timing_' + str(dt) +\
     targetdate
+workfilename = equation + '_FunctionWork_' + str(dt)
 timescalefilename = equation + '_Indicator_Timescales_' + str(dt)
 # Append 'PaSR' to the filename if it is used
 if PaSR:
@@ -87,7 +88,9 @@ if PaSR:
     inttimingfilename = 'PaSR_' + inttimingfilename
     metrictimingfilename = 'PaSR_' + metrictimingfilename
     timescalefilename = 'PaSR_' + timescalefilename
+    workfilename = 'PaSR_' + workfilename
     pasrstiffnessfilename = 'PaSR_Stiffnesses_' + method + '_' + str(dt)
+
 # Load everything
 if PaSR:
     stiffvals = np.load(os.path.join(os.getcwd(),
@@ -121,6 +124,10 @@ stiffcomptimes = np.load(os.path.join(os.getcwd(),
                                       data_folder +
                                       metrictimingfilename +
                                       '.npy'))
+functionwork = np.load(os.path.join(os.getcwd(),
+                                    data_folder +
+                                    workfilename +
+                                    '.npy'))
 
 speciesnames = ['H', 'H$_2$', 'O', 'OH', 'H$_2$O', 'O$_2$', 'HO$_2$',
                 'H$_2$O$_2$', 'Ar', 'He', 'CO', 'CO$_2$', 'N$_2$']
@@ -175,6 +182,22 @@ if PaSR:
     if savefigures == 1:
         pyl.savefig(output_folder +
                     'PaSR_Integration_Times_' +
+                    str(dt) +
+                    '_' + targetdate +
+                    '.' + figformat)
+    plotnum += 1
+
+    # Plot of function calls vs. computation number
+    pyl.figure(0)
+    pyl.xlim(0, datanum)
+    pyl.ylim(0, max(functionwork))
+    pyl.xlabel('Computation Number')
+    pyl.ylabel('Function Calls')
+    pyl.scatter(range(datanum), functionwork, 0.1)
+    pyl.grid(b=True, which='both')
+    if savefigures == 1:
+        pyl.savefig(output_folder +
+                    'PaSR_Fn_Work_' +
                     str(dt) +
                     '_' + targetdate +
                     '.' + figformat)
@@ -270,6 +293,40 @@ if PaSR:
         pyl.savefig(name + '.' + figformat)
     plotnum += 1
 
+    # Plot of function calls vs. stiffness metric
+    fig2 = pyl.figure(plotnum)
+    pyl.xlabel(method)
+    pyl.ylabel('Function Calls')
+    pyl.ylim(0., max(functionwork))
+    pyl.xlim(min(stiffvals), max(stiffvals))
+    if method == 'Stiffness_Index' or method == 'Stiffness_Ratio':
+        pyl.xscale('log')
+    elif method == 'CEMA':
+        pyl.xlim(1e-16, max(stiffvals))
+        # pyl.ylim(0., 0.03)
+        pyl.xscale('log')
+        # pyl.ylim(0, 0.001)
+    # colors = plt.cm.spectral(np.linspace(0, 1, pasrfilesloaded))
+    ax2 = fig.add_subplot(111)
+    if diffcolors:
+        for i in range(pasrfilesloaded):
+            ax2.scatter(stiffvals[i*100100:(i+1)*100100],
+                        functionwork[i*100100:(i+1)*100100],
+                        color=colors[i],
+                        label='PaSR ' + str(i) + ' Data'
+                        )
+        ax2.legend(fontsize='small')
+    else:
+        ax2.scatter(stiffvals, functionwork, 0.1)
+    pyl.grid(b=True, which='both')
+    if savefigures == 1:
+        name = output_folder + 'PaSR_Fn_Work_' + method + '_' + str(dt) +\
+            '_' + targetdate
+        if diffcolors:
+            name += '_color'
+        pyl.savefig(name + '.' + figformat)
+    plotnum += 1
+
     if makerainbowplot:
         # Plot the stiffness at every point in the PaSR simulation
         # Create a mesh to plot on
@@ -324,7 +381,10 @@ else:
         pyl.ylabel(ylab + ' (K)')
     pyl.xlabel('Time (sec)')
     pyl.xlim(plotx)
-    pyl.scatter(tlist, primaryvals, c=tlist, cmap='jet', lw=0)
+    if diffcolors:
+        pyl.scatter(tlist, primaryvals, c=tlist, cmap='jet', lw=0)
+    else:
+        pyl.scatter(tlist, primaryvals, 0.1)
     pyl.grid(b=True, which='both')
     if savefigures == 1:
         pyl.savefig(output_folder +
@@ -341,11 +401,33 @@ else:
     pyl.ylabel('Integration time (sec)')
     pyl.ylim(0, max(solutiontimes))
     pyl.xlim(plotx)
-    pyl.scatter(tlist, solutiontimes, 0.5, c=tlist, cmap='jet', lw=0)
+    if diffcolors:
+        pyl.scatter(tlist, solutiontimes, 0.5, c=tlist, cmap='jet', lw=0)
+    else:
+        pyl.scatter(tlist, solutiontimes, 0.1)
     pyl.grid(b=True, which='both')
     if savefigures == 1:
         pyl.savefig(output_folder +
                     equation + '_Integration_Times_' +
+                    str(dt) +
+                    '_' + targetdate +
+                    '.' + figformat)
+    plotnum += 1
+
+    # Plot the function calls per integration
+    pyl.figure(plotnum)
+    pyl.xlabel('Time (sec)')
+    pyl.ylabel('Function Calls')
+    pyl.ylim(0, max(functionwork))
+    pyl.xlim(plotx)
+    if diffcolors:
+        pyl.scatter(tlist, functionwork, 0.5, c=tlist, cmap='jet', lw=0)
+    else:
+        pyl.scatter(tlist, functionwork, 0.1)
+    pyl.grid(b=True, which='both')
+    if savefigures == 1:
+        pyl.savefig(output_folder +
+                    equation + '_Function_Work_' +
                     str(dt) +
                     '_' + targetdate +
                     '.' + figformat)
@@ -357,9 +439,15 @@ else:
     pyl.ylabel(method)
     pyl.xlim(plotx)
     if method == 'Stiffness_Ratio':
-        pyl.scatter(tlist, stiffvalues, 0.5, c=tlist, cmap='jet', lw=0)
+        if diffcolors:
+            pyl.scatter(tlist, stiffvalues, 0.5, c=tlist, cmap='jet', lw=0)
+        else:
+            pyl.scatter(tlist, stiffvalues, 0.1)
     else:
-        pyl.scatter(tlist, stiffvalues, 0.5, c=tlist, cmap='jet', lw=0)
+        if diffcolors:
+            pyl.scatter(tlist, stiffvalues, 0.5, c=tlist, cmap='jet', lw=0)
+        else:
+            pyl.scatter(tlist, stiffvalues, 0.1)
     if method == 'Stiffness_Index' or method == 'Stiffness_Ratio':
         pyl.yscale('log')
     pyl.grid(b=True, which='both')
@@ -381,7 +469,10 @@ else:
         pyl.ylim(0, 0.00025)
     else:
         pyl.ylim(0, max(solutiontimes))
-    pyl.scatter(stiffvalues, solutiontimes, 0.5, c=tlist, cmap='jet', lw=0)
+    if diffcolors:
+        pyl.scatter(stiffvalues, solutiontimes, 0.5, c=tlist, cmap='jet', lw=0)
+    else:
+        pyl.scatter(stiffvalues, solutiontimes, 0.5)
     if method == 'Stiffness_Index':
         pyl.xscale('log')
     pyl.grid(b=True, which='both')
@@ -389,6 +480,32 @@ else:
         pyl.savefig(output_folder +
                     equation + '_' +
                     'Int_Times_' +
+                    method + '_' +
+                    str(dt) +
+                    '_' + targetdate +
+                    '.' + figformat)
+    plotnum += 1
+
+    # Plot the stiffness metric vs. function work
+    pyl.figure(plotnum)
+    pyl.xlabel(method)
+    pyl.ylabel('Function Calls')
+    pyl.xlim(min(stiffvalues), max(stiffvalues))
+    # if method == 'CEMA':
+    #     pyl.ylim(0, 0.00025)
+    # else:
+    #     pyl.ylim(0, max(solutiontimes))
+    if diffcolors:
+        pyl.scatter(stiffvalues, functionwork, 0.5, c=tlist, cmap='jet', lw=0)
+    else:
+        pyl.scatter(stiffvalues, functionwork, 0.1)
+    if method == 'Stiffness_Index':
+        pyl.xscale('log')
+    pyl.grid(b=True, which='both')
+    if savefigures == 1:
+        pyl.savefig(output_folder +
+                    equation +
+                    '_Fn_Work_' +
                     method + '_' +
                     str(dt) +
                     '_' + targetdate +
