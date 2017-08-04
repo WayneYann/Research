@@ -397,8 +397,6 @@ tlist = np.arange(tstart, tstop + 0.5 * dt, dt)
 if method != 'Stiffness_Indicator':
     findtimescale = False
 
-sol = []
-
 for particle in particlelist:
     if PaSR:
         # Provide code progress
@@ -452,13 +450,12 @@ for particle in particlelist:
             time0 = timer.time()
             solver.integrate(solver.t + dt)
             time1 = timer.time()
-            sol = solver.y
-            solution.append(sol)
+            solution.append(solver.y)
             if PaSR:
                 if k == 2:
                     solutiontimes.append(time1 - time0)
                     functionwork.append(functioncalls)
-                    temps.append(sol[0])
+                    temps.append(solver.y[0])
                 k += 1
             else:
                 solutiontimes.append(time1 - time0)
