@@ -397,10 +397,14 @@ tlist = np.arange(tstart, tstop + 0.5 * dt, dt)
 if method != 'Stiffness_Indicator':
     findtimescale = False
 
+sol = []
+
 for particle in particlelist:
     if PaSR:
         # Provide code progress
         print(particle)
+        if particle > 2:
+            print(sol)
     for tstep in timelist:
         if equation == 'Autoignition':
             # Set up the initial conditions for autoignition
@@ -448,12 +452,13 @@ for particle in particlelist:
             time0 = timer.time()
             solver.integrate(solver.t + dt)
             time1 = timer.time()
-            solution.append(solver.y)
+            sol = solver.y
+            solution.append(sol)
             if PaSR:
                 if k == 2:
                     solutiontimes.append(time1 - time0)
                     functionwork.append(functioncalls)
-                    temps.append(solver.y[0])
+                    temps.append(sol[0])
                 k += 1
             else:
                 solutiontimes.append(time1 - time0)
