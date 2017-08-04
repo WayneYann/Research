@@ -37,7 +37,7 @@ targetdate = '08_03'
 # targetdate = timer.strftime("%m_%d")
 # Possible options are 'Stiffness_Index', 'Stiffness_Indicator', 'CEMA',
 # 'Stiffness_Ratio'
-method = 'Stiffness_Indicator'
+method = 'Stiffness_Ratio'
 # Possible options will be 'VDP', 'Autoignition', or 'Oregonator'
 # Oregonator not yet implemented
 equation = 'Autoignition'
@@ -473,7 +473,7 @@ else:
         pyl.scatter(stiffvalues, solutiontimes, 0.5, c=tlist, cmap='jet', lw=0)
     else:
         pyl.scatter(stiffvalues, solutiontimes, 0.5)
-    if method == 'Stiffness_Index':
+    if method == 'Stiffness_Index' or method == 'Stiffness_Ratio':
         pyl.xscale('log')
     pyl.grid(b=True, which='both')
     if savefigures == 1:
@@ -499,7 +499,7 @@ else:
         pyl.scatter(stiffvalues, functionwork, 0.5, c=tlist, cmap='jet', lw=0)
     else:
         pyl.scatter(stiffvalues, functionwork, 0.1)
-    if method == 'Stiffness_Index':
+    if method == 'Stiffness_Index' or method == 'Stiffness_Ratio':
         pyl.xscale('log')
     pyl.grid(b=True, which='both')
     if savefigures == 1:
