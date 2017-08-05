@@ -50,7 +50,7 @@ normtime = False
 # Otherwise, this will run a single autoignition at particle 92, timestep 4.
 PaSR = False
 pasrfilesloaded = 9
-diffcolors = False
+diffcolors = True
 # Define the range of the computation.
 dt = 1.e-4
 tstart = 0.
