@@ -317,7 +317,7 @@ print('Start time: {}'.format(starttime))
 All of the values that need to be adjusted should be in this section.
 """
 # Specify if you want to save the data
-savedata = 1
+savedata = True
 # Possible options will be 'VDP', 'Autoignition', or 'Oregonator'
 # Oregonator not yet implemented
 equation = 'Autoignition'
@@ -595,7 +595,7 @@ functionwork = np.array(functionwork)
 # Make all of the stiffness metric values real numbers
 stiffvalues = stiffvalues.real
 
-if savedata == 1:
+if savedata:
     # Create filenames of all the data generated
     solfilename = equation + '_Solution_' + str(dt)
     metricfilename = equation + '_' + method + '_Vals_' + str(dt)
@@ -630,3 +630,4 @@ if savedata == 1:
 
 finishtime = datetime.datetime.now()
 print('Finish time: {}'.format(finishtime))
+print('Duration: {}'.format(finishtime - starttime))

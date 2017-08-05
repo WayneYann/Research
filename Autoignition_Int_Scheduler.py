@@ -24,8 +24,8 @@ def firstderiv(time, state, press):
     # Need to make sure that N2 is at the end of the state array
     dy = np.zeros_like(state)
     pyjacob.py_dydt(time, press, state, dy)
-    # global functioncalls
-    # functioncalls += 1
+    global functioncalls
+    functioncalls += 1
     return dy
 
 
@@ -317,27 +317,30 @@ savedata = 1
 equation = 'Autoignition'
 # Possible options are 'Stiffness_Index', 'Stiffness_Indicator', 'CEMA',
 # 'Stiffness_Ratio'
-method = 'Stiffness_Index'
+method = 'Stiffness_Indicator'
 # Make this true if you want to obtain the reference timescale of the stiffness
 # indicator.
 findtimescale = False
 # Make this true if you want to test all of the values across the PaSR.
 # Otherwise, this will run a single autoignition at particle 92, timestep 4.
-PaSR = True
+PaSR = False
 pasrfilesloaded = 9
 # Define the range of the computation.
-dt = 1.e-6
+dt = 1.e-5
 tstart = 0.
 tstop = 0.2
 # ODE Solver parameters.
 abserr = 1.0e-17
 relerr = 1.0e-15
+# Switching thresholds
+indicatorthreshold = -1e8
+tempthreshold = 3000
 # Keep this at false, something isn't working with using the jacobian yet.
 usejac = False
 # Decide if you want to give pyJac N2 or not.
 useN2 = False
 # Used if you want to check that the PaSR data is being properly conditioned.
-displayconditions = False
+displayconditions = True
 # Display the solution shape for plotting/debugging.
 displaysolshapes = False
 # Make the plot of the stiffness across the entire PaSR data range.
@@ -373,11 +376,13 @@ if PaSR:
     tstart = 0.
     tstop = 5 * dt
 else:
-    particlelist = [92]
-    timelist = [4]
+    particlelist = [679]
+    timelist = [646]
 
 # Create the list of times to compute
 tlist = np.arange(tstart, tstop + 0.5 * dt, dt)
+
+solutiontimes, functionwork = [], []
 
 # Make the initial integrator VODE
 intmode = 'vode'
@@ -430,10 +435,77 @@ for particle in particlelist:
         while solver.successful() and solver.t <= tstop:
             # Initialize global variable for counting RHS function calls
             functioncalls = 0
-            # time0 = timer.time()
+            time0 = timer.time()
             solver.integrate(solver.t + dt)
-            # time1 = timer.time()
-            solution.append(solver.y)
+            time1 = timer.time()
+            localsol = solver.y
+            localtime = solver.t
+            indicator = stiffnessindicator(localtime,
+                                           localsol,
+                                           EQjac,
+                                           RHSparam
+                                           )
+            localtemp = localsol[0]
+            if PaSR:
+                if k == 2:
+                    solutiontimes.append(time1 - time0)
+                    functionwork.append(functioncalls)
+                k += 1
+            else:
+                solution.append(localsol)
+                solutiontimes.append(time1 - time0)
+                functionwork.append(functioncalls)
+            # Switching mechanism
+            if intmode == 'vode':
+                if (indicator > indicatorthreshold and
+                        localtemp < tempthreshold):
+                    print('Switching to dopri5!')
+                    print('Time is {}'.format(solver.t))
+                    intmode = 'dopri5'
+                    # Assign the explicit solver
+                    solver = ode(RHSfunction,
+                                 jac=intj
+                                 ).set_integrator(intmode,
+                                                  # method='bdf',
+                                                  nsteps=99999999,
+                                                  atol=abserr,
+                                                  rtol=relerr
+                                                  # with_jacobian=usejac,
+                                                  # first_step=dt,
+                                                  # min_step=dt,
+                                                  # max_step=dt
+                                                  )
+                    # Need to reinitialize conditions
+                    solver.set_initial_value(localsol, localtime)
+                    solver.set_f_params(RHSparam)
+                    solver.set_jac_params(RHSparam)
+            else:
+                if (indicator <= indicatorthreshold or
+                        localtemp >= tempthreshold):
+                    print('Switching to vode!')
+                    if indicator <= indicatorthreshold:
+                        print('Indicator tripped.')
+                    if localtemp >= tempthreshold:
+                        print('Temperature tripped.')
+                    print('Time is {}'.format(solver.t))
+                    intmode = 'vode'
+                    # Assign the implicit solver
+                    solver = ode(RHSfunction,
+                                 jac=intj
+                                 ).set_integrator(intmode,
+                                                  method='bdf',
+                                                  nsteps=99999999,
+                                                  atol=abserr,
+                                                  rtol=relerr,
+                                                  with_jacobian=usejac,
+                                                  # first_step=dt,
+                                                  # min_step=dt,
+                                                  # max_step=dt
+                                                  )
+                    # Need to reinitialize conditions
+                    solver.set_initial_value(localsol, localtime)
+                    solver.set_f_params(RHSparam)
+                    solver.set_jac_params(RHSparam)
 
         if displayconditions:
             print('Final time:')
@@ -446,6 +518,28 @@ for particle in particlelist:
             for i in lastjac:
                 print(i)
 
-        # Convert the solution to an array for ease of use.  Maybe just using
-        # numpy function to begin with would be faster?
-        solution = np.array(solution)
+# Convert the solution to an array for ease of use.  Maybe just using
+# numpy function to begin with would be faster?
+solution = np.array(solution)
+solutiontimes = np.array(solutiontimes)
+
+# Get the current working directory
+output_folder = 'Output_Plots/Scheduler_Plots/'
+data_folder = 'Output_Data/Scheduler_Data/'
+
+if savedata:
+    solfilename = equation + '_Solution_' + str(dt)
+    inttimingfilename = equation + '_Int_Times_' + str(dt) + '_' +\
+        timer.strftime("%m_%d")
+    workfilename = equation + '_FunctionWork_' + str(dt)
+    if PaSR:
+        inttimingfilename = 'PaSR_' + inttimingfilename
+        workfilename = 'PaSR_' + workfilename
+    else:
+        np.save(data_folder + solfilename, solution)
+    np.save(data_folder + inttimingfilename, solutiontimes)
+    np.save(data_folder + workfilename, functionwork)
+
+finishtime = datetime.datetime.now()
+print('Finish time: {}'.format(finishtime))
+print('Duration: {}'.format(finishtime - starttime))

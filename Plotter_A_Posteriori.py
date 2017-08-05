@@ -33,7 +33,7 @@ def loadpasrdata(num):
 All of the values that need to be adjusted should be in this section.
 """
 # Describe the data files to be loaded
-targetdate = '08_04'
+targetdate = '08_05'
 # targetdate = timer.strftime("%m_%d")
 # Possible options are 'Stiffness_Index', 'Stiffness_Indicator', 'CEMA',
 # 'Stiffness_Ratio'
@@ -48,7 +48,7 @@ findtimescale = False
 normtime = False
 # Make this true if you want to test all of the values across the PaSR.
 # Otherwise, this will run a single autoignition at particle 92, timestep 4.
-PaSR = False
+PaSR = True
 pasrfilesloaded = 9
 diffcolors = False
 # Define the range of the computation.
@@ -96,6 +96,7 @@ if PaSR:
     timescalefilename = 'PaSR_' + timescalefilename
     workfilename = 'PaSR_' + workfilename
     pasrstiffnessfilename = 'PaSR_Stiffnesses_' + method + '_' + str(dt)
+    pasrtempsfilename = 'PaSR_Temps_' + str(dt)
 
 # Load everything
 if PaSR:
@@ -105,7 +106,7 @@ if PaSR:
                                      '.npy'))
     temps = np.load(os.path.join(os.getcwd(),
                                  data_folder +
-                                 metricfilename +
+                                 pasrtempsfilename +
                                  '.npy'))
     if makerainbowplot:
         pasrstiffnesses = np.load(os.path.join(os.getcwd(),
@@ -115,29 +116,29 @@ if PaSR:
 else:
     solution = np.load(os.path.join(os.getcwd(),
                                     data_folder +
-                                    solfilename + '_892' +
+                                    solfilename +
                                     '.npy'))
     stiffvalues = np.load(os.path.join(os.getcwd(),
                                        data_folder +
-                                       metricfilename + '_892' +
+                                       metricfilename +
                                        '.npy'))
 if findtimescale:
     timescales = np.load(os.path.join(os.getcwd(),
                                       data_folder +
-                                      timescalefilename + '_892' +
+                                      timescalefilename +
                                       '.npy'))
 solutiontimes = np.load(os.path.join(os.getcwd(),
                                      data_folder +
-                                     inttimingfilename + '_892' +
+                                     inttimingfilename +
                                      '.npy'))
 if showstiffcomptime:
     stiffcomptimes = np.load(os.path.join(os.getcwd(),
                                           data_folder +
-                                          metrictimingfilename + '_892' +
+                                          metrictimingfilename +
                                           '.npy'))
 functionwork = np.load(os.path.join(os.getcwd(),
                                     data_folder +
-                                    workfilename + '_892' +
+                                    workfilename +
                                     '.npy'))
 
 speciesnames = ['H', 'H$_2$', 'O', 'OH', 'H$_2$O', 'O$_2$', 'HO$_2$',
@@ -156,7 +157,8 @@ pyl.close('all')
 # Something is causing a bug in the tlist and this is intended to fix it
 if not PaSR:
     primaryvals = np.array(solution[:, 0])
-    if len(tlist) == len(primaryvals) + 1 or len(tlist) == len(functionwork) + 1:
+    if (len(tlist) == len(primaryvals) + 1 or
+            len(tlist) == len(functionwork) + 1):
         tlist = tlist[1:]
 
 plotnum = 0
@@ -361,9 +363,9 @@ if PaSR:
                         color=colors[i],
                         label='PaSR ' + str(i) + ' Data'
                         )
-        ax2.legend(fontsize='small')
+        ax3.legend(fontsize='small')
     else:
-        ax2.scatter(temps, functionwork, 0.1)
+        ax3.scatter(temps, functionwork, 0.1)
     pyl.grid(b=True, which='both')
     if savefigures == 1:
         name = output_folder + 'PaSR_Fn_Work_Temps_' + str(dt) +\
