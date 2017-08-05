@@ -334,7 +334,7 @@ abserr = 1.0e-17
 relerr = 1.0e-15
 # Switching thresholds
 indicatorthreshold = -1e8
-tempthreshold = 3000
+tempthreshold = 2550
 # Keep this at false, something isn't working with using the jacobian yet.
 usejac = False
 # Decide if you want to give pyJac N2 or not.
