@@ -33,7 +33,7 @@ def loadpasrdata(num):
 All of the values that need to be adjusted should be in this section.
 """
 # Describe the data files to be loaded
-targetdate = '08_04'
+targetdate = '08_05'
 # targetdate = timer.strftime("%m_%d")
 # Possible options are 'Stiffness_Index', 'Stiffness_Indicator', 'CEMA',
 # 'Stiffness_Ratio'
@@ -52,7 +52,7 @@ PaSR = False
 pasrfilesloaded = 9
 diffcolors = True
 # Define the range of the computation.
-dt = 1.e-4
+dt = 1.e-5
 tstart = 0.
 tstop = 0.2
 # Make the plot of the stiffness across the entire PaSR data range.
