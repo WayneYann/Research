@@ -528,15 +528,14 @@ output_folder = 'Output_Plots/Scheduler_Plots/'
 data_folder = 'Output_Data/Scheduler_Data/'
 
 if len(solution) != len(tlist):
-    print(np.shape(solution))
-    print(np.shape(tlist))
-    raise Exception('Error: Too few solution values!')
+    print('Solution shape: {}'.format(np.shape(solution)))
+    print('tlist shape: {}'.format(np.shape(tlist)))
 
 if savedata:
-    solfilename = equation + '_Solution_Implicit_' + str(dt)
-    inttimingfilename = equation + '_Int_Times_Implicit_' + str(dt) + '_' +\
+    solfilename = equation + '_Solution_Explicit_' + str(dt)
+    inttimingfilename = equation + '_Int_Times_Explicit_' + str(dt) + '_' +\
         timer.strftime("%m_%d")
-    workfilename = equation + '_FunctionWork_Implicit_' + str(dt)
+    workfilename = equation + '_FunctionWork_Explicit_' + str(dt)
     if PaSR:
         inttimingfilename = 'PaSR_' + inttimingfilename
         workfilename = 'PaSR_' + workfilename
