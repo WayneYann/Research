@@ -326,15 +326,15 @@ findtimescale = False
 PaSR = False
 pasrfilesloaded = 9
 # Define the range of the computation.
-dt = 5.e-6
+dt = 1.e-6
 tstart = 0.
 tstop = 0.2
 # ODE Solver parameters.
 abserr = 1.0e-17
 relerr = 1.0e-15
 # Switching thresholds
-indicatorthreshold = 0
-tempthreshold = 0
+indicatorthreshold = -1e99
+tempthreshold = 30000
 # Keep this at false, something isn't working with using the jacobian yet.
 usejac = False
 # Decide if you want to give pyJac N2 or not.
@@ -528,6 +528,8 @@ output_folder = 'Output_Plots/Scheduler_Plots/'
 data_folder = 'Output_Data/Scheduler_Data/'
 
 if len(solution) != len(tlist):
+    print(np.shape(solution))
+    print(np.shape(tlist))
     raise Exception('Error: Too few solution values!')
 
 if savedata:
