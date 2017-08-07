@@ -527,6 +527,9 @@ solutiontimes = np.array(solutiontimes)
 output_folder = 'Output_Plots/Scheduler_Plots/'
 data_folder = 'Output_Data/Scheduler_Data/'
 
+if len(solution) != len(tlist):
+    raise Exception('Error: Too few solution values!')
+
 if savedata:
     solfilename = equation + '_Solution_Implicit_' + str(dt)
     inttimingfilename = equation + '_Int_Times_Implicit_' + str(dt) + '_' +\
