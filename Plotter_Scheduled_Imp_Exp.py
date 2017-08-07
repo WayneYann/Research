@@ -238,7 +238,8 @@ else:
         pyl.scatter(tlist, impprimaryvals, c=tlist, cmap='jet', lw=0,
                     label='Implicit')
     else:
-        pyl.scatter(tlist, exprimaryvals, 0.1)
+        pyl.scatter(tlist, exprimaryvals, 0.1, lw=0, label='Explicit')
+        pyl.scatter(tlist, impprimaryvals, 0.1, lw=0, label='Implicit')
     pyl.grid(b=True, which='both')
     if savefigures == 1:
         pyl.savefig(output_folder +
@@ -253,12 +254,16 @@ else:
     pyl.figure(plotnum)
     pyl.xlabel('Time (sec)')
     pyl.ylabel('Integration time (sec)')
-    pyl.ylim(0, max(solutiontimes))
+    pyl.ylim(0, max(max(impsolutiontimes, max(exsolutiontimes))))
     pyl.xlim(plotx)
     if diffcolors:
-        pyl.scatter(tlist, solutiontimes, 0.5, c=tlist, cmap='jet', lw=0)
+        pyl.scatter(tlist, impsolutiontimes, 0.5, c=tlist, cmap='jet', lw=0,
+                    label='Implicit')
+        pyl.scatter(tlist, impsolutiontimes, 0.5, c=tlist, cmap='jet', lw=0,
+                    label='Explicit')
     else:
-        pyl.scatter(tlist, solutiontimes, 0.1)
+        pyl.scatter(tlist, impsolutiontimes, 0.1, lw=0, label='Explicit')
+        pyl.scatter(tlist, exsolutiontimes, 0.1, lw=0, label='Implicit')
     pyl.grid(b=True, which='both')
     if savefigures == 1:
         pyl.savefig(output_folder +
@@ -272,12 +277,16 @@ else:
     pyl.figure(plotnum)
     pyl.xlabel('Time (sec)')
     pyl.ylabel('Function Calls')
-    pyl.ylim(0, max(functionwork))
+    pyl.ylim(0, max(max(impfunctionwork, max(exfunctionwork))))
     pyl.xlim(plotx)
     if diffcolors:
-        pyl.scatter(tlist, functionwork, 0.5, c=tlist, cmap='jet', lw=0)
+        pyl.scatter(tlist, impfunctionwork, 0.5, c=tlist, cmap='jet', lw=0,
+                    label='Implicit')
+        pyl.scatter(tlist, exfunctionwork, 0.5, c=tlist, cmap='jet', lw=0,
+                    label='Explicit')
     else:
-        pyl.scatter(tlist, functionwork, 0.1)
+        pyl.scatter(tlist, impfunctionwork, 0.1, lw=0, label='Implicit')
+        pyl.scatter(tlist, exfunctionwork, 0.1, lw=0, label='Explicit')
     pyl.grid(b=True, which='both')
     if savefigures == 1:
         pyl.savefig(output_folder +
