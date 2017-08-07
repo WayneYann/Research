@@ -33,7 +33,8 @@ def loadpasrdata(num):
 All of the values that need to be adjusted should be in this section.
 """
 # Describe the data files to be loaded
-targetdate = '08_06'
+targetdate = '08_07'
+targetdate2 = '08_07'
 # targetdate = timer.strftime("%m_%d")
 # Possible options are 'Stiffness_Index', 'Stiffness_Indicator', 'CEMA',
 # 'Stiffness_Ratio'
@@ -52,7 +53,7 @@ PaSR = False
 pasrfilesloaded = 9
 diffcolors = True
 # Define the range of the computation.
-dt = 1.e-5
+dt = 5.e-6
 tstart = 0.
 tstop = 0.2
 # Make the plot of the stiffness across the entire PaSR data range.
@@ -86,7 +87,7 @@ exinttimingfilename = equation + '_Int_Times_Explicit_' + str(dt) + '_' +\
 exworkfilename = equation + '_FunctionWork_Explicit_' + str(dt)
 impsolfilename = equation + '_Solution_Implicit_' + str(dt)
 impinttimingfilename = equation + '_Int_Times_Implicit_' + str(dt) + '_' +\
-    targetdate
+    targetdate2
 impworkfilename = equation + '_FunctionWork_Implicit_' + str(dt)
 # Append 'PaSR' to the filename if it is used
 if PaSR:
@@ -138,6 +139,8 @@ if not PaSR:
     impprimaryvals = np.array(impsolution[:, 0])
     exprimaryvals = np.array(exsolution[:, 0])
     if np.shape(impsolution) != np.shape(exsolution):
+        print(np.shape(impsolution))
+        print(np.shape(exsolution))
         raise Exception('Error: Solutions did not come out to the same shape!')
     if (len(tlist) == len(exprimaryvals) + 1 or
             len(tlist) == len(exfunctionwork) + 1):
@@ -177,7 +180,7 @@ if PaSR:
         pyl.savefig(output_folder +
                     'PaSR_Integration_Times_' +
                     str(dt) +
-                    '_' + targetdate +
+                    '_' + targetdate2 +
                     '.' + figformat)
     plotnum += 1
 
@@ -194,7 +197,7 @@ if PaSR:
         pyl.savefig(output_folder +
                     'PaSR_Fn_Work_' +
                     str(dt) +
-                    '_' + targetdate +
+                    '_' + targetdate2 +
                     '.' + figformat)
     plotnum += 1
 
@@ -246,7 +249,7 @@ else:
                     equation + '_' +
                     ylab + '_' +
                     str(dt) +
-                    '_' + targetdate +
+                    '_' + targetdate2 +
                     '.' + figformat)
     plotnum += 1
 
@@ -269,7 +272,7 @@ else:
         pyl.savefig(output_folder +
                     equation + '_Integration_Times_' +
                     str(dt) +
-                    '_' + targetdate +
+                    '_' + targetdate2 +
                     '.' + figformat)
     plotnum += 1
 
@@ -292,7 +295,7 @@ else:
         pyl.savefig(output_folder +
                     equation + '_Function_Work_' +
                     str(dt) +
-                    '_' + targetdate +
+                    '_' + targetdate2 +
                     '.' + figformat)
     plotnum += 1
 

@@ -326,7 +326,7 @@ findtimescale = False
 PaSR = False
 pasrfilesloaded = 9
 # Define the range of the computation.
-dt = 1.e-5
+dt = 5.e-6
 tstart = 0.
 tstop = 0.2
 # ODE Solver parameters.
