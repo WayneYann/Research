@@ -432,7 +432,7 @@ for particle in particlelist:
         solver.set_f_params(RHSparam)
         # solver.set_jac_params(RHSparam)
         solver._integrator.iwork[2] = -1
-        warnings.filterwarnings("ignore", category=UserWarning)
+        # warnings.filterwarnings("ignore", category=UserWarning)
 
         # Integrate the ODE across all steps
         k = 0
@@ -516,7 +516,7 @@ for particle in particlelist:
             #         solver.set_initial_value(localsol, localtime)
             #         solver.set_f_params(RHSparam)
             #         solver.set_jac_params(RHSparam)
-        warnings.resetwarnings()
+        # warnings.resetwarnings()
 
         if displayconditions:
             print('Final time:')
