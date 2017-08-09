@@ -387,7 +387,7 @@ tlist = np.arange(tstart, tstop + 0.5 * dt, dt)
 solutiontimes, functionwork, stepsizes, simtimes = [], [], [], []
 
 # Make the initial integrator dopri5
-intmode = 'dopri853'
+intmode = 'dop853'
 
 for particle in particlelist:
     if PaSR:
