@@ -419,8 +419,8 @@ for particle in particlelist:
                                       # method='bdf',
                                       # nsteps=99999999,
                                       atol=abserr,
-                                      rtol=relerr,
-                                      with_jacobian=usejac,
+                                      rtol=relerr  # ,
+                                      # with_jacobian=usejac,
                                       # first_step=dt,
                                       # min_step=dt,
                                       # max_step=dt
