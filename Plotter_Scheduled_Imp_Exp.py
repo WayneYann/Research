@@ -51,9 +51,9 @@ normtime = False
 # Otherwise, this will run a single autoignition at particle 92, timestep 4.
 PaSR = False
 pasrfilesloaded = 9
-diffcolors = True
+diffcolors = False
 # Define the range of the computation.
-dt = 5.e-6
+dt = 1.e-6
 tstart = 0.
 tstop = 0.2
 # Make the plot of the stiffness across the entire PaSR data range.
@@ -173,8 +173,11 @@ if PaSR:
     pyl.ylim(0, max(max(exsolutiontimes, max(impsolutiontimes))))
     pyl.xlabel('Computation Number')
     pyl.ylabel('Integration Time')
-    pyl.scatter(range(datanum), exsolutiontimes, 0.1, label='Explicit', lw=0)
-    pyl.scatter(range(datanum), impsolutiontimes, 0.1, label='Implicit', lw=0)
+    pyl.scatter(range(datanum), exsolutiontimes, 0.1, c='r', label='Explicit',
+                lw=0)
+    pyl.scatter(range(datanum), impsolutiontimes, 0.1, c='b', label='Implicit',
+                lw=0)
+    pyl.legend(fontsize='small')
     pyl.grid(b=True, which='both')
     if savefigures == 1:
         pyl.savefig(output_folder +
@@ -190,8 +193,11 @@ if PaSR:
     pyl.ylim(0, max(max(impfunctionwork, max(exfunctionwork))))
     pyl.xlabel('Computation Number')
     pyl.ylabel('Function Calls')
-    pyl.scatter(range(datanum), exfunctionwork, 0.1, label='Explicit', lw=0)
-    pyl.scatter(range(datanum), impfunctionwork, 0.1, label='Implicit', lw=0)
+    pyl.scatter(range(datanum), exfunctionwork, 0.1, c='r', label='Explicit',
+                lw=0)
+    pyl.scatter(range(datanum), impfunctionwork, 0.1, c='b', label='Implicit',
+                lw=0)
+    pyl.legend(fontsize='small')
     pyl.grid(b=True, which='both')
     if savefigures == 1:
         pyl.savefig(output_folder +
@@ -241,9 +247,10 @@ else:
         pyl.scatter(tlist, impprimaryvals, c=tlist, cmap='jet', lw=0,
                     label='Implicit')
     else:
-        pyl.scatter(tlist, exprimaryvals, 0.1, lw=0, label='Explicit')
-        pyl.scatter(tlist, impprimaryvals, 0.1, lw=0, label='Implicit')
+        pyl.scatter(tlist, exprimaryvals, 0.1, c='r', lw=0, label='Explicit')
+        pyl.scatter(tlist, impprimaryvals, 0.1, c='b', lw=0, label='Implicit')
     pyl.grid(b=True, which='both')
+    pyl.legend(fontsize='small')
     if savefigures == 1:
         pyl.savefig(output_folder +
                     equation + '_' +
@@ -257,7 +264,7 @@ else:
     pyl.figure(plotnum)
     pyl.xlabel('Time (sec)')
     pyl.ylabel('Integration time (sec)')
-    pyl.ylim(0, max(max(impsolutiontimes, max(exsolutiontimes))))
+    pyl.ylim(0, max(max(impsolutiontimes), max(exsolutiontimes)))
     pyl.xlim(plotx)
     if diffcolors:
         pyl.scatter(tlist, impsolutiontimes, 0.5, c=tlist, cmap='jet', lw=0,
@@ -265,9 +272,11 @@ else:
         pyl.scatter(tlist, impsolutiontimes, 0.5, c=tlist, cmap='jet', lw=0,
                     label='Explicit')
     else:
-        pyl.scatter(tlist, impsolutiontimes, 0.1, lw=0, label='Explicit')
-        pyl.scatter(tlist, exsolutiontimes, 0.1, lw=0, label='Implicit')
+        pyl.scatter(tlist, impsolutiontimes, 0.1, c='b', lw=0,
+                    label='Implicit')
+        pyl.scatter(tlist, exsolutiontimes, 0.1, c='r', lw=0, label='Explicit')
     pyl.grid(b=True, which='both')
+    pyl.legend(fontsize='small')
     if savefigures == 1:
         pyl.savefig(output_folder +
                     equation + '_Integration_Times_' +
@@ -280,7 +289,7 @@ else:
     pyl.figure(plotnum)
     pyl.xlabel('Time (sec)')
     pyl.ylabel('Function Calls')
-    pyl.ylim(0, max(max(impfunctionwork, max(exfunctionwork))))
+    pyl.ylim(0, max(max(impfunctionwork), max(exfunctionwork)))
     pyl.xlim(plotx)
     if diffcolors:
         pyl.scatter(tlist, impfunctionwork, 0.5, c=tlist, cmap='jet', lw=0,
@@ -288,9 +297,10 @@ else:
         pyl.scatter(tlist, exfunctionwork, 0.5, c=tlist, cmap='jet', lw=0,
                     label='Explicit')
     else:
-        pyl.scatter(tlist, impfunctionwork, 0.1, lw=0, label='Implicit')
-        pyl.scatter(tlist, exfunctionwork, 0.1, lw=0, label='Explicit')
+        pyl.scatter(tlist, impfunctionwork, 0.1, c='b', lw=0, label='Implicit')
+        pyl.scatter(tlist, exfunctionwork, 0.1, c='r', lw=0, label='Explicit')
     pyl.grid(b=True, which='both')
+    pyl.legend(fontsize='small')
     if savefigures == 1:
         pyl.savefig(output_folder +
                     equation + '_Function_Work_' +

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Fri Feb 17 14:54 2017
+Created on Thu Aug 04 10:44 2017
 
 @author: andrewalferman
 """
@@ -194,41 +194,35 @@ def stiffnessindex(xlist, solution, dfun, jfun, *args, **kwargs):
     return indexlist  # , dydxlist
 
 
-def stiffnessindicator(xlist, solution, jfun, *args):
+def stiffnessindicator(time, solution, jfun, *args):
     """
-    Find the stiffness indicator across a solution.
+    Find the local stiffness indicator after calculating local solution.
 
-    Given the set of values of the solution, find the stiffness indicator as
-    defined by Soderlind 2013.
+    Given the value of the solution, find the stiffness indicator as defined by
+    Soderlind 2013.
     """
     funcparams = []
     for arg in args:
         funcparams.append(arg)
 
-    indicatorvals = []
-    for i in range(len(solution)):
-        jacobian = jfun(xlist[i], solution[i], funcparams[0])
-        Hermitian = 0.5 * (jacobian + np.transpose(jacobian))
-        eigvals = np.linalg.eigvals(Hermitian)
-        indicatorvals.append(0.5 * (min(eigvals) + max(eigvals)))
-    return indicatorvals
+    jacobian = jfun(time, solution, funcparams[0])
+    Hermitian = 0.5 * (jacobian + np.transpose(jacobian))
+    eigvals = np.linalg.eigvals(Hermitian)
+    return 0.5 * (min(eigvals) + max(eigvals))
 
 
-def reftimescale(indicatorvals, Tlen):
+def reftimescale(indicatorval, Tlen):
     """
-    Find the reference timescale for the stiffness indicator.
+    Find the local reference timescale for the stiffness indicator.
 
     Given the stiffness indicator values as defined by Soderlind 2013, finds
     the reference time scale.
     """
-    timescales = []
-    for i in range(len(indicatorvals)):
-        if indicatorvals[i] >= 0:
-            timescales.append(Tlen)
-        else:
-            timescales.append(min(Tlen, -1/indicatorvals[i]))
-    timescales = np.array(timescales)
-    return timescales
+    if indicatorval >= 0:
+        timescale = Tlen
+    else:
+        timescale = min(Tlen, -1/indicatorval)
+    return timescale
 
 
 def CEMA(xlist, solution, jfun, *args):
@@ -317,7 +311,7 @@ print('Start time: {}'.format(starttime))
 All of the values that need to be adjusted should be in this section.
 """
 # Specify if you want to save the data
-savedata = True
+savedata = 1
 # Possible options will be 'VDP', 'Autoignition', or 'Oregonator'
 # Oregonator not yet implemented
 equation = 'Autoignition'
@@ -328,8 +322,8 @@ method = 'Stiffness_Indicator'
 # indicator.
 findtimescale = False
 # Make this true if you want to test all of the values across the PaSR.
-# Otherwise, this will run a single autoignition at a defined particle/time
-PaSR = True
+# Otherwise, this will run a single autoignition at particle 92, timestep 4.
+PaSR = False
 pasrfilesloaded = 9
 # Define the range of the computation.
 dt = 1.e-6
@@ -338,12 +332,15 @@ tstop = 0.2
 # ODE Solver parameters.
 abserr = 1.0e-17
 relerr = 1.0e-15
+# Switching thresholds
+indicatorthreshold = 1e-20
+tempthreshold = 10000.
 # Keep this at false, something isn't working with using the jacobian yet.
 usejac = False
 # Decide if you want to give pyJac N2 or not.
 useN2 = False
 # Used if you want to check that the PaSR data is being properly conditioned.
-displayconditions = False
+displayconditions = True
 # Display the solution shape for plotting/debugging.
 displaysolshapes = False
 # Make the plot of the stiffness across the entire PaSR data range.
@@ -369,12 +366,6 @@ elif equation == 'Autoignition':
     pasr = loadpasrdata(pasrfilesloaded)
     numparticles = len(pasr[0, :, 0])
     numtsteps = len(pasr[:, 0, 0])
-    pasrstiffnesses = np.zeros((numtsteps, numparticles))
-
-# Create vectors for that time how long it takes to compute stiffness index and
-# the solution itself
-solutiontimes, stiffcomptimes, stiffvals, functionwork, = [], [], [], []
-temps = []
 
 # Loop through the PaSR file for initial conditions
 if PaSR:
@@ -382,21 +373,19 @@ if PaSR:
     particlelist = range(numparticles)
     timelist = range(numtsteps)
     # We don't want long integrations for every point in the PaSR
-    tstart = 0.
-    tstop = 5 * dt
+    # tstart = 0.
+    # tstop = 5 * dt
 else:
-    # The first set of autoignition data was at particle 92, timestep 4.
-    particlelist = [92]
-    timelist = [4]
-    # Can only do this plot for PaSR, so shutting it off here.
-    makerainbowplot = False
+    particlelist = [679]
+    timelist = [646]
 
 # Create the list of times to compute
 tlist = np.arange(tstart, tstop + 0.5 * dt, dt)
 
-# Don't need to find the timescale if not computing the stiffness indicator.
-if method != 'Stiffness_Indicator':
-    findtimescale = False
+solutiontimes, functionwork, stepsizes, simtimes = [], [], [], []
+
+# Make the initial integrator dopri5
+intmode = 'dopri5'
 
 for particle in particlelist:
     if PaSR:
@@ -424,11 +413,11 @@ for particle in particlelist:
             intj = EQjac
         else:
             intj = None
-        solver = ode(RHSfunction,
-                     jac=intj
-                     ).set_integrator('vode',
-                                      method='bdf',
-                                      nsteps=99999999,
+        solver = ode(RHSfunction  # ,
+                     # jac=intj
+                     ).set_integrator(intmode,
+                                      # method='bdf',
+                                      # nsteps=99999999,
                                       atol=abserr,
                                       rtol=relerr,
                                       with_jacobian=usejac,
@@ -439,26 +428,90 @@ for particle in particlelist:
         # Set initial conditions
         solver.set_initial_value(initcond, tstart)
         solver.set_f_params(RHSparam)
-        solver.set_jac_params(RHSparam)
+        # solver.set_jac_params(RHSparam)
 
         # Integrate the ODE across all steps
         k = 0
+        prevtime = tstart
         while solver.successful() and solver.t <= tstop:
             # Initialize global variable for counting RHS function calls
             functioncalls = 0
             time0 = timer.time()
-            solver.integrate(solver.t + dt)
+            solver.integrate(solver.t, step=True)
             time1 = timer.time()
-            solution.append(solver.y)
+            localsol = solver.y
+            localtime = solver.t
+            indicator = stiffnessindicator(localtime,
+                                           localsol,
+                                           EQjac,
+                                           RHSparam
+                                           )
+            localtemp = localsol[0]
             if PaSR:
                 if k == 2:
                     solutiontimes.append(time1 - time0)
                     functionwork.append(functioncalls)
-                    temps.append(solver.y[0])
+                    simtimes.append(localtime)
+                    stepsizes.append(localtime - prevtime)
                 k += 1
             else:
+                solution.append(localsol)
                 solutiontimes.append(time1 - time0)
                 functionwork.append(functioncalls)
+                simtimes.append(localtime)
+                stepsizes.append(localtime - prevtime)
+            prevtime = localtime
+            # Switching mechanism
+            if intmode == 'vode':
+                if (indicator > indicatorthreshold and
+                        localtemp < tempthreshold):
+                    print('Switching to dopri5!')
+                    print('Time is {}'.format(solver.t))
+                    intmode = 'dopri5'
+                    # Assign the explicit solver
+                    solver = ode(RHSfunction,
+                                 jac=intj
+                                 ).set_integrator(intmode,
+                                                  # method='bdf',
+                                                  # nsteps=99999999,
+                                                  atol=abserr,
+                                                  rtol=relerr
+                                                  # with_jacobian=usejac,
+                                                  # first_step=dt,
+                                                  # min_step=dt,
+                                                  # max_step=dt
+                                                  )
+                    # Need to reinitialize conditions
+                    solver.set_initial_value(localsol, localtime)
+                    solver.set_f_params(RHSparam)
+                    solver.set_jac_params(RHSparam)
+            else:
+                if (indicator <= indicatorthreshold or
+                        localtemp >= tempthreshold):
+                    print('Switching to vode!')
+                    if indicator <= indicatorthreshold:
+                        print('Indicator tripped.')
+                    if localtemp >= tempthreshold:
+                        print('Temperature tripped.')
+                    print('Time is {}'.format(solver.t))
+                    intmode = 'vode'
+                    # Assign the implicit solver
+                    solver = ode(RHSfunction,
+                                 jac=intj
+                                 ).set_integrator(intmode,
+                                                  method='bdf',
+                                                  nsteps=99999999,
+                                                  atol=abserr,
+                                                  rtol=relerr,
+                                                  with_jacobian=usejac,
+                                                  # first_step=dt,
+                                                  # min_step=dt,
+                                                  # max_step=dt
+                                                  )
+                    # Need to reinitialize conditions
+                    solver.set_initial_value(localsol, localtime)
+                    solver.set_f_params(RHSparam)
+                    solver.set_jac_params(RHSparam)
 
         if displayconditions:
             print('Final time:')
@@ -471,163 +524,36 @@ for particle in particlelist:
             for i in lastjac:
                 print(i)
 
-        # Convert the solution to an array for ease of use.  Maybe just using
-        # numpy function to begin with would be faster?
-        solution = np.array(solution)
-
-        # Find the stiffness metric across the solution and time it
-        if method == 'Stiffness_Indicator':
-            if not PaSR:
-                print('Finding Stiffness Indicator...')
-            time2 = timer.time()
-            stiffvalues = stiffnessindicator(tlist,
-                                             solution,
-                                             EQjac,
-                                             RHSparam
-                                             )
-            time3 = timer.time()
-            if findtimescale:
-                if not PaSR:
-                    print('Finding reference timescales...')
-                timescales = reftimescale(stiffvalues, tstop - tstart)
-            if PaSR:
-                stiffcomptimes.append(time3 - time2)
-        elif method == 'Stiffness_Index':
-            if not PaSR:
-                print('Finding Stiffness Index...')
-            time2 = timer.time()
-            stiffvalues = stiffnessindex(tlist,
-                                         solution,
-                                         RHSfunction,
-                                         EQjac,
-                                         RHSparam
-                                         )
-            time3 = timer.time()
-            if PaSR:
-                stiffcomptimes.append(time3 - time2)
-        elif method == 'CEMA':
-            if not PaSR:
-                print('Finding chemical explosive mode...')
-            time2 = timer.time()
-            stiffvalues = CEMA(tlist,
-                               solution,
-                               EQjac,
-                               RHSparam
-                               )
-            time3 = timer.time()
-            if PaSR:
-                stiffcomptimes.append(time3 - time2)
-        elif method == 'Stiffness_Ratio':
-            if not PaSR:
-                print('Finding stiffness ratio...')
-            time2 = timer.time()
-            stiffvalues = stiffnessratio(tlist,
-                                         solution,
-                                         EQjac,
-                                         RHSparam
-                                         )
-            time3 = timer.time()
-            if PaSR:
-                stiffcomptimes.append(time3 - time2)
-
-        if PaSR:
-            stiffvals.append(stiffvalues[2])
-            if makerainbowplot:
-                if method == 'Stiffness_Index':
-                    pasrstiffnesses[tstep, particle] = np.log10(stiffvalues[2])
-                else:
-                    pasrstiffnesses[tstep, particle] = stiffvalues[2]
-
-# ----------------------------------------------------------
-# CODE GRAVEYARD!!!
-# "Where old code goes to die..."
-
-# This statement intended to cut back on the amount of data processed
-# derivatives = derivatives[2]
-
-# Commented old code for the maximum eigenvalue or CEMA analysis
-# expeigs[tstep,particle] = np.log10(maxeig)
-# Commented old code for just figuring out the PaSR stiffness values
-
-# pasrstiffnesses[tstep,particle,:] = np.hstack((solution[2],
-#                                               indexvalues[2]))
-# This variable includes the values of the derivatives
-# pasrstiffnesses2[tstep, particle, :] = np.hstack(
-#    (derivatives, indexvalues[2]))
-
-# Cheated a little here and entered the number of variables to code faster
-# numparams = 15
-
-# pasrstiffnesses2 = np.zeros((numtsteps, numparticles, numparams))
-
-# indexvalues, derivatives = stiffnessindex(stiffnessparams,
-#                                           normweights,
-# print(np.shape(tlist2))
-# print(dt*100.)
-# print(np.shape(solution))
-
-# expeigs = np.zeros((numtsteps, numparticles))
-
-# ----------------------------------------------------------
-# A bunch of print statements used for debugging
-if displaysolshapes:
-    print('Solution shape:')
-    print(np.shape(solution))
-    print('tlist shape:')
-    print(np.shape(tlist))
-    print('solutiontimes shape:')
-    print(np.shape(solutiontimes))
-    print('stiffvalues shape:')
-    print(np.shape(stiffvalues))
-    print('stiffcomptimes shape')
-    print(np.shape(stiffcomptimes))
+# Convert the solution to an array for ease of use.  Maybe just using
+# numpy function to begin with would be faster?
+solution = np.array(solution)
+solutiontimes = np.array(solutiontimes)
 
 # Get the current working directory
-output_folder = 'Output_Plots/'
-data_folder = 'Output_Data/'
+output_folder = 'Output_Plots/Scheduler_Plots/'
+data_folder = 'Output_Data/Scheduler_Data/'
 
-# ----------------------------------------------------------
-# Save the data
-
-# A little bit of data conditioning first
-# Make the metric values a numpy array to make things easier
-stiffvalues = np.array(stiffvalues)
-functionwork = np.array(functionwork)
-# Make all of the stiffness metric values real numbers
-stiffvalues = stiffvalues.real
+if len(solution) != len(tlist):
+    print('Solution shape: {}'.format(np.shape(solution)))
+    print('tlist shape: {}'.format(np.shape(tlist)))
 
 if savedata:
-    # Create filenames of all the data generated
-    solfilename = equation + '_Solution_' + str(dt)
-    metricfilename = equation + '_' + method + '_Vals_' + str(dt)
-    inttimingfilename = equation + '_Int_Times_' + str(dt) + '_' +\
+    solfilename = equation + '_Solution_Explicit_Var_dt'
+    inttimingfilename = equation + '_Int_Times_Explicit_Var_dt_' +\
         timer.strftime("%m_%d")
-    metrictimingfilename = equation + '_' + method + '_Timing_' + str(dt) +\
-        timer.strftime("%m_%d")
-    timescalefilename = equation + '_Indicator_Timescales_' + str(dt)
-    workfilename = equation + '_FunctionWork_' + str(dt)
-
-    # Append 'PaSR' to the filename if it is used
+    workfilename = equation + '_FunctionWork_Explicit_Var_dt'
+    simtimesfilename = equation + '_Sim_Times_Explicit_Var_dt'
+    stepsizesfilename = equation + '_Stepsizes_Explicit_Var_dt'
     if PaSR:
-        metricfilename = 'PaSR_' + metricfilename
         inttimingfilename = 'PaSR_' + inttimingfilename
-        metrictimingfilename = 'PaSR_' + metrictimingfilename
-        timescalefilename = 'PaSR_' + timescalefilename
         workfilename = 'PaSR_' + workfilename
-        pasrstiffnessfilename = 'PaSR_Stiffnesses_' + method + '_' + str(dt)
-        pasrtempsfilename = 'PaSR_Temps_' + str(dt)
-        np.save(data_folder + metricfilename, stiffvals)
-        np.save(data_folder + pasrtempsfilename, temps)
-        if makerainbowplot:
-            np.save(data_folder + pasrstiffnessfilename, pasrstiffnesses)
+        stepsizesfilename = 'PaSR_' + stepsizesfilename
     else:
         np.save(data_folder + solfilename, solution)
-        np.save(data_folder + metricfilename, stiffvalues)
+        np.save(data_folder + simtimesfilename, simtimes)
     np.save(data_folder + inttimingfilename, solutiontimes)
-    np.save(data_folder + metrictimingfilename, stiffcomptimes)
     np.save(data_folder + workfilename, functionwork)
-    if findtimescale:
-        np.save(data_folder + timescalefilename, timescales)
+    np.save(data_folder + stepsizesfilename, stepsizes)
 
 finishtime = datetime.datetime.now()
 print('Finish time: {}'.format(finishtime))
