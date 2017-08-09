@@ -12,6 +12,7 @@ import pyjacob as pyjacob
 # import scipy as sci
 import datetime
 import time as timer
+import warnings
 
 # from scipy.integrate import odeint
 from scipy.integrate import ode
@@ -416,9 +417,9 @@ for particle in particlelist:
             intj = None
         solver = ode(RHSfunction  # ,
                      # jac=intj
-                     ).set_integrator(intmode  # ,
+                     ).set_integrator(intmode,
                                       # method='bdf',
-                                      # nsteps=99999999,
+                                      nsteps=1
                                       # atol=abserr,
                                       # rtol=relerr  # ,
                                       # with_jacobian=usejac,
@@ -430,6 +431,8 @@ for particle in particlelist:
         solver.set_initial_value(initcond, tstart)
         solver.set_f_params(RHSparam)
         # solver.set_jac_params(RHSparam)
+        solver._integrator.iwork[2] = -1
+        warnings.filterwarnings("ignore", category=UserWarning)
 
         # Integrate the ODE across all steps
         k = 0
@@ -513,6 +516,7 @@ for particle in particlelist:
             #         solver.set_initial_value(localsol, localtime)
             #         solver.set_f_params(RHSparam)
             #         solver.set_jac_params(RHSparam)
+        warnings.resetwarnings()
 
         if displayconditions:
             print('Final time:')
