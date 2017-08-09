@@ -419,7 +419,7 @@ for particle in particlelist:
                      # jac=intj
                      ).set_integrator(intmode,
                                       # method='bdf',
-                                      nsteps=1
+                                      nsteps=999999999
                                       # atol=abserr,
                                       # rtol=relerr  # ,
                                       # with_jacobian=usejac,
