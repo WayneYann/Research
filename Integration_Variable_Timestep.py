@@ -329,7 +329,7 @@ pasrfilesloaded = 9
 # Define the range of the computation.
 dt = 1.e-6
 tstart = 0.
-tstop = 0.2
+tstop = 0.001
 # ODE Solver parameters.
 abserr = 1.0e-17
 relerr = 1.0e-15
@@ -387,7 +387,7 @@ tlist = np.arange(tstart, tstop + 0.5 * dt, dt)
 solutiontimes, functionwork, stepsizes, simtimes = [], [], [], []
 
 # Make the initial integrator dopri5
-intmode = 'dop853'
+intmode = 'dopri5'
 
 for particle in particlelist:
     if PaSR:
