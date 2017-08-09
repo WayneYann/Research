@@ -462,56 +462,56 @@ for particle in particlelist:
                 stepsizes.append(localtime - prevtime)
             prevtime = localtime
             # Switching mechanism
-            if intmode == 'vode':
-                if (indicator > indicatorthreshold and
-                        localtemp < tempthreshold):
-                    print('Switching to dopri5!')
-                    print('Time is {}'.format(solver.t))
-                    intmode = 'dopri5'
-                    # Assign the explicit solver
-                    solver = ode(RHSfunction,
-                                 jac=intj
-                                 ).set_integrator(intmode,
-                                                  # method='bdf',
-                                                  # nsteps=99999999,
-                                                  atol=abserr,
-                                                  rtol=relerr
-                                                  # with_jacobian=usejac,
-                                                  # first_step=dt,
-                                                  # min_step=dt,
-                                                  # max_step=dt
-                                                  )
-                    # Need to reinitialize conditions
-                    solver.set_initial_value(localsol, localtime)
-                    solver.set_f_params(RHSparam)
-                    solver.set_jac_params(RHSparam)
-            else:
-                if (indicator <= indicatorthreshold or
-                        localtemp >= tempthreshold):
-                    print('Switching to vode!')
-                    if indicator <= indicatorthreshold:
-                        print('Indicator tripped.')
-                    if localtemp >= tempthreshold:
-                        print('Temperature tripped.')
-                    print('Time is {}'.format(solver.t))
-                    intmode = 'vode'
-                    # Assign the implicit solver
-                    solver = ode(RHSfunction,
-                                 jac=intj
-                                 ).set_integrator(intmode,
-                                                  method='bdf',
-                                                  nsteps=99999999,
-                                                  atol=abserr,
-                                                  rtol=relerr,
-                                                  with_jacobian=usejac,
-                                                  # first_step=dt,
-                                                  # min_step=dt,
-                                                  # max_step=dt
-                                                  )
-                    # Need to reinitialize conditions
-                    solver.set_initial_value(localsol, localtime)
-                    solver.set_f_params(RHSparam)
-                    solver.set_jac_params(RHSparam)
+            # if intmode == 'vode':
+            #     if (indicator > indicatorthreshold and
+            #             localtemp < tempthreshold):
+            #         print('Switching to dopri5!')
+            #         print('Time is {}'.format(solver.t))
+            #         intmode = 'dopri5'
+            #         # Assign the explicit solver
+            #         solver = ode(RHSfunction,
+            #                      jac=intj
+            #                      ).set_integrator(intmode,
+            #                                       # method='bdf',
+            #                                       # nsteps=99999999,
+            #                                       atol=abserr,
+            #                                       rtol=relerr
+            #                                       # with_jacobian=usejac,
+            #                                       # first_step=dt,
+            #                                       # min_step=dt,
+            #                                       # max_step=dt
+            #                                       )
+            #         # Need to reinitialize conditions
+            #         solver.set_initial_value(localsol, localtime)
+            #         solver.set_f_params(RHSparam)
+            #         solver.set_jac_params(RHSparam)
+            # else:
+            #     if (indicator <= indicatorthreshold or
+            #             localtemp >= tempthreshold):
+            #         print('Switching to vode!')
+            #         if indicator <= indicatorthreshold:
+            #             print('Indicator tripped.')
+            #         if localtemp >= tempthreshold:
+            #             print('Temperature tripped.')
+            #         print('Time is {}'.format(solver.t))
+            #         intmode = 'vode'
+            #         # Assign the implicit solver
+            #         solver = ode(RHSfunction,
+            #                      jac=intj
+            #                      ).set_integrator(intmode,
+            #                                       method='bdf',
+            #                                       nsteps=99999999,
+            #                                       atol=abserr,
+            #                                       rtol=relerr,
+            #                                       with_jacobian=usejac,
+            #                                       # first_step=dt,
+            #                                       # min_step=dt,
+            #                                       # max_step=dt
+            #                                       )
+            #         # Need to reinitialize conditions
+            #         solver.set_initial_value(localsol, localtime)
+            #         solver.set_f_params(RHSparam)
+            #         solver.set_jac_params(RHSparam)
 
         if displayconditions:
             print('Final time:')
