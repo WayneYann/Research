@@ -415,11 +415,11 @@ for particle in particlelist:
             intj = None
         solver = ode(RHSfunction  # ,
                      # jac=intj
-                     ).set_integrator(intmode,
+                     ).set_integrator(intmode  # ,
                                       # method='bdf',
                                       # nsteps=99999999,
-                                      atol=abserr,
-                                      rtol=relerr  # ,
+                                      # atol=abserr,
+                                      # rtol=relerr  # ,
                                       # with_jacobian=usejac,
                                       # first_step=dt,
                                       # min_step=dt,
