@@ -376,8 +376,9 @@ if PaSR:
     # tstart = 0.
     # tstop = 5 * dt
 else:
-    particlelist = [679]
-    timelist = [646]
+    particlelist = [92]
+    timelist = [4]
+    # 679 and 646 used previously
 
 # Create the list of times to compute
 tlist = np.arange(tstart, tstop + 0.5 * dt, dt)
