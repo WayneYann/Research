@@ -441,7 +441,7 @@ for particle in particlelist:
             # Initialize global variable for counting RHS function calls
             functioncalls = 0
             time0 = timer.time()
-            solver.integrate(solver.t, step=True)
+            solver.integrate(tstop, step=True)
             time1 = timer.time()
             localsol = solver.y
             localtime = solver.t
