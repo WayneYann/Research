@@ -330,6 +330,7 @@ dt = 1.e-6
 tstart = 0.
 tstop = 0.2
 # ODE Solver parameters.
+# Tightest tolerances that worked were abserr = 1.0e-17 and relerr = 1.0e-15
 abserr = 1.0e-17
 relerr = 1.0e-15
 # Switching thresholds
@@ -418,8 +419,8 @@ for particle in particlelist:
                      ).set_integrator(intmode,
                                       method='bdf',
                                       nsteps=99999999,
-                                      atol=abserr,
-                                      rtol=relerr,
+                                      # atol=abserr,
+                                      # rtol=relerr,
                                       with_jacobian=usejac,
                                       # first_step=dt,
                                       # min_step=dt,
@@ -467,9 +468,9 @@ for particle in particlelist:
                                  jac=intj
                                  ).set_integrator(intmode,
                                                   # method='bdf',
-                                                  nsteps=99999999,
-                                                  atol=abserr,
-                                                  rtol=relerr
+                                                  nsteps=99999999  # ,
+                                                  # atol=abserr,
+                                                  # rtol=relerr
                                                   # with_jacobian=usejac,
                                                   # first_step=dt,
                                                   # min_step=dt,
@@ -494,10 +495,10 @@ for particle in particlelist:
                                  jac=intj
                                  ).set_integrator(intmode,
                                                   method='bdf',
-                                                  nsteps=99999999,
-                                                  atol=abserr,
-                                                  rtol=relerr,
-                                                  with_jacobian=usejac,
+                                                  nsteps=99999999  # ,
+                                                  # atol=abserr,
+                                                  # rtol=relerr,
+                                                  # with_jacobian=usejac,
                                                   # first_step=dt,
                                                   # min_step=dt,
                                                   # max_step=dt
