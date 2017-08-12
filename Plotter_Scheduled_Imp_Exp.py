@@ -33,8 +33,8 @@ def loadpasrdata(num):
 All of the values that need to be adjusted should be in this section.
 """
 # Describe the data files to be loaded
-targetdate = '08_07'
-targetdate2 = '08_07'
+targetdate = '08_12'
+targetdate2 = '08_10'
 # targetdate = timer.strftime("%m_%d")
 # Possible options are 'Stiffness_Index', 'Stiffness_Indicator', 'CEMA',
 # 'Stiffness_Ratio'
@@ -173,9 +173,9 @@ if PaSR:
     pyl.ylim(0, max(max(exsolutiontimes, max(impsolutiontimes))))
     pyl.xlabel('Computation Number')
     pyl.ylabel('Integration Time')
-    pyl.scatter(range(datanum), exsolutiontimes, 0.1, c='r', label='Explicit',
+    pyl.scatter(range(datanum), exsolutiontimes, 1.0, c='r', label='Explicit',
                 lw=0)
-    pyl.scatter(range(datanum), impsolutiontimes, 0.1, c='b', label='Implicit',
+    pyl.scatter(range(datanum), impsolutiontimes, 1.0, c='b', label='Implicit',
                 lw=0)
     pyl.legend(fontsize='small')
     pyl.grid(b=True, which='both')
@@ -193,9 +193,9 @@ if PaSR:
     pyl.ylim(0, max(max(impfunctionwork, max(exfunctionwork))))
     pyl.xlabel('Computation Number')
     pyl.ylabel('Function Calls')
-    pyl.scatter(range(datanum), exfunctionwork, 0.1, c='r', label='Explicit',
+    pyl.scatter(range(datanum), exfunctionwork, 1.0, c='r', label='Explicit',
                 lw=0)
-    pyl.scatter(range(datanum), impfunctionwork, 0.1, c='b', label='Implicit',
+    pyl.scatter(range(datanum), impfunctionwork, 1.0, c='b', label='Implicit',
                 lw=0)
     pyl.legend(fontsize='small')
     pyl.grid(b=True, which='both')
@@ -247,8 +247,8 @@ else:
         pyl.scatter(tlist, impprimaryvals, c=tlist, cmap='jet', lw=0,
                     label='Implicit')
     else:
-        pyl.scatter(tlist, exprimaryvals, 0.1, c='r', lw=0, label='Explicit')
-        pyl.scatter(tlist, impprimaryvals, 0.1, c='b', lw=0, label='Implicit')
+        pyl.scatter(tlist, exprimaryvals, 1.0, c='r', lw=0, label='Explicit')
+        pyl.scatter(tlist, impprimaryvals, 1.0, c='b', lw=0, label='Implicit')
     pyl.grid(b=True, which='both')
     pyl.legend(fontsize='small')
     if savefigures == 1:
@@ -267,14 +267,14 @@ else:
     pyl.ylim(0, max(max(impsolutiontimes), max(exsolutiontimes)))
     pyl.xlim(plotx)
     if diffcolors:
-        pyl.scatter(tlist, impsolutiontimes, 0.5, c=tlist, cmap='jet', lw=0,
+        pyl.scatter(tlist, impsolutiontimes, 1.0, c=tlist, cmap='jet', lw=0,
                     label='Implicit')
-        pyl.scatter(tlist, impsolutiontimes, 0.5, c=tlist, cmap='jet', lw=0,
+        pyl.scatter(tlist, impsolutiontimes, 1.0, c=tlist, cmap='jet', lw=0,
                     label='Explicit')
     else:
-        pyl.scatter(tlist, impsolutiontimes, 0.1, c='b', lw=0,
+        pyl.scatter(tlist, impsolutiontimes, 1.0, c='b', lw=0,
                     label='Implicit')
-        pyl.scatter(tlist, exsolutiontimes, 0.1, c='r', lw=0, label='Explicit')
+        pyl.scatter(tlist, exsolutiontimes, 1.0, c='r', lw=0, label='Explicit')
     pyl.grid(b=True, which='both')
     pyl.legend(fontsize='small')
     if savefigures == 1:
@@ -292,13 +292,13 @@ else:
     pyl.ylim(0, max(max(impfunctionwork), max(exfunctionwork)))
     pyl.xlim(plotx)
     if diffcolors:
-        pyl.scatter(tlist, impfunctionwork, 0.5, c=tlist, cmap='jet', lw=0,
+        pyl.scatter(tlist, impfunctionwork, 1.0, c=tlist, cmap='jet', lw=0,
                     label='Implicit')
-        pyl.scatter(tlist, exfunctionwork, 0.5, c=tlist, cmap='jet', lw=0,
+        pyl.scatter(tlist, exfunctionwork, 1.0, c=tlist, cmap='jet', lw=0,
                     label='Explicit')
     else:
-        pyl.scatter(tlist, impfunctionwork, 0.1, c='b', lw=0, label='Implicit')
-        pyl.scatter(tlist, exfunctionwork, 0.1, c='r', lw=0, label='Explicit')
+        pyl.scatter(tlist, impfunctionwork, 1.0, c='b', lw=0, label='Implicit')
+        pyl.scatter(tlist, exfunctionwork, 1.0, c='r', lw=0, label='Explicit')
     pyl.grid(b=True, which='both')
     pyl.legend(fontsize='small')
     if savefigures == 1:
