@@ -329,7 +329,7 @@ pasrfilesloaded = 9
 # Define the range of the computation.
 dt = 1.e-6
 tstart = 0.
-tstop = 0.0000001
+tstop = 0.00001
 # ODE Solver parameters.
 abserr = 1.0e-17
 relerr = 1.0e-15
