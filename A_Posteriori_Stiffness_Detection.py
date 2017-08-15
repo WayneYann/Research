@@ -329,7 +329,7 @@ method = 'Stiffness_Indicator'
 findtimescale = False
 # Make this true if you want to test all of the values across the PaSR.
 # Otherwise, this will run a single autoignition at a defined particle/time
-PaSR = True
+PaSR = False
 pasrfilesloaded = 9
 # Define the range of the computation.
 dt = 1.e-6
@@ -386,8 +386,9 @@ if PaSR:
     tstop = 5 * dt
 else:
     # The first set of autoignition data was at particle 92, timestep 4.
-    particlelist = [92]
-    timelist = [4]
+    # Second set of coords was p=679, t=646
+    particlelist = [653]
+    timelist = [679]
     # Can only do this plot for PaSR, so shutting it off here.
     makerainbowplot = False
 
