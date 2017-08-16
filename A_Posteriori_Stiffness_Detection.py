@@ -323,7 +323,7 @@ savedata = True
 equation = 'Autoignition'
 # Possible options are 'Stiffness_Index', 'Stiffness_Indicator', 'CEMA',
 # 'Stiffness_Ratio'
-method = 'Stiffness_Ratio'
+method = 'Stiffness_Indicator'
 # Make this true if you want to obtain the reference timescale of the stiffness
 # indicator.
 findtimescale = False
@@ -387,8 +387,9 @@ if PaSR:
 else:
     # The first set of autoignition data was at particle 92, timestep 4.
     # Second set of coords was p=679, t=646
-    particlelist = [653]
-    timelist = [679]
+    # Third set was p = 653, t = 679
+    particlelist = [868]
+    timelist = [891]
     # Can only do this plot for PaSR, so shutting it off here.
     makerainbowplot = False
 

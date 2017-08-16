@@ -37,8 +37,8 @@ for i in range(len(ic[:, 0, 0])):
     for j in range(len(ic[0, :, 0])):
         if ic[i, j, 1] < mintemp:
             if len([k for k in dudlist if (i, j) == k]) == 0:
-                if ic[i, j, 1] > 900.:
-                    if j >= 600 and j < 700:
+                if ic[i, j, 1] > 800.:
+                    if j >= 800:
                         mintemp = ic[i, j, 1]
                         coords = (i, j)
 

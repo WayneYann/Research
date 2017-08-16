@@ -33,11 +33,11 @@ def loadpasrdata(num):
 All of the values that need to be adjusted should be in this section.
 """
 # Describe the data files to be loaded
-targetdate = '08_05'
+targetdate = '08_14'
 # targetdate = timer.strftime("%m_%d")
 # Possible options are 'Stiffness_Index', 'Stiffness_Indicator', 'CEMA',
 # 'Stiffness_Ratio'
-method = 'Stiffness_Indicator'
+method = 'Stiffness_Ratio'
 # Possible options will be 'VDP', 'Autoignition', or 'Oregonator'
 # Oregonator not yet implemented
 equation = 'Autoignition'
@@ -48,7 +48,7 @@ findtimescale = False
 normtime = False
 # Make this true if you want to test all of the values across the PaSR.
 # Otherwise, this will run a single autoignition at particle 92, timestep 4.
-PaSR = True
+PaSR = False
 pasrfilesloaded = 9
 diffcolors = False
 # Define the range of the computation.
@@ -284,7 +284,7 @@ if PaSR:
     fig = pyl.figure(plotnum)
     pyl.xlabel(method)
     pyl.ylabel('Integration Time')
-    pyl.ylim(0., max(solutiontimes))
+    pyl.ylim(min(solutiontimes), max(solutiontimes))
     pyl.xlim(min(stiffvals), max(stiffvals))
     if method == 'Stiffness_Index' or method == 'Stiffness_Ratio':
         pyl.xscale('log')
@@ -318,7 +318,7 @@ if PaSR:
     fig2 = pyl.figure(plotnum)
     pyl.xlabel(method)
     pyl.ylabel('Function Calls')
-    pyl.ylim(0., max(functionwork))
+    pyl.ylim(min(functionwork), max(functionwork))
     pyl.xlim(min(stiffvals), max(stiffvals))
     if method == 'Stiffness_Index' or method == 'Stiffness_Ratio':
         pyl.xscale('log')
