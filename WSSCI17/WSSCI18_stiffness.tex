@@ -150,7 +150,10 @@ By using data from a single particle at a single time step of the PaSR model, th
 The stiffness detection metrics and method-switching algorithm developed in the zero-dimensional analysis may be applied to more complicated models in future work.
 (Please refer to Niemeyer et al.~\cite{Niemeyer:2017} for a detailed description of the relevant equations and solution technique.)
 
+\subsection{Stiffness Ratio}
 
+
+\subsection{Stiffness Index}
 
 The IA-stiffness index of a method of order \textit{p} introduced by Shampine~\cite{Shampine1982} is
 \begin{equation}
@@ -176,8 +179,6 @@ Shampine notes that the scalar quantity
 \end{equation}
 provides a fair ``stiffness index'' to a given problem~\cite{Shampine1985}. For the remainder of this document, all references to the stiffness index will refer to the value obtained using equation (\ref{eqn:stiffness}).
 
-% Stiffness indicator discussion
-
 As previously noted, use of the above equations requires calculation of a vector of the derivatives of a system of equations.
 In the case of this investigation, this vector is comprised of the derivatives of the thermochemical composition vector with respect to time, with the the vector defined as
 \begin{equation}
@@ -198,14 +199,25 @@ Use of the central differencing formula was possible because the stiffness index
 Forward and backward difference formulae were used at the boundaries where central differencing could not be used.
 Variable time step methods for calculating the second derivative or higher-level derivatives may also be used, however these methods were not necessary at the current stage of the investigation.
 
-The code used to calculate the stiffness index was written in Python and made use of open-source software including the \texttt{odeint} integrator function of SciPy~\cite{SciPy}.
-This integrator uses the LSODA solver from the FORTRAN library \texttt{odepack} \cite{A.C.Hindmarsh1983}, which incidentally has its own algorithm for automatically switching between a non-stiff and a stiff solver.
-To ensure a high degree of accuracy, the integrator was given values of \num{e-13} and \num{e-15} for the error control parameters \texttt{relerr} and \texttt{abserr}, respectively.
-\texttt{NumPy}~\cite{VanDerWalt2011} was also extensively used in the code to calculate the stiffness index.
-At the current stage of this investigation, the selection of the integrator has no impact on the evaluation of the stiffness index due to the a posteriori approach.
-Rather than determining the higher-level derivatives based on the order of the solver used, the order of the method is manually entered into the code.
 To facilitate comparison of the results obtained by Shampine~\cite{Shampine1985}, the order of the method was assumed to be 1.
-To ensure that the code was running properly, the van der Pol equation with a \(\epsilon\) value of 1000 was used as a test equation.
+
+\subsection{Stiffness Indicator}
+% Stiffness indicator discussion
+
+
+
+% The code used to calculate the stiffness index was written in Python and made use of open-source software including the \texttt{odeint} integrator function of SciPy~\cite{SciPy}.
+% This integrator uses the LSODA solver from the FORTRAN library \texttt{odepack} \cite{A.C.Hindmarsh1983}, which incidentally has its own algorithm for automatically switching between a non-stiff and a stiff solver.
+%To ensure a high degree of accuracy, the integrator was given values of \num{e-13} and \num{e-15} for the error control parameters \texttt{relerr} and \texttt{abserr}, respectively.
+% \texttt{NumPy}~\cite{VanDerWalt2011} was also extensively used in the code to calculate the stiffness index.
+% At the current stage of this investigation, the selection of the integrator has no impact on the evaluation of the stiffness index due to the a posteriori approach.
+% Rather than determining the higher-level derivatives based on the order of the solver used, the order of the method is manually entered into the code.
+
+% To ensure that the code was running properly, the van der Pol equation with a \(\epsilon\) value of 1000 was used as a test equation.
+
+\subsection{Chemical Explosive Mode}
+
+
 
 \section{Results and Discussion}
 %
@@ -253,33 +265,34 @@ The algorithm would then maximize the use of values already computed to provide 
 %    \label{fig:initialdata}
 %\end{figure}
 
-Values of the stiffness index varied between \num{e-1} and \num{e10} throughout the evaluation.
-The stiffness index of the reaction was greatest a short time after the reaction had stabilized following ignition, with values on the order of \numrange{e9}{e10}.
-For comparison, the maximum stiffness index for the van der Pol equation with $\epsilon = 1000$, which is considered to be a ``stiff'' equation, is between \numrange{e4}{e5}~\cite{Shampine1985}.
-Figure~\ref{fig:initialdata} compares the value of the temperature and stiffness index of the simulation.
-Figures \ref{fig:tempcurve0} and \ref{fig:stiff0} show the temperature and stiffness index respectively of a method of order 1 across the full 0.5 second range of the simulation.
-Figures \ref{fig:tempcurve1} and \ref{fig:stiff1} also show the temperature and stiffness index respectively of a method of order 1 but are stretched from 0.1 to 0.15 seconds of the simulation to show greater detail immediately before and after autoignition.
-Figure \ref{fig:stifforder4} demonstrates the reduction in stiffness due to an increase in order of the method to order 4.
+%Values of the stiffness index varied between \num{e-1} and \num{e10} throughout the evaluation.
+%The stiffness index of the reaction was greatest a short time after the reaction had stabilized following ignition, with values on the order of \numrange{e9}{e10}.
+%For comparison, the maximum stiffness index for the van der Pol equation with $\epsilon = 1000$, which is considered to be a ``stiff'' equation, is between \numrange{e4}{e5}~\cite{Shampine1985}.
+%Figure~\ref{fig:initialdata} compares the value of the temperature and stiffness index of the simulation.
+%Figures \ref{fig:tempcurve0} and \ref{fig:stiff0} show the temperature and stiffness index respectively of a method of order 1 across the full 0.5 second range of the simulation.
+%Figures \ref{fig:tempcurve1} and \ref{fig:stiff1} also show the temperature and stiffness index respectively of a method of order 1 but are stretched from 0.1 to 0.15 seconds of the simulation to show greater detail immediately before and after autoignition.
+%Figure \ref{fig:stifforder4} demonstrates the reduction in stiffness due to an increase in order of the method to order 4.
+%
+%The value of the stiffness index at the start of the evaluation was approximately \num{e2}.
+%The stiffness index reached a minimum value of slightly less than 1 right as autoignition began.
+%During the residence time, the index decreased by one order of magnitude.
+%After spiking at its minimum value of less than 1, the stiffness index rapidly increased until reaching values between \numrange{e7}{e10}.
+%The stiffness index values obtained have visually apparent noise after reaching the maximum values, even with a step size as small as \num{e-7}.
+%Although further refinement of the step size and integration tolerance may reduce the magnitude of this noise to some extent, the values remained relatively consistent within the range of \numrange{e7}{e10}.
+%
+%Furthermore, the stiffness index decreased substantially when the order of the method was increased to four.
+%While the stiffness index exhibited many of the same trends as before, the maximum stiffness index ranged between \numrange{e3}{e4}.
 
-The value of the stiffness index at the start of the evaluation was approximately \num{e2}.
-The stiffness index reached a minimum value of slightly less than 1 right as autoignition began.
-During the residence time, the index decreased by one order of magnitude.
-After spiking at its minimum value of less than 1, the stiffness index rapidly increased until reaching values between \numrange{e7}{e10}.
-The stiffness index values obtained have visually apparent noise after reaching the maximum values, even with a step size as small as \num{e-7}.
-Although further refinement of the step size and integration tolerance may reduce the magnitude of this noise to some extent, the values remained relatively consistent within the range of \numrange{e7}{e10}.
-
-Furthermore, the stiffness index decreased substantially when the order of the method was increased to four.
-While the stiffness index exhibited many of the same trends as before, the maximum stiffness index ranged between \numrange{e3}{e4}.
 
 \section{Conclusions}
 %
-Our analysis demonstrated that the stiffness of the model prior to autoignition increases significantly during and after autoignition.
-This observation matches the expected behavior based on our intuition of the problem, but is based on a calculated metric.
-It also demonstrates the feasibility of using an explicit method prior to autoignition to save computational expense.
-Interestingly, we did not observe the maximum value of stiffness index during ignition; instead, this value occurred around \SI{0.02}{\second} after the reaching equilibrium (i.e., steady-state temperature and mass fractions).
-After reaching its maximum value, the stiffness remained relatively constant.
-The stiffness index evaluated provides a reasonable means of detecting the stiffness of combustion reactions.
-Incorporating calculation of this index in the code used to integrate the derivative vector will both accelerate calculation of the index and enable the index to be calculated on-the-fly.
+% Our analysis demonstrated that the stiffness of the model prior to autoignition increases significantly during and after autoignition.
+% This observation matches the expected behavior based on our intuition of the problem, but is based on a calculated metric.
+% It also demonstrates the feasibility of using an explicit method prior to autoignition to save computational expense.
+% Interestingly, we did not observe the maximum value of stiffness index during ignition; instead, this value occurred around \SI{0.02}{\second} after the reaching equilibrium (i.e., steady-state temperature and mass fractions).
+% After reaching its maximum value, the stiffness remained relatively constant.
+% The stiffness index evaluated provides a reasonable means of detecting the stiffness of combustion reactions.
+% Incorporating calculation of this index in the code used to integrate the derivative vector will both accelerate calculation of the index and enable the index to be calculated on-the-fly.
 
 \section{Acknowledgements}
 This material is based upon work supported by the National Science Foundation under grant ACI-1535065.
