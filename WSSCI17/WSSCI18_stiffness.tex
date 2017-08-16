@@ -78,13 +78,18 @@
 
 %Abstract should be between 150--200 words and should state briefly the purpose of the research, the principal results and major conclusions. An abstract is often presented separately from the article, so it must be able to stand alone. For this reason, References should be avoided, but if essential, then cite the author(s) and year(s). Also, non-standard or uncommon abbreviations should be avoided, but if essential they must be defined at their first mention in the abstract itself.
 
-Simulations of combustion and reactive flows often exhibit numerical stiffness in the equations governing chemical kinetics.
-Explicit solvers for these equations offer low computational expense, but typically cannot efficiently handle stiff systems of differential equations.
-In contrast, implicit methods demand greater expense but offer unconditional stability-as a result, most non-DNS reactive flow solvers rely on these methods by default.
+Simulations of combustion and reacting flows often encounter stiffness in the equations governing chemical kinetics.
+Explicit solvers for these ordinary differential equations offer low computational expense, but typically cannot efficiently handle stiff systems.
+In contrast, implicit methods demand greater expense but offer unconditional stability?as a result, most reactive flow solvers rely on these methods by default (other than explicit direct numerical simulation solvers).
 However, explicit or stabilized explicit methods can instead be used to reduce the computational expense while remaining stable and accurate if the chemical kinetics systems exhibit low-to-moderate stiffness.
-This study aims to investigate stiffness quantification metrics, with the goal of identifying one capable of efficiently and robustly determining the appropriate category of integrator required.
-Methods of measuring the stiffness of chemical kinetics states will be investigated and applied to simulations of hydrogen and carbon monoxide autoignition using initial conditions obtained from a partially stirred reactor simulation.
-The stiffness quantification metrics will be compared to the time required to integrate each time step using implicit methods, and the maximum allowable time step using explicit methods.
+This study investigates metrics for quantifying stiffness, with the goal of identifying one capable of efficiently and robustly determining the appropriate category of integrator required.
+%Ensure this order matches the order that we use later on
+Methods of measuring the stiffness of chemical kinetics states will be investigated, including stiffness ratio, stiffness index, stiffness indicator, and chemical explosive mode.
+%Also include GRI mech 3.0 if data can be obtained by then
+These will be applied to simulations of hydrogen/carbon monoxide autoignition using initial conditions representative of realistic turbulent combustion, obtained from partially stirred reactor simulations.
+% Change this to reflect the time needed to integrate explicit methods
+The stiffness quantification metrics will be compared with the time required to integrate using implicit methods, and the maximum allowable time step using explicit methods.
+We will conclude with preliminary performance analysis of an integrator scheduler using these metrics.
 
 %Literature on stiffness quantification will be surveyed and methods of measuring the stiffness of chemical kinetics states will be investigated, including methods based on eigendecomposition or the spectral radius of the Jacobian matrix, error estimations, conditioning parameters, and computational cost estimations.
 %These methods will be applied during the solution of hydrogen and carbon monoxide autoignition with different initial conditions based on partially stirred reactor simulation sampling, and evaluated in terms of effectiveness and computational efficiency.
@@ -128,18 +133,24 @@ Additionally, the method takes into account the impact of the order of the metho
 The method is relatively straightforward to implement, requiring computation of a vector of the derivatives of the system of equations, as well as either a weighted norm or the spectral radius of the Jacobian matrix.
 
 \section{Methods}
-
-We selected the relatively small hydrogen\slash carbon monoxide (\ce{H2}\slash \ce{CO}) model of Burke et al.~\cite{Burke:2011fh} for this initial investigation into stiffness quantification.
+% NEEDS UPDATE
+We started using the relatively small hydrogen\slash carbon monoxide (\ce{H2}\slash \ce{CO}) model of Burke et al.~\cite{Burke:2011fh} for our initial investigation into stiffness quantification.
 This system only involves 13 chemical species, and therefore the Jacobian matrix need only be $14\times14$ after the temperature derivatives are included.
 This small Jacobian matrix allows for much faster evaluations of stiffness than would be possible with larger, more complicated kinetic systems, which can have hundreds to hundreds of thousands of chemical species~\cite{Niemeyer:2013}.
-The stiffness quantification methods investigated using the \ce{H2}\slash \ce{CO} system can easily be applied to more complicated models.
+% The stiffness quantification methods investigated using the \ce{H2}\slash \ce{CO} system can easily be applied to more complicated models.
 
+% Something about the stiffer GRI mech 3.0
+
+%Review this sentence
 Our analysis was conducted using information gathered from partially stirred reactor (PaSR) simulations.
 As described by Niemeyer et al.~\cite{Niemeyer:2017}, the PaSR model consists of a number of particles, each with a time-varying composition.
 At discrete time steps, events including inflow, outflow, and pairing cause particles to change composition; between these time steps, mixing and reaction fractional steps evolve the composition of all particles.
 By using data from a single particle at a single time step of the PaSR model, the evaluation could be simplified to a zero-dimensional analysis.
+%Update this sentence
 The stiffness detection metrics and method-switching algorithm developed in the zero-dimensional analysis may be applied to more complicated models in future work.
 (Please refer to Niemeyer et al.~\cite{Niemeyer:2017} for a detailed description of the relevant equations and solution technique.)
+
+
 
 The IA-stiffness index of a method of order \textit{p} introduced by Shampine~\cite{Shampine1982} is
 \begin{equation}
@@ -157,13 +168,15 @@ Additionally, the matrix norm $\|M\|$ of matrix $M$ with $i$ columns and $j$ row
 \end{equation}
 in which \(w_i\) and \(w_j\) are positive weights of the matrix~\cite{Shampine1985}.
 
-Although the above equations are useful in determining the stiffness of a method for a given system of equations, we are interested in quantifying the stiffness inherent to the system of equations itself.
-Such a quantification will become necessary in further research when method switching mechanisms are investigated.
+Although the IA-stiffness index is useful in determining the stiffness of a method for a given system of equations, we are interested in quantifying the stiffness inherent to the system of equations itself.
+Such a quantification is necessary for investigating method switching mechanisms.
 Shampine notes that the scalar quantity
 \begin{equation}\label{eqn:stiffness}
     \textrm{index} = \rho [f_y(x_n,y(x_n))] \|y^{(p+1)}(x_n)\|^{-1/(p+1)}
 \end{equation}
 provides a fair ``stiffness index'' to a given problem~\cite{Shampine1985}. For the remainder of this document, all references to the stiffness index will refer to the value obtained using equation (\ref{eqn:stiffness}).
+
+% Stiffness indicator discussion
 
 As previously noted, use of the above equations requires calculation of a vector of the derivatives of a system of equations.
 In the case of this investigation, this vector is comprised of the derivatives of the thermochemical composition vector with respect to time, with the the vector defined as

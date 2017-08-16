@@ -33,11 +33,11 @@ def loadpasrdata(num):
 All of the values that need to be adjusted should be in this section.
 """
 # Describe the data files to be loaded
-targetdate = '08_14'
+targetdate = '08_16'
 # targetdate = timer.strftime("%m_%d")
 # Possible options are 'Stiffness_Index', 'Stiffness_Indicator', 'CEMA',
 # 'Stiffness_Ratio'
-method = 'Stiffness_Ratio'
+method = 'Stiffness_Indicator'
 # Possible options will be 'VDP', 'Autoignition', or 'Oregonator'
 # Oregonator not yet implemented
 equation = 'Autoignition'
@@ -221,64 +221,64 @@ if PaSR:
                     '.' + figformat)
     plotnum += 1
 
-    # Plot of stiffness computation times vs. computation number
-    if showstiffcomptime:
-        pyl.figure(plotnum)
-        pyl.xlim(0, datanum)
-        pyl.ylim(0, max(stiffcomptimes))
-        pyl.xlabel('Computation Number')
-        pyl.ylabel('Stiffness Metric Computation Time')
-        pyl.scatter(range(datanum), stiffcomptimes, 0.1)
-        pyl.grid(b=True, which='both')
-        if savefigures == 1:
-            pyl.savefig(output_folder +
-                        'PaSR_' +
-                        method +
-                        '_Comp_Times_' +
-                        str(dt) +
-                        '_' + targetdate +
-                        '.' + figformat)
-        plotnum += 1
+    # # Plot of stiffness computation times vs. computation number
+    # if showstiffcomptime:
+    #     pyl.figure(plotnum)
+    #     pyl.xlim(0, datanum)
+    #     pyl.ylim(0, max(stiffcomptimes))
+    #     pyl.xlabel('Computation Number')
+    #     pyl.ylabel('Stiffness Metric Computation Time')
+    #     pyl.scatter(range(datanum), stiffcomptimes, 0.1)
+    #     pyl.grid(b=True, which='both')
+    #     if savefigures == 1:
+    #         pyl.savefig(output_folder +
+    #                     'PaSR_' +
+    #                     method +
+    #                     '_Comp_Times_' +
+    #                     str(dt) +
+    #                     '_' + targetdate +
+    #                     '.' + figformat)
+    #     plotnum += 1
 
-    # Plot of ratio of stiffness computation times vs. integration times
-    if showstiffcomptime:
-        pyl.figure(plotnum)
-        pyl.xlim(0, datanum)
-        pyl.ylim(0, max(ratios))
-        pyl.xlabel('Particle Number')
-        pyl.ylabel('Ratio')
-        pyl.scatter(range(datanum), ratios, 0.1)
-        pyl.grid(b=True, which='both')
-        if savefigures == 1:
-            pyl.savefig(output_folder +
-                        'PaSR_' +
-                        method +
-                        '_Comp_Ratios_' +
-                        str(dt) +
-                        '_' + targetdate +
-                        '.' + figformat)
-        plotnum += 1
+    # # Plot of ratio of stiffness computation times vs. integration times
+    # if showstiffcomptime:
+    #     pyl.figure(plotnum)
+    #     pyl.xlim(0, datanum)
+    #     pyl.ylim(0, max(ratios))
+    #     pyl.xlabel('Particle Number')
+    #     pyl.ylabel('Ratio')
+    #     pyl.scatter(range(datanum), ratios, 0.1)
+    #     pyl.grid(b=True, which='both')
+    #     if savefigures == 1:
+    #         pyl.savefig(output_folder +
+    #                     'PaSR_' +
+    #                     method +
+    #                     '_Comp_Ratios_' +
+    #                     str(dt) +
+    #                     '_' + targetdate +
+    #                     '.' + figformat)
+    #     plotnum += 1
 
-    # Plot of stiffness computation times vs. stiffness metric
-    if showstiffcomptime:
-        pyl.figure(plotnum)
-        pyl.xlabel(method)
-        pyl.ylabel(method + ' Computation Time')
-        pyl.xlim(min(stiffvals), max(stiffvals))
-        pyl.ylim(0., max(stiffcomptimes))
-        if method == 'Stiffness_Index':
-            pyl.xscale('log')
-        pyl.scatter(stiffvals, stiffcomptimes, 0.1)
-        pyl.grid(b=True, which='both')
-        if savefigures == 1:
-            pyl.savefig(output_folder +
-                        'PaSR_' +
-                        method + '_' +
-                        'Times_Vals_' +
-                        str(dt) +
-                        '_' + targetdate +
-                        '.' + figformat)
-        plotnum += 1
+    # # Plot of stiffness computation times vs. stiffness metric
+    # if showstiffcomptime:
+    #     pyl.figure(plotnum)
+    #     pyl.xlabel(method)
+    #     pyl.ylabel(method + ' Computation Time')
+    #     pyl.xlim(min(stiffvals), max(stiffvals))
+    #     pyl.ylim(0., max(stiffcomptimes))
+    #     if method == 'Stiffness_Index':
+    #         pyl.xscale('log')
+    #     pyl.scatter(stiffvals, stiffcomptimes, 0.1)
+    #     pyl.grid(b=True, which='both')
+    #     if savefigures == 1:
+    #         pyl.savefig(output_folder +
+    #                     'PaSR_' +
+    #                     method + '_' +
+    #                     'Times_Vals_' +
+    #                     str(dt) +
+    #                     '_' + targetdate +
+    #                     '.' + figformat)
+    #     plotnum += 1
 
     # Plot of integration times vs. stiffness metric
     fig = pyl.figure(plotnum)
@@ -448,7 +448,7 @@ else:
     pyl.figure(plotnum)
     pyl.xlabel('Time (sec)')
     pyl.ylabel('Integration time (sec)')
-    pyl.ylim(0, max(solutiontimes))
+    pyl.ylim(min(solutiontimes), max(solutiontimes))
     pyl.xlim(plotx)
     if diffcolors:
         pyl.scatter(tlist, solutiontimes, 0.5, c=tlist, cmap='jet', lw=0)
@@ -467,7 +467,7 @@ else:
     pyl.figure(plotnum)
     pyl.xlabel('Time (sec)')
     pyl.ylabel('Function Calls')
-    pyl.ylim(0, max(functionwork))
+    pyl.ylim(min(functionwork), max(functionwork))
     pyl.xlim(plotx)
     if diffcolors:
         pyl.scatter(tlist, functionwork, 0.5, c=tlist, cmap='jet', lw=0)
@@ -513,11 +513,11 @@ else:
     pyl.figure(plotnum)
     pyl.xlabel(method)
     pyl.ylabel('Integration Time (sec)')
-    pyl.xlim(min(stiffvalues), max(stiffvalues))
-    if method == 'CEMA':
-        pyl.ylim(0, 0.00025)
-    else:
-        pyl.ylim(0, max(solutiontimes))
+    # pyl.xlim(min(stiffvalues), max(stiffvalues))
+    # if method == 'CEMA':
+    #     pyl.ylim(0, 0.00025)
+    # else:
+    #     pyl.ylim(0, max(solutiontimes))
     if diffcolors:
         pyl.scatter(stiffvalues, solutiontimes, 0.5, c=tlist, cmap='jet', lw=0)
     else:
@@ -539,7 +539,7 @@ else:
     pyl.figure(plotnum)
     pyl.xlabel(method)
     pyl.ylabel('Function Calls')
-    pyl.xlim(min(stiffvalues), max(stiffvalues))
+    # pyl.xlim(min(stiffvalues), max(stiffvalues))
     # if method == 'CEMA':
     #     pyl.ylim(0, 0.00025)
     # else:

@@ -388,8 +388,8 @@ else:
     # The first set of autoignition data was at particle 92, timestep 4.
     # Second set of coords was p=679, t=646
     # Third set was p = 653, t = 679
-    particlelist = [868]
-    timelist = [891]
+    particlelist = [891]
+    timelist = [868]
     # Can only do this plot for PaSR, so shutting it off here.
     makerainbowplot = False
 
