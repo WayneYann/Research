@@ -334,8 +334,8 @@ tstop = 0.2
 abserr = 1.0e-17
 relerr = 1.0e-15
 # Switching thresholds
-indicatorthreshold = 0
-tempthreshold = 0
+indicatorthreshold = -1e99
+tempthreshold = 10000
 # Keep this at false, something isn't working with using the jacobian yet.
 usejac = False
 # Decide if you want to give pyJac N2 or not.
@@ -534,10 +534,10 @@ if len(solution) != len(tlist):
     print('tlist shape: {}'.format(np.shape(tlist)))
 
 if savedata:
-    solfilename = equation + '_Solution_Implicit_' + str(dt)
-    inttimingfilename = equation + '_Int_Times_Implicit_' + str(dt) + '_' +\
+    solfilename = equation + '_Solution_Explicit_' + str(dt)
+    inttimingfilename = equation + '_Int_Times_Explicit_' + str(dt) + '_' +\
         timer.strftime("%m_%d")
-    workfilename = equation + '_FunctionWork_Implicit_' + str(dt)
+    workfilename = equation + '_FunctionWork_Explicit_' + str(dt)
     if PaSR:
         inttimingfilename = 'PaSR_' + inttimingfilename
         workfilename = 'PaSR_' + workfilename
