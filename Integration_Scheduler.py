@@ -377,8 +377,8 @@ if PaSR:
     tstart = 0.
     tstop = 5 * dt
 else:
-    particlelist = [653]
-    timelist = [679]
+    particlelist = [877]
+    timelist = [865]
     # Second set of coords was p=679, t=646
 
 # Create the list of times to compute
