@@ -321,8 +321,7 @@ method = 'Stiffness_Indicator'
 findtimescale = False
 # Make this true if you want to test all of the values across the PaSR.
 # Otherwise, this will run a single autoignition at a defined particle/time
-PaSR = False
-pasrfilesloaded = 9
+PaSR = True
 # Define the range of the computation.
 dt = 1.e-6
 tstart = 0.
@@ -387,8 +386,8 @@ if method != 'Stiffness_Indicator':
 for particle in particlelist:
     if PaSR:
         # Provide code progress
-        if particle % 1000 == 0:
-            print(particle)
+        # if particle % 1000 == 0:
+        print(particle)
     if equation == 'Autoignition':
         # Set up the initial conditions for autoignition
         Y = pasr[particle, :].copy()
