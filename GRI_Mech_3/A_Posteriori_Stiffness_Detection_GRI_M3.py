@@ -327,8 +327,9 @@ dt = 1.e-6
 tstart = 0.
 tstop = 0.2
 # ODE Solver parameters.
-abserr = 1.0e-17
-relerr = 1.0e-15
+# -17 and -15 used originally
+abserr = 1.0e-12
+relerr = 1.0e-10
 # Keep this at false, something isn't working with using the jacobian yet.
 usejac = False
 # Decide if you want to give pyJac N2 or not.
@@ -374,7 +375,7 @@ if PaSR:
     tstart = 0.
     tstop = 5 * dt
 else:
-    particlelist = [79782]
+    particlelist = [230761]
 
 # Create the list of times to compute
 tlist = np.arange(tstart, tstop + 0.5 * dt, dt)
@@ -460,7 +461,7 @@ for particle in particlelist:
         # print('Last Jacobian value:')
         # for i in lastjac:
         #     print(i)
-        raise Exception('Furthest we want to go for now')
+        # raise Exception('Furthest we want to go for now')
 
     # Convert the solution to an array for ease of use.  Maybe just using
     # numpy function to begin with would be faster?
