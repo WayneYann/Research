@@ -321,9 +321,9 @@ method = 'Stiffness_Indicator'
 findtimescale = False
 # Make this true if you want to test all of the values across the PaSR.
 # Otherwise, this will run a single autoignition at a defined particle/time
-PaSR = True
+PaSR = False
 # Define the range of the computation.
-dt = 1.e-8
+dt = 1.e-4
 tstart = 0.
 tstop = 0.2
 # ODE Solver parameters.

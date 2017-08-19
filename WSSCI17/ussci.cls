@@ -58,10 +58,9 @@
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % These lines should be edited before the new conference
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    10\textsuperscript{th} U.S. National Combustion Meeting\\%
-    Organized by the Eastern States Section of the Combustion Institute\\%
-    April 23--26, 2017\\%
-    College Park, Maryland\par\vspace{\baselineskip}%
+    Western States Section of the Combustion Institute--Fall 2017 Meeting\\%
+    Hosted by the University of Wyoming\\%
+    October 2--3, 2017\par\vspace{\baselineskip}%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % End editing section
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -129,7 +128,7 @@
 \RequirePackage{fancyhdr}
 \fancypagestyle{plain}{%
 \fancyhf{}%
-\fancyhead[L]{Sub Topic: \papertopic}%
+\fancyhead[R]{Topic: \papertopic}%
 \fancyfoot[C]{\thepage}%
 \renewcommand{\headrulewidth}{0pt}%
 \renewcommand{\footrulewidth}{0pt}%

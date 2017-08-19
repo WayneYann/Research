@@ -197,7 +197,7 @@ Although the IA-stiffness index is useful in determining the stiffness of a meth
 Such a quantification is necessary for investigating method switching mechanisms.
 Shampine notes that the scalar quantity
 \begin{equation}\label{eqn:stiffness}
-    \textrm{index} = \rho [f_y(x_n,y(x_n))] \|y^{(p+1)}(x_n)\|^{-1/(p+1)}
+    \textrm{Index} = \rho [f_y(x_n,y(x_n))] \|y^{(p+1)}(x_n)\|^{-1/(p+1)}
 \end{equation}
 provides a fair ``stiffness index'' to a given problem~\cite{Shampine1985}. For the remainder of this document, all references to the stiffness index will refer to the value obtained using equation (\ref{eqn:stiffness}).
 
@@ -225,8 +225,15 @@ To facilitate comparison of the results obtained by Shampine~\cite{Shampine1985}
 
 \subsection{Stiffness Indicator}
 % Stiffness indicator discussion
-
-
+The stiffness indicator of the system of ODEs is given by
+\begin{equation}
+	\textrm{Stiffness Indicator} = \frac{m[f_y(x_n,y(x_n))] + M[f_y(x_n,y(x_n))]}{2}
+\end{equation}
+where
+\begin{equation}
+	m[A] = \textrm{min}\,\lambda[\textrm{He}(A)];\qquad M[A] = \textrm{max}\,\lambda[\textrm{He}(A)],
+\end{equation}
+with $\lambda [A]$ denoting the eigenvalues of matrix $A$, $\textrm{He}(A)$ denoting the Hermitian part of the matrix $A$, which is equal to $(A + A^\intercal ) / 2$.
 
 % The code used to calculate the stiffness index was written in Python and made use of open-source software including the \texttt{odeint} integrator function of SciPy~\cite{SciPy}.
 % This integrator uses the LSODA solver from the FORTRAN library \texttt{odepack} \cite{A.C.Hindmarsh1983}, which incidentally has its own algorithm for automatically switching between a non-stiff and a stiff solver.
