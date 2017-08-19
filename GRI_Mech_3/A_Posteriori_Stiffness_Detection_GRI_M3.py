@@ -323,7 +323,7 @@ findtimescale = False
 # Otherwise, this will run a single autoignition at a defined particle/time
 PaSR = True
 # Define the range of the computation.
-dt = 1.e-6
+dt = 1.e-8
 tstart = 0.
 tstop = 0.2
 # ODE Solver parameters.
@@ -374,7 +374,7 @@ if PaSR:
     tstart = 0.
     tstop = 5 * dt
 else:
-    particlelist = [877]
+    particlelist = [211824]
 
 # Create the list of times to compute
 tlist = np.arange(tstart, tstop + 0.5 * dt, dt)
@@ -386,8 +386,8 @@ if method != 'Stiffness_Indicator':
 for particle in particlelist:
     if PaSR:
         # Provide code progress
-        # if particle % 1000 == 0:
-        print(particle)
+        if particle % 1000 == 0:
+            print(particle)
     if equation == 'Autoignition':
         # Set up the initial conditions for autoignition
         Y = pasr[particle, :].copy()
