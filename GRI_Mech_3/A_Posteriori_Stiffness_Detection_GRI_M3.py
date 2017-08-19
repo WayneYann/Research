@@ -374,7 +374,7 @@ if PaSR:
     tstart = 0.
     tstop = 5 * dt
 else:
-    particlelist = [211824]
+    particlelist = [79782]
 
 # Create the list of times to compute
 tlist = np.arange(tstart, tstop + 0.5 * dt, dt)
@@ -411,7 +411,7 @@ for particle in particlelist:
         intj = None
     solver = ode(RHSfunction,
                  jac=intj
-                 ).set_integrator('vode',
+                 ).set_integrator('lsoda',
                                   # method='bdf',
                                   nsteps=1e6,
                                   atol=abserr,

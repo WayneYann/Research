@@ -29,7 +29,7 @@ mintemp = 999999.
 for i in range(len(ic[:, 0])):
     if ic[i, 1] < mintemp:
         if len([k for k in dudlist if i == k]) == 0:
-            if ic[i, 1] > 850.:
+            if ic[i, 1] > 875.:
                 mintemp = ic[i, 1]
                 coords = (i)
 
