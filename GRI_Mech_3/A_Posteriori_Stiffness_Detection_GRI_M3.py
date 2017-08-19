@@ -323,7 +323,7 @@ findtimescale = False
 # Otherwise, this will run a single autoignition at a defined particle/time
 PaSR = False
 # Define the range of the computation.
-dt = 1.e-8
+dt = 1.e-6
 tstart = 0.
 tstop = 0.2
 # ODE Solver parameters.
@@ -412,10 +412,10 @@ for particle in particlelist:
     solver = ode(RHSfunction,
                  jac=intj
                  ).set_integrator('vode',
-                                  method='bdf',
-                                  # nsteps=99999999,
-                                  # atol=abserr,
-                                  # rtol=relerr,
+                                  # method='bdf',
+                                  nsteps=1e6,
+                                  atol=abserr,
+                                  rtol=relerr,
                                   with_jacobian=usejac,
                                   # first_step=dt,
                                   # min_step=dt,
