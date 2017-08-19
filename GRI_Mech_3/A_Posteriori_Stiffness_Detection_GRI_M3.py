@@ -323,7 +323,7 @@ findtimescale = False
 # Otherwise, this will run a single autoignition at a defined particle/time
 PaSR = False
 # Define the range of the computation.
-dt = 1.e-4
+dt = 1.e-8
 tstart = 0.
 tstop = 0.2
 # ODE Solver parameters.
@@ -456,10 +456,10 @@ for particle in particlelist:
         print('Last solution value:')
         for i in solver.y:
             print(i)
-        lastjac = jacobval(0.2, solver.y, RHSparam)
-        print('Last Jacobian value:')
-        for i in lastjac:
-            print(i)
+        # lastjac = jacobval(0.2, solver.y, RHSparam)
+        # print('Last Jacobian value:')
+        # for i in lastjac:
+        #     print(i)
         raise Exception('Furthest we want to go for now')
 
     # Convert the solution to an array for ease of use.  Maybe just using
