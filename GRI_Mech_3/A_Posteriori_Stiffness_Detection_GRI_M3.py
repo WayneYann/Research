@@ -334,7 +334,7 @@ usejac = False
 # Decide if you want to give pyJac N2 or not.
 useN2 = False
 # Used if you want to check that the PaSR data is being properly conditioned.
-displayconditions = False
+displayconditions = True
 # Display the solution shape for plotting/debugging.
 displaysolshapes = False
 # Make the plot of the stiffness across the entire PaSR data range.
@@ -413,9 +413,9 @@ for particle in particlelist:
                  jac=intj
                  ).set_integrator('vode',
                                   method='bdf',
-                                  nsteps=99999999,
-                                  atol=abserr,
-                                  rtol=relerr,
+                                  # nsteps=99999999,
+                                  # atol=abserr,
+                                  # rtol=relerr,
                                   with_jacobian=usejac,
                                   # first_step=dt,
                                   # min_step=dt,
@@ -428,11 +428,16 @@ for particle in particlelist:
 
     # Integrate the ODE across all steps
     k = 0
+    hundreth = 1
+    simduration = tstop - tstart
     while solver.successful() and solver.t <= tstop:
         # Initialize global variable for counting RHS function calls
         functioncalls = 0
         time0 = timer.time()
         solver.integrate(solver.t + dt)
+        if solver.t > ((0.01 * simduration * hundreth) + tstart):
+            print('{} percent complete...'.format(10 * hundreth))
+            hundreth += 1
         time1 = timer.time()
         solution.append(solver.y)
         if PaSR:
@@ -455,6 +460,7 @@ for particle in particlelist:
         print('Last Jacobian value:')
         for i in lastjac:
             print(i)
+        raise Exception('Furthest we want to go for now')
 
     # Convert the solution to an array for ease of use.  Maybe just using
     # numpy function to begin with would be faster?

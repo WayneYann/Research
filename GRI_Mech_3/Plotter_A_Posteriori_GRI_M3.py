@@ -26,7 +26,7 @@ def loadpasrdata():
 All of the values that need to be adjusted should be in this section.
 """
 # Describe the data files to be loaded
-targetdate = '08_18'
+targetdate = '08_19'
 # targetdate = timer.strftime("%m_%d")
 # Possible options are 'Stiffness_Index', 'Stiffness_Indicator', 'CEMA',
 # 'Stiffness_Ratio'
@@ -41,11 +41,11 @@ findtimescale = False
 normtime = False
 # Make this true if you want to test all of the values across the PaSR.
 # Otherwise, this will run a single autoignition at particle 92, timestep 4.
-PaSR = True
+PaSR = False
 pasrfilesloaded = 9
 diffcolors = False
 # Define the range of the computation.
-dt = 1.e-8
+dt = 1.e-4
 tstart = 0.
 tstop = 0.2
 # Make the plot of the stiffness across the entire PaSR data range.
