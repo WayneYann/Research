@@ -315,7 +315,7 @@ savedata = True
 equation = 'Autoignition'
 # Possible options are 'Stiffness_Index', 'Stiffness_Indicator', 'CEMA',
 # 'Stiffness_Ratio'
-method = 'Stiffness_Indicator'
+method = 'Stiffness_Index'
 # Make this true if you want to obtain the reference timescale of the stiffness
 # indicator.
 findtimescale = False

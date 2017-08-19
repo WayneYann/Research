@@ -45,7 +45,7 @@ PaSR = False
 pasrfilesloaded = 9
 diffcolors = False
 # Define the range of the computation.
-dt = 1.e-4
+dt = 1.e-6
 tstart = 0.
 tstop = 0.2
 # Make the plot of the stiffness across the entire PaSR data range.
