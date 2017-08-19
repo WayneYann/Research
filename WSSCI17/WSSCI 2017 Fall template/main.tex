@@ -1,0 +1,137 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                          template.tex
+%
+% LaTeX template for papers conforming to the United States Sections of
+% the Combustion Institue style guide.
+%
+% Authors:
+%     Bryan W. Weber, University of Connecticut
+%     Kyle E. Niemeyer, Oregon State University
+%
+% This work is licensed under the Creative Commons Attribution 4.0
+% International License. To view a copy of this license, visit
+% http://creativecommons.org/licenses/by/4.0/.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\documentclass[12pt]{ussci}
+
+%======================================================================
+% packages
+\usepackage{textgreek}
+\usepackage{amsmath}
+\usepackage{float}
+\restylefloat{table}
+\usepackage{booktabs} % for much better looking tables
+\usepackage{array} % for better arrays (eg matrices) in maths
+\usepackage{paralist} % very flexible & customisable lists (eg. enumerate/itemize, etc.)
+\usepackage{listings}
+\usepackage{verbatim} % adds environment for commenting out blocks of text & for better verbatim
+\usepackage{subcaption} % make it possible to include more than one captioned figure/table in a single float
+\usepackage{multirow}
+\usepackage{rotating}
+\usepackage{ulem}
+\usepackage{bigstrut}
+\usepackage{bm}
+\usepackage[space]{grffile}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows}
+\usetikzlibrary{calc,patterns,angles,quotes,shapes,positioning}
+\usepackage{xspace}
+\usepackage{enumitem}
+\usepackage[version=4]{mhchem}
+
+%better printing of numbers
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+\usepackage{csquotes}
+\usepackage{textcomp}
+
+\usepackage{siunitx}
+\sisetup{group-separator={,},
+     detect-all,
+     binary-units,
+     list-units = single,
+     range-units = single,
+     tophrase = --,
+     per-mode = symbol-or-fraction,
+     separate-uncertainty = true,
+     list-final-separator = {, and }
+%    scientific-notation = fixed
+}
+\DeclareSIUnit\atm{atm}
+
+\newcommand{\degree}{\ensuremath{{}^{\circ}}\xspace}
+\usepackage{listings}
+\usepackage{blindtext}
+\usepackage{subfiles}
+\usepackage{breakcites}
+%======================================================================
+% Add your bibliography file here, replace template.bib
+\addbibresource{template.bib}
+%======================================================================
+% Replace "Reaction Kinetics" in the line below by your paper topic
+\newcommand\papertopic{Reaction Kinetics}
+%======================================================================
+
+\title{ Simulating interactions of detonation, ionization chemistry, and magnetohydrodynamics }
+
+\author[1]{Matthew F. Zaiger}
+%\author[1]{Author Name}
+\author[1]{David L. Blunck}
+\author[1,*]{Kyle E. Niemeyer}
+
+\affil[1]{Mechanical, Industrial and Manufacturing Engineering, Oregon State University, 104 Rogers Hall, Corvallis OR, United States}
+%\affil[2]{Department, Institution, Address, Country}
+\affil[*]{Corresponding author: \email{kyle.niemeyer@oregonstate.edu}}
+
+
+\begin{document}
+\maketitle
+
+%====================================================================
+\begin{abstract} % not to exceed 200 words
+    \blindtext
+    
+    
+    %the detonations will be coupled with the magnetic field and then verified with literature to determine potential power extraction and emmisions. These results provide insight into the complex parasitic interactions between detonation, ionization, and MHD effects
+    %Each solver is separately verified and validated, and the coupled system is validated with literature results. 2D simulations of hydrogen and methane oxyfuel combustion are performed over a range of parameters to determine potential power extraction and emissions.  Therefore, impact of seed composition and quantity is also assessed. .
+\end{abstract}
+
+%To increase the efficiency of MHD, seed particles are typically necessary to increase a fluid's electrical conductivity through ionization.
+
+% (Provide 2-4 keywords describing your research. Only abbreviations firmly
+% established in the field may be used. These keywords will be used for
+% sessioning/indexing purposes.)
+\begin{keyword}
+    Detonation\sep Magnetohydrodynamics\sep Oxyfuel%\sep %Keyword4
+\end{keyword}
+
+%====================================================================
+\section{Introduction}
+    \blindtext
+
+
+
+\section{Methods/Experimental}
+   \blindtext
+
+\subsection{Modeling}
+    \blindtext
+
+
+\section{Results and Discussion}
+   \blindtext
+
+    
+    
+
+\section{Conclusions and future work}
+    \blindtext
+    
+\section{Acknowledgements}
+   Research was funded by ...
+
+\setlength{\emergencystretch}{3em}
+\printbibliography
+
+\end{document}

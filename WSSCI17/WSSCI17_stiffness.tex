@@ -1,7 +1,4 @@
-\pdfoutput=1
-\pdfminorversion=5
-\pdfsuppresswarningpagegroup=1
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %                          template.tex
 %
 % LaTeX template for papers conforming to the United States Sections of
@@ -14,16 +11,35 @@
 % This work is licensed under the Creative Commons Attribution 4.0
 % International License. To view a copy of this license, visit
 % http://creativecommons.org/licenses/by/4.0/.
-%
-% The source for this template can be found at
-% https://github.com/pr-omethe-us/ussci-latex-template
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 \documentclass[12pt]{ussci}
 
-\usepackage{graphicx}
-\usepackage{caption}
-\usepackage{subcaption}
+%======================================================================
+% packages
+\usepackage{textgreek}
 \usepackage{amsmath,amsfonts,amssymb}
+\usepackage{graphicx}
+\usepackage{float}
+\restylefloat{table}
+\usepackage{booktabs} % for much better looking tables
+\usepackage{array} % for better arrays (eg matrices) in maths
+\usepackage{paralist} % very flexible & customisable lists (eg. enumerate/itemize, etc.)
+\usepackage{listings}
+\usepackage{verbatim} % adds environment for commenting out blocks of text & for better verbatim
+\usepackage{caption}
+\usepackage{subcaption} % make it possible to include more than one captioned figure/table in a single float
+\usepackage{multirow}
+\usepackage{rotating}
+\usepackage{ulem}
+\usepackage{bigstrut}
+\usepackage{bm}
+\usepackage[space]{grffile}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows}
+\usetikzlibrary{calc,patterns,angles,quotes,shapes,positioning}
+\usepackage{xspace}
+\usepackage{enumitem}
 \usepackage[version=4]{mhchem}
 
 %better printing of numbers
@@ -46,12 +62,14 @@
 }
 \DeclareSIUnit\atm{atm}
 
+\newcommand{\degree}{\ensuremath{{}^{\circ}}\xspace}
+\usepackage{listings}
+\usepackage{blindtext}
+\usepackage{subfiles}
+\usepackage{breakcites}
 %======================================================================
-% BibLaTeX and biber (not BibTeX) are used to process the references,
-% so these packages must be installed on your system. All configuration
-% for the bibliography and citations are done in the ussci.cls file
-% Add your bibliography file here, replacing template.bib
-
+% Add your bibliography file here, replace template.bib
+\addbibresource{mendeley.bib}
 %======================================================================
 % Replace "Reaction Kinetics" in the line below by your paper topic
 \newcommand\papertopic{Reaction Kinetics}
@@ -152,7 +170,10 @@ The stiffness detection metrics and method-switching algorithm developed in the 
 
 \subsection{Stiffness Ratio}
 
-A commonly used 
+The stiffness ratio of the system of ODEs is defined as
+\begin{equation}
+	\textrm{Stiffness Ratio} = \frac{\textrm{max}\|\lambda_p\|}{\textrm{min}\|\lambda_p\|}
+\end{equation}	
 
 \subsection{Stiffness Index}
 
@@ -298,9 +319,8 @@ The algorithm would then maximize the use of values already computed to provide 
 \section{Acknowledgements}
 This material is based upon work supported by the National Science Foundation under grant ACI-1535065.
 
-\bibliographystyle{elsarticle-num}
-\bibliography{ConfPaper.bib}
-\bibliography{mendeley.bib}
+\setlength{\emergencystretch}{3em}
+\printbibliography
 
 
 \end{document}
