@@ -365,15 +365,13 @@ elif equation == 'Autoignition':
     RHSfunction = firstderiv
     EQjac = jacobval
     # Load the initial conditions from the PaSR files
-    pasr = loadpasrdata(pasrfilesloaded)
-    numparticles = len(pasr[0, :, 0])
-    numtsteps = len(pasr[:, 0, 0])
+    pasr = loadpasrdata()
+    numparticles = len(pasr[:, 0])
 
 # Loop through the PaSR file for initial conditions
 if PaSR:
     print('Code progress:')
     particlelist = range(numparticles)
-    timelist = range(numtsteps)
     # We don't want long integrations for every point in the PaSR
     tstart = 0.
     tstop = 5 * dt
