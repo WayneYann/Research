@@ -436,7 +436,7 @@ for particle in particlelist:
         time0 = timer.time()
         solver.integrate(solver.t + dt)
         if solver.t > ((0.01 * simduration * hundreth) + tstart):
-            print('{} percent complete...'.format(10 * hundreth))
+            print('{} percent complete...'.format(hundreth))
             hundreth += 1
         time1 = timer.time()
         solution.append(solver.y)
