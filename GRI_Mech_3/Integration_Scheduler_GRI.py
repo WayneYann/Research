@@ -311,7 +311,7 @@ equation = 'Autoignition'
 # 'Stiffness_Ratio'
 method = 'Stiffness_Indicator'
 # Options will be 'Implicit', 'Explicit', and 'Switch'
-intmethod = 'Explicit'
+intmethod = 'Implicit'
 # Make this true if you want to obtain the reference timescale of the stiffness
 # indicator.
 findtimescale = False
@@ -414,7 +414,7 @@ for particle in particlelist:
     solver = ode(RHSfunction,
                  jac=intj
                  ).set_integrator(intmode,
-                                  method='bdf',
+                                  # method='bdf',
                                   nsteps=99999999,
                                   # atol=abserr,
                                   # rtol=relerr,
@@ -471,9 +471,9 @@ for particle in particlelist:
                              jac=intj
                              ).set_integrator(intmode,
                                               # method='bdf',
-                                              nsteps=99999999  # ,
-                                              # atol=abserr,
-                                              # rtol=relerr
+                                              nsteps=99999999,
+                                              atol=abserr,
+                                              rtol=relerr
                                               # with_jacobian=usejac,
                                               # first_step=dt,
                                               # min_step=dt,

@@ -2088,20 +2088,19 @@
     <bcf:citekey order="8">Brugnano2011</bcf:citekey>
     <bcf:citekey order="8">Lambert1973ComputationalEquations</bcf:citekey>
     <bcf:citekey order="8">Hairer1996SolvingII</bcf:citekey>
-    <bcf:citekey order="9">Shampine1982</bcf:citekey>
-    <bcf:citekey order="10">Burke:2011fh</bcf:citekey>
-    <bcf:citekey order="11">Niemeyer:2013</bcf:citekey>
-    <bcf:citekey order="12">Niemeyer:2017</bcf:citekey>
-    <bcf:citekey order="13">Niemeyer:2017</bcf:citekey>
-    <bcf:citekey order="14">Shampine1982</bcf:citekey>
+    <bcf:citekey order="9">Burke:2011fh</bcf:citekey>
+    <bcf:citekey order="10">Niemeyer:2013</bcf:citekey>
+    <bcf:citekey order="11">Niemeyer:2017</bcf:citekey>
+    <bcf:citekey order="12">Shampine1982</bcf:citekey>
+    <bcf:citekey order="13">Shampine1982</bcf:citekey>
+    <bcf:citekey order="14">Shampine1985</bcf:citekey>
     <bcf:citekey order="15">Shampine1985</bcf:citekey>
-    <bcf:citekey order="16">Shampine1985</bcf:citekey>
+    <bcf:citekey order="16">Niemeyer:2017</bcf:citekey>
     <bcf:citekey order="17">Niemeyer:2017</bcf:citekey>
-    <bcf:citekey order="18">Niemeyer:2017</bcf:citekey>
-    <bcf:citekey order="19">pyJac:1.0.2</bcf:citekey>
-    <bcf:citekey order="20">Niemeyer:2017</bcf:citekey>
-    <bcf:citekey order="21">Goodwin:2015aa</bcf:citekey>
-    <bcf:citekey order="22">Shampine1985</bcf:citekey>
+    <bcf:citekey order="18">pyJac:1.0.2</bcf:citekey>
+    <bcf:citekey order="19">Niemeyer:2017</bcf:citekey>
+    <bcf:citekey order="20">Goodwin:2015aa</bcf:citekey>
+    <bcf:citekey order="21">Shampine1985</bcf:citekey>
   </bcf:section>
   <bcf:sortlist section="0" name="none/global/" type="entry" sortscheme="none" sortnamekeyscheme="global" labelprefix="">
   <bcf:sorting>
