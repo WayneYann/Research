@@ -311,7 +311,7 @@ equation = 'Autoignition'
 # 'Stiffness_Ratio'
 method = 'Stiffness_Indicator'
 # Options will be 'Implicit', 'Explicit', and 'Switch'
-intmethod = 'Implicit'
+intmethod = 'Explicit'
 # Make this true if you want to obtain the reference timescale of the stiffness
 # indicator.
 findtimescale = False

@@ -145,11 +145,6 @@ Nonetheless, a variety of stiffness quantification methods have been developed w
 We look to these methods of stiffness quantification to determine their usefulness with respect to the equations governing combustion, and to determine if a reliable and efficient means of switching methods can be developed from it.
 In doing so, we hope to reduce the computational expense of combustion simulations.
 
-One method of interest regarding stiffness quantification was the ``IA-Stiffness Index'' proposed by Shampine~\cite{Shampine1982}.
-This method enables comparison of values of the stiffness index between different equations and different methods.
-Additionally, the method takes into account the impact of the order of the method selected when evaluating the stiffness.
-The method is relatively straightforward to implement, requiring computation of a vector of the derivatives of the system of equations, as well as either a weighted norm or the spectral radius of the Jacobian matrix.
-
 \section{Methods}
 % NEEDS UPDATE
 We started using the relatively small hydrogen\slash carbon monoxide (\ce{H2}\slash \ce{CO}) model of Burke et al.~\cite{Burke:2011fh} for our initial investigation into stiffness quantification.
@@ -164,9 +159,8 @@ Our analysis was conducted using information gathered from partially stirred rea
 As described by Niemeyer et al.~\cite{Niemeyer:2017}, the PaSR model consists of a number of particles, each with a time-varying composition.
 At discrete time steps, events including inflow, outflow, and pairing cause particles to change composition; between these time steps, mixing and reaction fractional steps evolve the composition of all particles.
 By using data from a single particle at a single time step of the PaSR model, the evaluation could be simplified to a zero-dimensional analysis.
-%Update this sentence
-The stiffness detection metrics and method-switching algorithm developed in the zero-dimensional analysis may be applied to more complicated models in future work.
-(Please refer to Niemeyer et al.~\cite{Niemeyer:2017} for a detailed description of the relevant equations and solution technique.)
+% Not sure why this one is here.
+% (Please refer to Niemeyer et al.~\cite{Niemeyer:2017} for a detailed description of the relevant equations and solution technique.)
 
 \subsection{Stiffness Ratio}
 
@@ -176,6 +170,11 @@ The stiffness ratio of the system of ODEs is defined as
 \end{equation}	
 
 \subsection{Stiffness Index}
+
+One method of interest regarding stiffness quantification was the "IA-Stiffness Index'' proposed by Shampine~\cite{Shampine1982}.
+This method enables comparison of values of the stiffness index between different equations and different methods.
+Additionally, the method takes into account the impact of the order of the method selected when evaluating the stiffness.
+The method is relatively straightforward to implement, requiring computation of a vector of the derivatives of the system of equations, as well as either a weighted norm or the spectral radius of the Jacobian matrix.
 
 The IA-stiffness index of a method of order \textit{p} introduced by Shampine~\cite{Shampine1982} is
 \begin{equation}
@@ -249,10 +248,10 @@ with $\lambda [A]$ denoting the eigenvalues of matrix $A$, $\textrm{He}(A)$ deno
 
 
 \section{Results and Discussion}
-%
+% NEED TO UPDATE
 The initial condition of the evaluation was taken from a particle and time in the PaSR simulation, where weak reactions were taking place but ignition had not yet occurred.
-A 0.5 second simulation was run by integrating the derivative vector function.
-Data obtained from the integration demonstrates that autoignition was achieved with a residence time of approximately 0.11 seconds.
+% A 0.5 second simulation was run by integrating the derivative vector function.
+% Data obtained from the integration demonstrates that autoignition was achieved with a residence time of approximately 0.11 seconds.
 The initial temperature of the simulation was approximately \SI{865}{\kelvin}, which rapidly increases to \SI{2440}{\kelvin} within \SI{0.001}{\second} (i.e., autoignition).
 After ignition, the temperature remains nearly constant for the remainder of the simulation. The mass fractions of all of the species considered in the model exhibited similar trends; each rapidly changing then becoming nearly constant immediately after ignition.
 The data obtained from the integration was then used to compute the stiffness index for every time step of the integration.

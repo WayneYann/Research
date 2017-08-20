@@ -35,3 +35,8 @@ for i in range(len(ic[:, 0])):
 
 print('min temp: {}'.format(mintemp))
 print('coords: {}'.format(coords))
+
+j = 0
+for i in ic[coords, :]:
+    print(j, i)
+    j += 1
