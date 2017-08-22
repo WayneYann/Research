@@ -405,6 +405,12 @@ for particle in particlelist:
         print('Integrating...')
     solution = []
 
+    initjac = jacobval(0, initcond, RHSparam)
+    print(np.shape(initjac))
+    for i in initjac:
+        print(i)
+    raise Exception
+
     # Specify the integrator
     if usejac:
         intj = EQjac

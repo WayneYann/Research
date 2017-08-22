@@ -26,8 +26,10 @@ def loadpasrdata():
 All of the values that need to be adjusted should be in this section.
 """
 # Describe the data files to be loaded
+# Explicit run date
 targetdate = '08_20'
-targetdate2 = '08_20'
+# Implicit run date
+targetdate2 = '08_21'
 # targetdate = timer.strftime("%m_%d")
 # Possible options are 'Stiffness_Index', 'Stiffness_Indicator', 'CEMA',
 # 'Stiffness_Ratio'

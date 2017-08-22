@@ -265,7 +265,6 @@
       \field{sortinithash}{990108227b3316c02842d895999a0165}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
-      \field{abstract}{Many problems have been proposed for the testing and evaluation of mathematical software for the solution of the initial value problem for a system of ordinary differential equations. The stiffness of a given problem is of great significance for testing, but the concept is at best somewhat vague and the few quantitative measures of stiffness being used are of limited value. A relatively precise and quantitative way is proposed to answer the questions: How does the stiffness vary in the course of the integration of a given problem? Is a given problem A stiffer than a given problem B, and if so, by how much? ?? 1985.}
       \field{issn}{01689274}
       \field{journaltitle}{Applied Numerical Mathematics}
       \field{number}{2}
@@ -305,7 +304,6 @@
       \field{sortinithash}{990108227b3316c02842d895999a0165}
       \field{labelnamesource}{author}
       \field{labeltitlesource}{title}
-      \field{abstract}{The notion of stiffness, which originated in several applications of a different nature, has dominated the activities related to the numerical treatment of differential problems for the last fifty years. Contrary to what usually happens in Mathematics, its definition has been, for a long time, not formally precise (actually, there are too many of them). Again, the needs of applications, especially those arising in the construction of robust and general purpose codes, require nowadays a formally precise definition. In this paper, we review the evolution of such a notion and we also provide a precise definition which encompasses all the previous ones. {©} 2011 Springer Science+Business Media B.V.}
       \field{eprinttype}{arXiv}
       \field{isbn}{978-90-481-9980-8}
       \field{journaltitle}{Recent Advances in Computational and Applied Mathematics}
@@ -387,36 +385,6 @@
       \verb http://link.springer.com/10.1007/978-3-642-05221-7
       \endverb
     \endentry
-    \entry{Shampine1982}{article}{}
-      \name{author}{1}{}{%
-        {{hash=e8af4065bf43485adddf32814b37966a}{%
-           family={Shampine},
-           family_i={S\bibinitperiod},
-           given={L\bibnamedelima F},
-           given_i={L\bibinitperiod\bibinitdelim F\bibinitperiod}}}%
-      }
-      \strng{namehash}{e8af4065bf43485adddf32814b37966a}
-      \strng{fullhash}{e8af4065bf43485adddf32814b37966a}
-      \field{sortinit}{0}
-      \field{sortinithash}{990108227b3316c02842d895999a0165}
-      \field{labelnamesource}{author}
-      \field{labeltitlesource}{title}
-      \field{issn}{00255718}
-      \field{journaltitle}{Mathematics of Computation}
-      \field{number}{159}
-      \field{title}{{Type-insensitive ODE codes based on implicit A-stable formulas}}
-      \field{volume}{39}
-      \field{year}{1982}
-      \field{pages}{109\bibrangedash 123}
-      \range{pages}{15}
-      \verb{doi}
-      \verb 10.1090/S0025-5718-1982-0658216-2
-      \endverb
-      \verb{file}
-      \verb :Users/andrewalferman/Desktop/Offline Research/S0025-5718-1982-0658216-2.pdf:pdf
-      \endverb
-      \keyw{-slable,a,and phrases,by the u,department of energy,ode codes,s,sandia national laboratories supported,stiffness,this work performed at}
-    \endentry
     \entry{Burke:2011fh}{article}{}
       \name{author}{5}{}{%
         {{hash=59034e24b94ab964d6e0995cbf5ccf3f}{%
@@ -462,6 +430,79 @@
       \verb 10.1002/kin.20603
       \endverb
     \endentry
+    \entry{grimech3}{misc}{}
+      \name{author}{12}{}{%
+        {{hash=629c902bf6a72aaa43f412dbc1044e48}{%
+           family={Smith},
+           family_i={S\bibinitperiod},
+           given={Gregory\bibnamedelima P.},
+           given_i={G\bibinitperiod\bibinitdelim P\bibinitperiod}}}%
+        {{hash=a34f6c098188fbb5f57fd0082532952b}{%
+           family={Golden},
+           family_i={G\bibinitperiod},
+           given={David\bibnamedelima M.},
+           given_i={D\bibinitperiod\bibinitdelim M\bibinitperiod}}}%
+        {{hash=7e302a1c41e136f097ef185fe8a75c85}{%
+           family={Frenklach},
+           family_i={F\bibinitperiod},
+           given={Michael},
+           given_i={M\bibinitperiod}}}%
+        {{hash=6367455b53c2f256325a2d0c5b6b04e6}{%
+           family={Moriarty},
+           family_i={M\bibinitperiod},
+           given={Nigel\bibnamedelima W.},
+           given_i={N\bibinitperiod\bibinitdelim W\bibinitperiod}}}%
+        {{hash=4fc26bf5a599c8e50f35558ab0851616}{%
+           family={Eiteneer},
+           family_i={E\bibinitperiod},
+           given={Boris},
+           given_i={B\bibinitperiod}}}%
+        {{hash=7bcb43d15f8c3dfd2202d4f94257c602}{%
+           family={Goldenberg},
+           family_i={G\bibinitperiod},
+           given={Mikhail},
+           given_i={M\bibinitperiod}}}%
+        {{hash=129fb665509670dea1ec0e63273dcb6f}{%
+           family={Bowman},
+           family_i={B\bibinitperiod},
+           given={C.\bibnamedelimi Thomas},
+           given_i={C\bibinitperiod\bibinitdelim T\bibinitperiod}}}%
+        {{hash=56f872d0b5950fe8c57228aaf640cb47}{%
+           family={Hanson},
+           family_i={H\bibinitperiod},
+           given={Ronald\bibnamedelima K.},
+           given_i={R\bibinitperiod\bibinitdelim K\bibinitperiod}}}%
+        {{hash=60ad5f308b3b3c29bde5293782b9fcc7}{%
+           family={Song},
+           family_i={S\bibinitperiod},
+           given={Soonho},
+           given_i={S\bibinitperiod}}}%
+        {{hash=64d8d2665c5317c7a68d8d4f35af73dc}{%
+           family={Gardiner},
+           family_i={G\bibinitperiod},
+           given={William\bibnamedelima C.},
+           given_i={W\bibinitperiod\bibinitdelim C\bibinitperiod}}}%
+        {{hash=ae05ee31a500318dfacb5bfa1ee48287}{%
+           family={Lissianski},
+           family_i={L\bibinitperiod},
+           given={Vitali\bibnamedelima V.},
+           given_i={V\bibinitperiod\bibinitdelim V\bibinitperiod}}}%
+        {{hash=bcd2c1ac441edab2c6362a2a546b44eb}{%
+           family={Qin},
+           family_i={Q\bibinitperiod},
+           given={Zhiwei},
+           given_i={Z\bibinitperiod}}}%
+      }
+      \strng{namehash}{22dadf9b42e0c8a8a1df7ff9d123e3c3}
+      \strng{fullhash}{e56588e2f745104a896b8f12f62082b7}
+      \field{sortinit}{0}
+      \field{sortinithash}{990108227b3316c02842d895999a0165}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{howpublished}{\url{http://www.me.berkeley.edu/gri_mech/}}
+      \field{title}{{GRI}-{Mech} 3.0}
+      \field{year}{1999}
+    \endentry
     \entry{Niemeyer:2013}{thesis}{}
       \name{author}{1}{}{%
         {{hash=09cdd97baf3eaaa0b804d897ff21be5a}{%
@@ -486,6 +527,179 @@
       \field{title}{Reducing the Cost of Chemistry in Reactive-Flow Simulations: Novel Mechanism Reduction Strategies and Acceleration via Graphics Processing Units}
       \field{type}{phdthesis}
       \field{year}{2013}
+    \endentry
+    \entry{SciPy}{misc}{}
+      \true{moreauthor}
+      \true{morelabelname}
+      \name{author}{3}{}{%
+        {{hash=4b3d26f886661aa723985bcfd835ba18}{%
+           family={Jones},
+           family_i={J\bibinitperiod},
+           given={Eric},
+           given_i={E\bibinitperiod}}}%
+        {{hash=84194a0ad9431322c2f58a085b3991f0}{%
+           family={Oliphant},
+           family_i={O\bibinitperiod},
+           given={Travis},
+           given_i={T\bibinitperiod}}}%
+        {{hash=3d6efaaa3d9682e20787eb06ff70a3d7}{%
+           family={Peterson},
+           family_i={P\bibinitperiod},
+           given={Pearu},
+           given_i={P\bibinitperiod}}}%
+      }
+      \strng{namehash}{6161d5ffac903d9c99af53f45c09a00f}
+      \strng{fullhash}{0fc4e01109f422119afc29f3251df541}
+      \field{sortinit}{0}
+      \field{sortinithash}{990108227b3316c02842d895999a0165}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{note}{[Online; accessed 2017-02-28]}
+      \field{title}{{SciPy}: Open source scientific tools for {Python}}
+      \field{year}{2001--}
+      \verb{url}
+      \verb http://www.scipy.org/
+      \endverb
+    \endentry
+    \entry{Brown1989}{article}{}
+      \name{author}{3}{}{%
+        {{hash=266411872693fa81ce1cde4d77e340ca}{%
+           family={Brown},
+           family_i={B\bibinitperiod},
+           given={Peter\bibnamedelima N},
+           given_i={P\bibinitperiod\bibinitdelim N\bibinitperiod}}}%
+        {{hash=c4eaa2ed402923ab5ebcb235179673c1}{%
+           family={Byrne},
+           family_i={B\bibinitperiod},
+           given={George\bibnamedelima D},
+           given_i={G\bibinitperiod\bibinitdelim D\bibinitperiod}}}%
+        {{hash=2a98f78a648b47f48a5f1fad8c933e1a}{%
+           family={Hindmarsh},
+           family_i={H\bibinitperiod},
+           given={Alan\bibnamedelima C},
+           given_i={A\bibinitperiod\bibinitdelim C\bibinitperiod}}}%
+      }
+      \strng{namehash}{7123479867e6bbeb914d1a0e3abea833}
+      \strng{fullhash}{36e859e6bd9774a65c8a7a3627df8035}
+      \field{sortinit}{0}
+      \field{sortinithash}{990108227b3316c02842d895999a0165}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{issn}{0196-5204}
+      \field{journaltitle}{SIAM Journal on Scientific and Statistical Computing}
+      \field{number}{5}
+      \field{title}{{VODE: A Variable-Coefficient ODE Solver}}
+      \field{volume}{10}
+      \field{year}{1989}
+      \field{pages}{1038\bibrangedash 1051}
+      \range{pages}{14}
+      \verb{doi}
+      \verb 10.1137/0910062
+      \endverb
+      \verb{url}
+      \verb https://computation.llnl.gov/casc/nsde/pubs/207532.pdf%7B%5C%%7D5Cnpapers3://publication/uuid/533ECC1B-4FA9-476E-A7AB-6872D9B5B136%7B%5C%%7D5Cnhttp://epubs.siam.org/doi/10.1137/0910062
+      \endverb
+    \endentry
+    \entry{E.HairerSPNorsett1990}{article}{}
+      \name{author}{2}{}{%
+        {{hash=0366405e42ae28d05377fc86dab0c7c9}{%
+           family={{E. Hairer SP Norsett}},
+           family_i={E\bibinitperiod}}}%
+        {{hash=3e09cc0a538f0a4c1d061b9c36e20ac9}{%
+           family={Wanner},
+           family_i={W\bibinitperiod},
+           given={G},
+           given_i={G\bibinitperiod}}}%
+      }
+      \strng{namehash}{b4a4c43406c904a088b4b4a51156a445}
+      \strng{fullhash}{b4a4c43406c904a088b4b4a51156a445}
+      \field{sortinit}{0}
+      \field{sortinithash}{990108227b3316c02842d895999a0165}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{eprinttype}{arXiv}
+      \field{isbn}{354078862X}
+      \field{issn}{03784754}
+      \field{journaltitle}{SIAM Review}
+      \field{number}{3}
+      \field{title}{{Solving ordinary differential equations I: Nonstiff problems}}
+      \field{volume}{32}
+      \field{year}{1990}
+      \field{pages}{485\bibrangedash 486}
+      \range{pages}{2}
+      \verb{doi}
+      \verb 10.1016/0378-4754(87)90083-8
+      \endverb
+      \verb{eprint}
+      \verb arXiv:1011.1669v3
+      \endverb
+    \endentry
+    \entry{VanDerWalt2011}{article}{}
+      \name{author}{3}{}{%
+        {{hash=c08ec96a7d6897591404c40f5a4d135f}{%
+           family={{Van Der Walt}},
+           family_i={V\bibinitperiod},
+           given={Stéfan},
+           given_i={S\bibinitperiod}}}%
+        {{hash=e4a47779c44b3cd7474c52c4875d4d39}{%
+           family={Colbert},
+           family_i={C\bibinitperiod},
+           given={S.\bibnamedelimi Chris},
+           given_i={S\bibinitperiod\bibinitdelim C\bibinitperiod}}}%
+        {{hash=cfa3239dded54488f9a82a5718d5b927}{%
+           family={Varoquaux},
+           family_i={V\bibinitperiod},
+           given={Gaël},
+           given_i={G\bibinitperiod}}}%
+      }
+      \strng{namehash}{01eeaf70407caa277f34bebb43c62be4}
+      \strng{fullhash}{acbdec4efbed78265c9e16c289e3700e}
+      \field{sortinit}{0}
+      \field{sortinithash}{990108227b3316c02842d895999a0165}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{eprinttype}{arXiv}
+      \field{issn}{15219615}
+      \field{journaltitle}{Computing in Science and Engineering}
+      \field{number}{2}
+      \field{title}{{The NumPy array: A structure for efficient numerical computation}}
+      \field{volume}{13}
+      \field{year}{2011}
+      \field{pages}{22\bibrangedash 30}
+      \range{pages}{9}
+      \verb{doi}
+      \verb 10.1109/MCSE.2011.37
+      \endverb
+      \verb{eprint}
+      \verb 1102.1523
+      \endverb
+      \keyw{NumPy,Python,numerical computations,programming libraries,scientific programming}
+    \endentry
+    \entry{pyJac:1.0.2}{misc}{}
+      \name{author}{2}{}{%
+        {{hash=2738da7f2f327e01d281cd9100a08ea1}{%
+           family={Niemeyer},
+           family_i={N\bibinitperiod},
+           given={K.\bibnamedelimi E.},
+           given_i={K\bibinitperiod\bibinitdelim E\bibinitperiod}}}%
+        {{hash=2ac02b979b8bbe6b2e273a12d12668d8}{%
+           family={Curtis},
+           family_i={C\bibinitperiod},
+           given={N.\bibnamedelimi J.},
+           given_i={N\bibinitperiod\bibinitdelim J\bibinitperiod}}}%
+      }
+      \strng{namehash}{acc6f0b3c87f5be4b131e1ad0b01dcdd}
+      \strng{fullhash}{acc6f0b3c87f5be4b131e1ad0b01dcdd}
+      \field{sortinit}{0}
+      \field{sortinithash}{990108227b3316c02842d895999a0165}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{month}{01}
+      \field{title}{pyJac v1.0.2}
+      \field{year}{2017}
+      \verb{doi}
+      \verb 10.5281/zenodo.251144
+      \endverb
     \endentry
     \entry{Niemeyer:2017}{article}{}
       \name{author}{3}{}{%
@@ -519,32 +733,6 @@
       \verb 10.1016/j.cpc.2017.02.004
       \endverb
     \endentry
-    \entry{pyJac:1.0.2}{misc}{}
-      \name{author}{2}{}{%
-        {{hash=2738da7f2f327e01d281cd9100a08ea1}{%
-           family={Niemeyer},
-           family_i={N\bibinitperiod},
-           given={K.\bibnamedelimi E.},
-           given_i={K\bibinitperiod\bibinitdelim E\bibinitperiod}}}%
-        {{hash=2ac02b979b8bbe6b2e273a12d12668d8}{%
-           family={Curtis},
-           family_i={C\bibinitperiod},
-           given={N.\bibnamedelimi J.},
-           given_i={N\bibinitperiod\bibinitdelim J\bibinitperiod}}}%
-      }
-      \strng{namehash}{acc6f0b3c87f5be4b131e1ad0b01dcdd}
-      \strng{fullhash}{acc6f0b3c87f5be4b131e1ad0b01dcdd}
-      \field{sortinit}{0}
-      \field{sortinithash}{990108227b3316c02842d895999a0165}
-      \field{labelnamesource}{author}
-      \field{labeltitlesource}{title}
-      \field{month}{01}
-      \field{title}{pyJac v1.0.2}
-      \field{year}{2017}
-      \verb{doi}
-      \verb 10.5281/zenodo.251144
-      \endverb
-    \endentry
     \entry{Goodwin:2015aa}{misc}{}
       \name{author}{3}{}{%
         {{hash=a95e196d982ca2a950a82c46a6bef2f9}{%
@@ -576,6 +764,106 @@
       \verb{doi}
       \verb 10.5281/zenodo.170284
       \endverb
+    \endentry
+    \entry{LeVeque2007}{book}{}
+      \name{author}{1}{}{%
+        {{hash=ed79b9ba6b88e410e2a203995cab3c96}{%
+           family={LeVeque},
+           family_i={L\bibinitperiod},
+           given={R\bibnamedelima J},
+           given_i={R\bibinitperiod\bibinitdelim J\bibinitperiod}}}%
+      }
+      \strng{namehash}{ed79b9ba6b88e410e2a203995cab3c96}
+      \strng{fullhash}{ed79b9ba6b88e410e2a203995cab3c96}
+      \field{sortinit}{0}
+      \field{sortinithash}{990108227b3316c02842d895999a0165}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{abstract}{Introductory textbook from which students can approach more advance topics relating to finite difference methods.}
+      \field{booktitle}{Book}
+      \field{isbn}{9780898716290}
+      \field{title}{{Finite Difference Methods for Ordinary and Partial Differential Equations}}
+      \field{year}{2007}
+      \field{pages}{1\bibrangedash 356}
+      \range{pages}{356}
+      \verb{doi}
+      \verb 10.1137/1.9780898717839
+      \endverb
+      \verb{url}
+      \verb papers3://publication/uuid/4FDA9492-F24D-4FE3-B5BD-312941196250
+      \endverb
+    \endentry
+    \entry{Shampine1982}{article}{}
+      \name{author}{1}{}{%
+        {{hash=e8af4065bf43485adddf32814b37966a}{%
+           family={Shampine},
+           family_i={S\bibinitperiod},
+           given={L\bibnamedelima F},
+           given_i={L\bibinitperiod\bibinitdelim F\bibinitperiod}}}%
+      }
+      \strng{namehash}{e8af4065bf43485adddf32814b37966a}
+      \strng{fullhash}{e8af4065bf43485adddf32814b37966a}
+      \field{sortinit}{0}
+      \field{sortinithash}{990108227b3316c02842d895999a0165}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{issn}{00255718}
+      \field{journaltitle}{Mathematics of Computation}
+      \field{number}{159}
+      \field{title}{{Type-insensitive ODE codes based on implicit A-stable formulas}}
+      \field{volume}{39}
+      \field{year}{1982}
+      \field{pages}{109\bibrangedash 123}
+      \range{pages}{15}
+      \verb{doi}
+      \verb 10.1090/S0025-5718-1982-0658216-2
+      \endverb
+      \verb{file}
+      \verb :Users/andrewalferman/Desktop/Offline Research/S0025-5718-1982-0658216-2.pdf:pdf
+      \endverb
+      \keyw{-slable,a,and phrases,by the u,department of energy,ode codes,s,sandia national laboratories supported,stiffness,this work performed at}
+    \endentry
+    \entry{Yoo2009}{article}{}
+      \name{author}{3}{}{%
+        {{hash=eca9866779dd4b17f7528fab5a7f1184}{%
+           family={Yoo},
+           family_i={Y\bibinitperiod},
+           given={C.\bibnamedelimi S.},
+           given_i={C\bibinitperiod\bibinitdelim S\bibinitperiod}}}%
+        {{hash=4e65c2bfd4a69743a045f60fe4fbc169}{%
+           family={Sankaran},
+           family_i={S\bibinitperiod},
+           given={R.},
+           given_i={R\bibinitperiod}}}%
+        {{hash=3a82529617aeba25b959ea1723e6d5d9}{%
+           family={Chen},
+           family_i={C\bibinitperiod},
+           given={J.\bibnamedelimi H.},
+           given_i={J\bibinitperiod\bibinitdelim H\bibinitperiod}}}%
+      }
+      \strng{namehash}{45e8567a1b05c6515d47e4d7d7b3a1bb}
+      \strng{fullhash}{104c556ccaca7ba2c2c8a57bbd210d86}
+      \field{sortinit}{0}
+      \field{sortinithash}{990108227b3316c02842d895999a0165}
+      \field{labelnamesource}{author}
+      \field{labeltitlesource}{title}
+      \field{isbn}{00221120}
+      \field{journaltitle}{Journal of Fluid Mechanics}
+      \field{title}{{Three-dimensional direct numerical simulation of a turbulent lifted hydrogen jet flame in heated coflow: flame stabilization and structure}}
+      \field{volume}{640}
+      \field{year}{2009}
+      \field{pages}{453\bibrangedash 481}
+      \range{pages}{29}
+      \verb{doi}
+      \verb 10.1017/S0022112009991388
+      \endverb
+      \verb{file}
+      \verb :Users/andrewalferman/Desktop/threedimensional{\_}direct{\_}numerical{\_}simulation{\_}of{\_}a{\_}turbulent{\_}lifted{\_}hydrogen{\_}jet{\_}flame{\_}in{\_}heated{\_}coflow{\_}a{\_}chemical{\_}explosive{\_}mode{\_}analysis.pdf:pdf
+      \endverb
+      \verb{url}
+      \verb http://journals.cambridge.org/abstract%7B%5C_%7DS0022112009991388
+      \endverb
+      \keyw{combustion,flames,reacting flows,reacting flows/combustion,turbulent reacting flows}
     \endentry
   \endsortlist
 \endrefsection

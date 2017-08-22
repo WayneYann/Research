@@ -1,17 +1,17 @@
 [0] Config.pm:343> INFO - This is Biber 2.5
 [0] Config.pm:346> INFO - Logfile is 'WSSCI17_stiffness.blg'
-[47] biber-darwin:290> INFO - === Fri Aug 18, 2017, 15:37:25
-[65] Biber.pm:351> INFO - Reading 'WSSCI17_stiffness.bcf'
-[163] Biber.pm:776> INFO - Found 18 citekeys in bib section 0
-[175] Biber.pm:3493> INFO - Processing section 0
-[195] Biber.pm:3657> INFO - Looking for bibtex format file 'mendeley.bib' for section 0
-[212] bibtex.pm:1187> INFO - Decoding LaTeX character macros into UTF-8
-[230] bibtex.pm:1048> INFO - Found BibTeX data source 'mendeley.bib'
-[250] Utils.pm:149> WARN - Duplicate entry key: 'Epstein2012' in file 'mendeley.bib', skipping ...
-[313] UCollate.pm:66> INFO - Overriding locale 'en-US' defaults 'variable = shifted' with 'variable = non-ignorable'
-[313] UCollate.pm:66> INFO - Overriding locale 'en-US' defaults 'normalization = NFD' with 'normalization = prenormalized'
-[313] Biber.pm:3306> INFO - Sorting list 'none/global/' of type 'entry' with scheme 'none' and locale 'en-US'
-[313] Biber.pm:3310> INFO - No sort tailoring available for locale 'en-US'
-[323] bbl.pm:526> INFO - Writing 'WSSCI17_stiffness.bbl' with encoding 'UTF-8'
-[325] bbl.pm:619> INFO - Output to WSSCI17_stiffness.bbl
-[326] Biber.pm:108> INFO - WARNINGS: 1
+[51] biber-darwin:290> INFO - === Tue Aug 22, 2017, 13:16:58
+[73] Biber.pm:351> INFO - Reading 'WSSCI17_stiffness.bcf'
+[171] Biber.pm:776> INFO - Found 25 citekeys in bib section 0
+[185] Biber.pm:3493> INFO - Processing section 0
+[203] Biber.pm:3657> INFO - Looking for bibtex format file 'mendeley.bib' for section 0
+[221] bibtex.pm:1187> INFO - Decoding LaTeX character macros into UTF-8
+[239] bibtex.pm:1048> INFO - Found BibTeX data source 'mendeley.bib'
+[319] Utils.pm:149> WARN - ISBN '00221120' in entry 'Yoo2009' is invalid - run biber with '--validate_datamodel' for details.
+[343] UCollate.pm:66> INFO - Overriding locale 'en-US' defaults 'normalization = NFD' with 'normalization = prenormalized'
+[343] UCollate.pm:66> INFO - Overriding locale 'en-US' defaults 'variable = shifted' with 'variable = non-ignorable'
+[344] Biber.pm:3306> INFO - Sorting list 'none/global/' of type 'entry' with scheme 'none' and locale 'en-US'
+[344] Biber.pm:3310> INFO - No sort tailoring available for locale 'en-US'
+[359] bbl.pm:526> INFO - Writing 'WSSCI17_stiffness.bbl' with encoding 'UTF-8'
+[365] bbl.pm:619> INFO - Output to WSSCI17_stiffness.bbl
+[366] Biber.pm:108> INFO - WARNINGS: 1
