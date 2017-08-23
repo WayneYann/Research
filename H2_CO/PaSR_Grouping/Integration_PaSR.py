@@ -464,7 +464,7 @@ for particle in particlelist:
 
         # Integrate the ODE across all steps
         k = 0
-        while solver.successful() and solver.t <= tstop:
+        while solver.t <= tstop:
             # Initialize global variable for counting RHS function calls
             functioncalls = 0
             # time0 = timer.time()
