@@ -255,6 +255,10 @@ def stiffnessratio(xlist, solution, jfun, *args):
 
     values = []
     for i in range(len(solution)):
+        print(i)
+        print(xlist[i])
+        print(solution[i])
+        print(funcparams[0])
         jacobian = jfun(xlist[i], solution[i], funcparams[0])
         eigvals = np.array([abs(j) for j in np.linalg.eigvals(jacobian)
                             if j != 0])
@@ -324,7 +328,7 @@ equation = 'Autoignition'
 intmode = 'vode'
 # Make this true if you want to test all of the values across the PaSR.
 # Otherwise, this will run a single autoignition at particle 92, timestep 4.
-PaSR = False
+PaSR = True
 pasrfilesloaded = 9
 # Define the range of the computation.
 dt = 1.e-6
