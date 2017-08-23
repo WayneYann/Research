@@ -244,9 +244,8 @@ def CEMA(xlist, solution, jfun, *args):
             jacobian = jfun(xlist[i], solution[i], funcparams[0])
             values.append(max(np.linalg.eigvals(jacobian)))
     except TypeError:
-        for i in range(len(solution)):
-            jacobian = jfun(xlist, solution, funcparams[0])
-            values.append(max(np.linalg.eigvals(jacobian)))
+        jacobian = jfun(xlist, solution, funcparams[0])
+        values.append(max(np.linalg.eigvals(jacobian)))
     return values
 
 
@@ -269,29 +268,21 @@ def stiffnessratio(xlist, solution, jfun, *args):
                                 if j != 0])
             values.append(max(eigvals)/min(eigvals))
     except TypeError:
-        for i in range(len(solution)):
-            jacobian = jfun(xlist, solution, funcparams[0])
-            eigvals = np.array([abs(j) for j in np.linalg.eigvals(jacobian)
-                                if j != 0])
-            values.append(max(eigvals)/min(eigvals))
+        jacobian = jfun(xlist, solution, funcparams[0])
+        eigvals = np.array([abs(j) for j in np.linalg.eigvals(jacobian)
+                            if j != 0])
+        values = (max(eigvals)/min(eigvals))
     return values
 
 
-def loadpasrdata(num):
-    """Load the initial conditions from the PaSR files."""
-    pasrarrays = []
+def loadpasrdata():
+    """Load the initial conditions from the full PaSR file."""
     print('Loading data...')
-    for i in range(num):
-        filepath = os.path.join(os.getcwd(),
-                                'pasr_out_h2-co_' +
-                                str(i) +
-                                '.npy')
-        filearray = np.load(filepath)
-        pasrarrays.append(filearray)
-    return np.concatenate(pasrarrays, 1)
+    filepath = os.path.join(os.getcwd(), 'ch4_full_pasr_data.npy')
+    return np.load(filepath)
 
 
-def rearrangepasr(Y):
+def rearrangepasr(Y, N2_pos):
     """Rearrange the PaSR data so it works with pyJac."""
     press_pos = 2
     temp_pos = 1
@@ -303,7 +294,6 @@ def rearrangepasr(Y):
     Ys = np.hstack((Y_temp, Y_species))
 
     # Put N2 to the last value of the mass species
-    N2_pos = 9
     newarlen = len(Ys)
     Y_N2 = Ys[N2_pos]
     # Y_x = Ys[newarlen - 1]
@@ -377,23 +367,18 @@ elif equation == 'Autoignition':
     RHSfunction = firstderiv
     EQjac = jacobval
     # Load the initial conditions from the PaSR files
-    pasr = loadpasrdata(pasrfilesloaded)
-    numparticles = len(pasr[0, :, 0])
-    numtsteps = len(pasr[:, 0, 0])
+    pasr = loadpasrdata()
+    numparticles = len(pasr[:, 0])
 
 # Loop through the PaSR file for initial conditions
 if PaSR:
     print('Code progress:')
     particlelist = range(numparticles)
-    timelist = range(numtsteps)
     # We don't want long integrations for every point in the PaSR
     tstart = 0.
     tstop = 5 * dt
 else:
     particlelist = [92]
-    timelist = [4]
-    # Second set of coords was p=679, t=646
-    # Third set was p = 877, t = 865
 
 # Create the list of times to compute
 tlist = np.arange(tstart, tstop + 0.5 * dt, dt)
@@ -404,35 +389,88 @@ functionwork, ratiovals, indexvals, indicatorvals, CEMAvals =\
 for particle in particlelist:
     if PaSR:
         # Provide code progress
-        print(particle)
-    for tstep in timelist:
-        if equation == 'Autoignition':
-            # Set up the initial conditions for autoignition
-            Y = pasr[tstep, particle, :].copy()
-            initcond, RHSparam = rearrangepasr(Y)
-            if displayconditions:
-                print('Initial Condition:')
-                for i in Y:
-                    print(i)
-                print('Modified condition:')
-                for i in initcond:
-                    print(i)
+        if particle % 1000 == 0:
+            print(particle)
+    if equation == 'Autoignition':
+        # Set up the initial conditions for autoignition
+        Y = pasr[particle, :].copy()
+        initcond, RHSparam = rearrangepasr(Y, 50)
+        if displayconditions:
+            print('Initial Condition:')
+            for i in Y:
+                print(i)
+            print('Modified condition:')
+            for i in initcond:
+                print(i)
 
-        if not PaSR:
-            print('Integrating...')
-        solution = []
-        failflag = False
+    if not PaSR:
+        print('Integrating...')
+    solution = []
+    failflag = False
 
-        # Specify the integrator
-        if usejac:
-            intj = EQjac
-        else:
-            intj = None
+    # Specify the integrator
+    if usejac:
+        intj = EQjac
+    else:
+        intj = None
 
-        if intmode == 'vode':
+    if intmode == 'vode':
+        solver = ode(RHSfunction,
+                     jac=intj
+                     ).set_integrator(intmode,
+                                      method='bdf',
+                                      nsteps=99999999,
+                                      atol=abserr,
+                                      rtol=relerr,
+                                      with_jacobian=usejac,
+                                      # first_step=dt,
+                                      # min_step=dt,
+                                      # max_step=dt
+                                      )
+    elif intmode == 'dopri5':
+        # Assign the explicit solver
+        solver = ode(RHSfunction,
+                     jac=intj
+                     ).set_integrator(intmode,
+                                      # method='bdf',
+                                      nsteps=99999999,
+                                      atol=abserr,
+                                      rtol=relerr
+                                      # with_jacobian=usejac,
+                                      # first_step=dt,
+                                      # min_step=dt,
+                                      # max_step=dt
+                                      )
+    else:
+        raise Exception("Error: Select 'vode' or 'dopri5'.")
+
+    # Set initial conditions
+    solver.set_initial_value(initcond, tstart)
+    solver.set_f_params(RHSparam)
+    solver.set_jac_params(RHSparam)
+
+    # Integrate the ODE across all steps
+    k = 0
+    while solver.t <= tstop:
+        # Initialize global variable for counting RHS function calls
+        functioncalls = 0
+        # time0 = timer.time()
+        solver.integrate(solver.t + dt)
+        # time1 = timer.time()
+        localsol = solver.y
+        localtime = solver.t
+        if not solver.successful():
+            # Assuming that the only way this will happen is if dopri5
+            # fails.  Switch to vode and do it over again.
+            failflag = True
+            if not PaSR:
+                raise Exception('dopri5 failed!')
+            solution = []
+            print('dopri5 failed at particle {}!'.format(
+                    particle))
             solver = ode(RHSfunction,
                          jac=intj
-                         ).set_integrator(intmode,
+                         ).set_integrator('vode',
                                           method='bdf',
                                           nsteps=99999999,
                                           atol=abserr,
@@ -442,138 +480,85 @@ for particle in particlelist:
                                           # min_step=dt,
                                           # max_step=dt
                                           )
-        elif intmode == 'dopri5':
-            # Assign the explicit solver
-            solver = ode(RHSfunction,
-                         jac=intj
-                         ).set_integrator(intmode,
-                                          # method='bdf',
-                                          nsteps=99999999,
-                                          atol=abserr,
-                                          rtol=relerr
-                                          # with_jacobian=usejac,
-                                          # first_step=dt,
-                                          # min_step=dt,
-                                          # max_step=dt
-                                          )
+            solver.set_initial_value(initcond, tstart)
+            solver.set_f_params(RHSparam)
+            solver.set_jac_params(RHSparam)
+            k = 0
         else:
-            raise Exception("Error: Select 'vode' or 'dopri5'.")
-
-        # Set initial conditions
-        solver.set_initial_value(initcond, tstart)
-        solver.set_f_params(RHSparam)
-        solver.set_jac_params(RHSparam)
-
-        # Integrate the ODE across all steps
-        k = 0
-        while solver.t <= tstop:
-            # Initialize global variable for counting RHS function calls
-            functioncalls = 0
-            # time0 = timer.time()
-            solver.integrate(solver.t + dt)
-            # time1 = timer.time()
-            localsol = solver.y
-            localtime = solver.t
-            if not solver.successful():
-                # Assuming that the only way this will happen is if dopri5
-                # fails.  Switch to vode and do it over again.
-                failflag = True
-                if not PaSR:
-                    raise Exception('dopri5 failed!')
-                solution = []
-                print('dopri5 failed at particle {}, tstep {}!'.format(
-                        particle, tstep))
-                solver = ode(RHSfunction,
-                             jac=intj
-                             ).set_integrator('vode',
-                                              method='bdf',
-                                              nsteps=99999999,
-                                              atol=abserr,
-                                              rtol=relerr,
-                                              with_jacobian=usejac,
-                                              # first_step=dt,
-                                              # min_step=dt,
-                                              # max_step=dt
-                                              )
-                solver.set_initial_value(initcond, tstart)
-                solver.set_f_params(RHSparam)
-                solver.set_jac_params(RHSparam)
-                k = 0
-            else:
-                localtemp = localsol[0]
-                if PaSR:
-                    solution.append(localsol)
-                    if k == 2:
-                        # solutiontimes.append(time1 - time0)
-                        if getmetrics:
-                            indicator = stiffnessindicator(localtime,
-                                                           localsol,
-                                                           EQjac,
-                                                           RHSparam
-                                                           )
-                            stiffratio = stiffnessratio(localtime,
-                                                        localsol,
-                                                        EQjac,
-                                                        RHSparam
-                                                        )
-                            chemexmode = CEMA(localtime,
-                                              localsol,
-                                              EQjac,
-                                              RHSparam
-                                              )
-                        tempfuncwork = functioncalls
-                    if k == 5:
-                        if getmetrics:
-                            solution = np.array(solution)
-                            stiffindices = stiffnessindex(tlist,
-                                                          solution,
-                                                          RHSfunction,
-                                                          EQjac,
-                                                          RHSparam
-                                                          )
-                            ratiovals.append(stiffratio)
-                            indexvals.append(stiffindices[2])
-                            indicatorvals.append(indicator)
-                            CEMAvals.append(chemexmode)
-                        if failflag:
-                            functionwork.append(-1)
-                        else:
-                            functionwork.append(functioncalls)
-                    k += 1
-                else:
-                    solution.append(localsol)
+            localtemp = localsol[0]
+            if PaSR:
+                solution.append(localsol)
+                if k == 2:
+                    # solutiontimes.append(time1 - time0)
                     if getmetrics:
                         indicator = stiffnessindicator(localtime,
                                                        localsol,
                                                        EQjac,
                                                        RHSparam
                                                        )
-                        indicatorvals.append(indicator)
                         stiffratio = stiffnessratio(localtime,
                                                     localsol,
                                                     EQjac,
                                                     RHSparam
                                                     )
-                        ratiovals.append(stiffratio)
                         chemexmode = CEMA(localtime,
                                           localsol,
                                           EQjac,
                                           RHSparam
                                           )
+                    tempfuncwork = functioncalls
+                if k == 5:
+                    if getmetrics:
+                        solution = np.array(solution)
+                        stiffindices = stiffnessindex(tlist,
+                                                      solution,
+                                                      RHSfunction,
+                                                      EQjac,
+                                                      RHSparam
+                                                      )
+                        ratiovals.append(stiffratio)
+                        indexvals.append(stiffindices[2])
+                        indicatorvals.append(indicator)
                         CEMAvals.append(chemexmode)
-                    # solutiontimes.append(time1 - time0)
-                    functionwork.append(functioncalls)
+                    if failflag:
+                        functionwork.append(-1)
+                    else:
+                        functionwork.append(functioncalls)
+                k += 1
+            else:
+                solution.append(localsol)
+                if getmetrics:
+                    indicator = stiffnessindicator(localtime,
+                                                   localsol,
+                                                   EQjac,
+                                                   RHSparam
+                                                   )
+                    indicatorvals.append(indicator)
+                    stiffratio = stiffnessratio(localtime,
+                                                localsol,
+                                                EQjac,
+                                                RHSparam
+                                                )
+                    ratiovals.append(stiffratio)
+                    chemexmode = CEMA(localtime,
+                                      localsol,
+                                      EQjac,
+                                      RHSparam
+                                      )
+                    CEMAvals.append(chemexmode)
+                # solutiontimes.append(time1 - time0)
+                functionwork.append(functioncalls)
 
-        if displayconditions:
-            print('Final time:')
-            print(solver.t)
-            print('Last solution value:')
-            for i in solver.y:
-                print(i)
-            lastjac = jacobval(0.2, solver.y, RHSparam)
-            print('Last Jacobian value:')
-            for i in lastjac:
-                print(i)
+    if displayconditions:
+        print('Final time:')
+        print(solver.t)
+        print('Last solution value:')
+        for i in solver.y:
+            print(i)
+        lastjac = jacobval(0.2, solver.y, RHSparam)
+        print('Last Jacobian value:')
+        for i in lastjac:
+            print(i)
 
 # Convert the solution to an array for ease of use.  Maybe just using
 # numpy function to begin with would be faster?
