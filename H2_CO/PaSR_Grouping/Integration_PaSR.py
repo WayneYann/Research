@@ -205,7 +205,10 @@ def stiffnessindicator(time, solution, jfun, *args):
     for arg in args:
         funcparams.append(arg)
 
-    jacobian = jfun(time, solution, funcparams[0])
+    try:
+        jacobian = jfun(time, solution, funcparams[0])
+    except ValueError:
+        jacobian = jfun(time[0], solution[0], funcparams[0])
     Hermitian = 0.5 * (jacobian + np.transpose(jacobian))
     eigvals = np.linalg.eigvals(Hermitian)
     return 0.5 * (min(eigvals) + max(eigvals))
@@ -236,9 +239,14 @@ def CEMA(xlist, solution, jfun, *args):
         funcparams.append(arg)
 
     values = []
-    for i in range(len(solution)):
-        jacobian = jfun(xlist[i], solution[i], funcparams[0])
-        values.append(max(np.linalg.eigvals(jacobian)))
+    try:
+        for i in range(len(solution)):
+            jacobian = jfun(xlist[i], solution[i], funcparams[0])
+            values.append(max(np.linalg.eigvals(jacobian)))
+    except TypeError:
+        for i in range(len(solution)):
+            jacobian = jfun(xlist, solution, funcparams[0])
+            values.append(max(np.linalg.eigvals(jacobian)))
     return values
 
 
@@ -254,15 +262,18 @@ def stiffnessratio(xlist, solution, jfun, *args):
         funcparams.append(arg)
 
     values = []
-    for i in range(len(solution)):
-        print(i)
-        print(xlist[i])
-        print(solution[i])
-        print(funcparams[0])
-        jacobian = jfun(xlist[i], solution[i], funcparams[0])
-        eigvals = np.array([abs(j) for j in np.linalg.eigvals(jacobian)
-                            if j != 0])
-        values.append(max(eigvals)/min(eigvals))
+    try:
+        for i in range(len(solution)):
+            jacobian = jfun(xlist[i], solution[i], funcparams[0])
+            eigvals = np.array([abs(j) for j in np.linalg.eigvals(jacobian)
+                                if j != 0])
+            values.append(max(eigvals)/min(eigvals))
+    except TypeError:
+        for i in range(len(solution)):
+            jacobian = jfun(xlist, solution, funcparams[0])
+            eigvals = np.array([abs(j) for j in np.linalg.eigvals(jacobian)
+                                if j != 0])
+            values.append(max(eigvals)/min(eigvals))
     return values
 
 
@@ -343,7 +354,7 @@ usejac = False
 # Decide if you want to give pyJac N2 or not.
 useN2 = False
 # Used if you want to check that the PaSR data is being properly conditioned.
-displayconditions = True
+displayconditions = False
 # Display the solution shape for plotting/debugging.
 displaysolshapes = False
 # To be implemented later.
@@ -489,6 +500,7 @@ for particle in particlelist:
             else:
                 localtemp = localsol[0]
                 if PaSR:
+                    solution.append(localsol)
                     if k == 2:
                         # solutiontimes.append(time1 - time0)
                         if getmetrics:
@@ -510,6 +522,7 @@ for particle in particlelist:
                         tempfuncwork = functioncalls
                     if k == 5:
                         if getmetrics:
+                            solution = np.array(solution)
                             stiffindices = stiffnessindex(tlist,
                                                           solution,
                                                           RHSfunction,
@@ -526,6 +539,7 @@ for particle in particlelist:
                             functionwork.append(functioncalls)
                     k += 1
                 else:
+                    solution.append(localsol)
                     if getmetrics:
                         indicator = stiffnessindicator(localtime,
                                                        localsol,
@@ -533,21 +547,20 @@ for particle in particlelist:
                                                        RHSparam
                                                        )
                         indicatorvals.append(indicator)
-                        stiffratio = stiffnessratio(tlist,
-                                                    solution,
+                        stiffratio = stiffnessratio(localtime,
+                                                    localsol,
                                                     EQjac,
                                                     RHSparam
                                                     )
                         ratiovals.append(stiffratio)
-                        chemexmode = CEMA(tlist,
-                                          solution,
+                        chemexmode = CEMA(localtime,
+                                          localsol,
                                           EQjac,
                                           RHSparam
                                           )
                         CEMAvals.append(chemexmode)
                     # solutiontimes.append(time1 - time0)
                     functionwork.append(functioncalls)
-                solution.append(localsol)
 
         if displayconditions:
             print('Final time:')
@@ -564,10 +577,6 @@ for particle in particlelist:
 # numpy function to begin with would be faster?
 solution = np.array(solution)
 functionwork = np.array(functionwork)
-
-print(np.shape(tlist))
-print(np.shape(solution))
-print(RHSparam)
 
 if getmetrics and not PaSR:
     print('Finding stiffness index...')
