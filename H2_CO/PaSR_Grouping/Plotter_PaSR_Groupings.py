@@ -286,7 +286,7 @@ if PaSR:
     pyl.ylabel('Function Calls')
     pyl.ylim(min(min(impfunctionwork), min(exfunctionwork)),
              max(max(impfunctionwork), max(exfunctionwork)))
-    pyl.xlim(min(CEMAvals[:, 0]), max(CEMAvals[:, 0]))
+    pyl.xlim(1e-16, max(CEMAvals[:, 0]))
     pyl.xscale('log')
     # colors = plt.cm.spectral(np.linspace(0, 1, pasrfilesloaded))
     ax3 = fig3.add_subplot(111)
@@ -341,8 +341,8 @@ else:
     #     pyl.scatter(tlist, impprimaryvals, c=tlist, cmap='jet', lw=0,
     #                 label='Implicit')
     # else:
-    pyl.scatter(tlist, exprimaryvals, 1.0, c='r', lw=0, label='Explicit')
-    pyl.scatter(tlist, impprimaryvals, 1.0, c='b', lw=0, label='Implicit')
+    pyl.scatter(tlist, exprimaryvals, 1.0, c='r', lw=0, label='dopri5')
+    pyl.scatter(tlist, impprimaryvals, 1.0, c='b', lw=0, label='vode')
     pyl.grid(b=True, which='both')
     pyl.legend(fontsize='small')
     if savefigures == 1:
@@ -365,8 +365,8 @@ else:
     #     pyl.scatter(tlist, exfunctionwork, 1.0, c=tlist, cmap='jet', lw=0,
     #                 label='Explicit')
     # else:
-    pyl.scatter(tlist, impfunctionwork, 1.0, c='b', lw=0, label='Implicit')
-    pyl.scatter(tlist, exfunctionwork, 1.0, c='r', lw=0, label='Explicit')
+    pyl.scatter(tlist, impfunctionwork, 1.0, c='b', lw=0, label='vode')
+    pyl.scatter(tlist, exfunctionwork, 1.0, c='r', lw=0, label='dopri5')
     pyl.grid(b=True, which='both')
     pyl.legend(fontsize='small')
     if savefigures == 1:
