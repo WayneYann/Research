@@ -508,6 +508,10 @@ for particle in particlelist:
                                           )
                     tempfuncwork = functioncalls
                 if k == 5:
+                    if failflag:
+                        functionwork.append(-1)
+                    else:
+                        functionwork.append(functioncalls)
                     if getmetrics:
                         solution = np.array(solution)
                         stiffindices = stiffnessindex(tlist,
@@ -520,10 +524,6 @@ for particle in particlelist:
                         indexvals.append(stiffindices[2])
                         indicatorvals.append(indicator)
                         CEMAvals.append(chemexmode)
-                    if failflag:
-                        functionwork.append(-1)
-                    else:
-                        functionwork.append(functioncalls)
                 k += 1
             else:
                 solution.append(localsol)

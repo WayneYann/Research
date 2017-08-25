@@ -14,18 +14,11 @@ import time as timer
 import matplotlib as plt
 
 
-def loadpasrdata(num):
-    """Load the initial conditions from the PaSR files."""
-    pasrarrays = []
+def loadpasrdata():
+    """Load the initial conditions from the full PaSR file."""
     print('Loading data...')
-    for i in range(num):
-        filepath = os.path.join(os.getcwd(),
-                                'pasr_out_h2-co_' +
-                                str(i) +
-                                '.npy')
-        filearray = np.load(filepath)
-        pasrarrays.append(filearray)
-    return np.concatenate(pasrarrays, 1)
+    filepath = os.path.join(os.getcwd(), 'ch4_full_pasr_data.npy')
+    return np.load(filepath)
 
 
 """
@@ -65,9 +58,9 @@ output_folder = 'Output_Plots/'
 data_folder = 'Output_Data/'
 
 if equation == 'Autoignition':
-    pasr = loadpasrdata(pasrfilesloaded)
-    numparticles = len(pasr[0, :, 0])
-    numtsteps = len(pasr[:, 0, 0])
+    pasr = loadpasrdata()
+    numparticles = len(pasr[:, 0])
+
 # Figure out the filenames
 exsolfilename = equation + '_Solution_dopri5_' + str(dt)
 exworkfilename = equation + '_FunctionWork_dopri5_' + str(dt)
