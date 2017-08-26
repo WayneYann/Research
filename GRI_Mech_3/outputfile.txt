@@ -1,0 +1,1 @@
+A file to collect output while python is running simulations with nohup command.
