@@ -329,7 +329,7 @@ All of the values that need to be adjusted should be in this section.
 # Specify if you want to save the data
 savedata = True
 # Specify if you want all of the stiffness metrics
-getmetrics = False
+getmetrics = True
 # Possible options will be 'VDP', 'Autoignition', or 'Oregonator'
 # Oregonator not yet implemented
 equation = 'Autoignition'
@@ -337,13 +337,13 @@ equation = 'Autoignition'
 # 'Stiffness_Ratio'
 # method = 'Stiffness_Indicator'
 # Options are 'vode' and 'dopri5'
-intmode = 'dopri5'
+intmode = 'vode'
 # Make this true if you want to test all of the values across the PaSR.
 # Otherwise, this will run a single autoignition at particle 92, timestep 4.
 PaSR = True
 pasrfilesloaded = 9
 # Define the range of the computation.
-dt = 1.e-6
+dt = 1.e-8
 tstart = 0.
 tstop = 0.2
 # ODE Solver parameters.
