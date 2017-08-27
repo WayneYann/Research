@@ -174,7 +174,7 @@ One commonly referenced measure of the stiffness of a system of ODEs is the ``st
 The stiffness ratio of the system of ODEs is defined as
 \begin{equation}
 	\textrm{Stiffness Ratio} = \frac{\textrm{max}|\lambda_p|}{\textrm{min}|\lambda_p|}
-\end{equation}	
+\end{equation}
 in which $\lambda_p$ is an eigenvalue of the Jacobian matrix of the system of ODEs~\cite{LeVeque2007}.
 A large stiffness ratio is an indication of a large range of time scales in the problem, which is a necessary component for stiffness to arise.
 This method is readily implemented and carries little computational cost beyond determining the eigenvalues of the Jacobian matrix.
@@ -236,7 +236,7 @@ To facilitate comparison of the results obtained by Shampine~\cite{Shampine1985}
 
 \subsection{Stiffness Indicator}
 The ``stiffness indicator'' of a system of ODEs was proposed by S{\"o}derlind et. al. as a mathematically rigorous approach to characterize stiffness that works independent of the integration method used or operational criteria~\cite{Soderlind2014}.
-S{\"o}derlind notes that ``large'' negative values of the stiffness indicator are a necessary condition for stiffness.  
+S{\"o}derlind notes that ``large'' negative values of the stiffness indicator are a necessary condition for stiffness.
 S{\"o}derlind further quantifies how ``large'' the negative values must be for an equation to be considered locally stiff for a given problem, however we are primarily interested in the values of the stiffness indicator itself to facilitate comparison between different simulations using different models and different timescales.
 
 In the chemical kinetic models of interest, the stiffness indicator is calculated for a given Jacobian matrix $A \in \mathbb{R}^{n \times n}$ as:
@@ -321,29 +321,29 @@ At higher pressures and temperatures, the explicit \texttt{dopri5} generally out
 \begin{figure}[htbp]
     \centering
     \begin{subfigure}{0.43\textwidth}
-        \includegraphics[width=\linewidth]{PaSR_Fn_Work_1e-06.png}
+        \includegraphics[width=\linewidth]{H2_CO/PaSR_Fn_Work_1e-06.png}
         \caption{Number of function calls used to integrate one time-step for both \texttt{dopri5} and \texttt{vode} at each particle of the PaSR model.}
         \label{fig:FWH2COPaSR}
     \end{subfigure}
     \hfill
     \begin{subfigure}{0.43\textwidth}
-        \includegraphics[width=\linewidth]{PaSR_Fn_Work_Ratio_Groupings_1e-06.png}
+        \includegraphics[width=\linewidth]{H2_CO/PaSR_Fn_Work_Ratio_Groupings_1e-06.png}
         \caption{Stiffness ratio versus the least function calls used to integrate one time-step at each particle of the PaSR model.}
         \label{fig:SRH2COPaSR}
     \end{subfigure}
     \begin{subfigure}{0.43\textwidth}
-        \includegraphics[width=\linewidth]{PaSR_Fn_Work_Index_Groupings_1e-06.png}
+        \includegraphics[width=\linewidth]{H2_CO/PaSR_Fn_Work_Index_Groupings_1e-06.png}
         \caption{Stiffness index versus the least function calls used to integrate one time-step at each particle of the PaSR model.}
         \label{fig:SI1H2COPaSR}
     \end{subfigure}
     \hfill
     \begin{subfigure}{0.43\textwidth}
-        \includegraphics[width=\linewidth]{PaSR_Fn_Work_Indicator_Groupings_1e-06.png}
+        \includegraphics[width=\linewidth]{H2_CO/PaSR_Fn_Work_Indicator_Groupings_1e-06.png}
         \caption{Stiffness indicator versus the least function calls used to integrate one time-step at each particle of the PaSR model.}
         \label{fig:SI2H2COPaSR}
     \end{subfigure}
     \begin{subfigure}{0.43\textwidth}
-        \includegraphics[width=\linewidth]{PaSR_Fn_Work_CEMA_Groupings_1e-06.png}
+        \includegraphics[width=\linewidth]{H2_CO/PaSR_Fn_Work_CEMA_Groupings_1e-06.png}
         \caption{Chemical explosive mode versus the least function calls used to integrate one time-step at each particle of the PaSR model.}
         \label{fig:CEMH2COPaSR}
     \end{subfigure}
@@ -365,6 +365,40 @@ The stiffness indicator was less useful than the stiffness ratio or stiffness in
 Similar to the stiffness ratio and the stiffness index, the chemical explosive mode was not highly correlated with the number of RHS function calls used.  \texttt{vode} outperformed \texttt{dopri5} when values of the chemical explosive mode were greater than $10^4$.
 
 The PaSR data for GRI Mech 3.0 consisted of 450900 particles.  If I can ever get some data that tells me anything useful about these particles, I will be a happy man.
+
+\begin{figure}[htbp]
+   \centering
+   \begin{subfigure}{0.43\textwidth}
+       \includegraphics[width=\linewidth]{GRI_Mech_3/PaSR_Fn_Work_1e-09.png}
+       \caption{Number of function calls used to integrate one time-step for both \texttt{dopri5} and \texttt{vode} at each particle of the PaSR model.}
+       \label{fig:FWGRIPaSR}
+   \end{subfigure}
+   \hfill
+   \begin{subfigure}{0.43\textwidth}
+       \includegraphics[width=\linewidth]{GRI_Mech_3/PaSR_Fn_Work_Ratio_Groupings_1e-09.png}
+       \caption{Stiffness ratio versus the least function calls used to integrate one time-step at each particle of the PaSR model.}
+       \label{fig:SRGRIPaSR}
+   \end{subfigure}
+   \begin{subfigure}{0.43\textwidth}
+       \includegraphics[width=\linewidth]{GRI_Mech_3/PaSR_Fn_Work_Index_Groupings_1e-09.png}
+       \caption{Stiffness index versus the least function calls used to integrate one time-step at each particle of the PaSR model.}
+       \label{fig:SI1GRIPaSR}
+   \end{subfigure}
+   \hfill
+   \begin{subfigure}{0.43\textwidth}
+       \includegraphics[width=\linewidth]{GRI_Mech_3/PaSR_Fn_Work_Indicator_Groupings_1e-09.png}
+       \caption{Stiffness indicator versus the least function calls used to integrate one time-step at each particle of the PaSR model.}
+       \label{fig:SI2GRIPaSR}
+   \end{subfigure}
+   \begin{subfigure}{0.43\textwidth}
+       \includegraphics[width=\linewidth]{GRI_Mech_3/PaSR_Fn_Work_CEMA_Groupings_1e-09.png}
+       \caption{Chemical explosive mode versus the least function calls used to integrate one time-step at each particle of the PaSR model.}
+       \label{fig:CEMGRIPaSR}
+   \end{subfigure}
+   \caption{Stiffness metrics versus RHS function calls used to advance one time-step of the GRI Mech 3.0 model using either \texttt{vode} or \texttt{dopri5}.  Calculated with a constant step size of \SI{e-9}{\second} for every initial condition represented in the PaSR model.}
+   \label{fig:GRIPaSRStiffness}
+\end{figure}
+
 
 \section{Conclusions}
 
