@@ -333,7 +333,7 @@ intmode = 'vode'
 PaSR = True
 pasrfilesloaded = 9
 # Define the range of the computation.
-dt = 1.e-9
+dt = 1.e-7
 tstart = 0.
 tstop = 0.2
 # ODE Solver parameters.

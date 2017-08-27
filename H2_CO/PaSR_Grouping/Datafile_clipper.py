@@ -23,7 +23,7 @@ def loadpasrdata(num):
     return np.concatenate(pasrarrays, 1)
 
 
-dt = 1.e-6
+dt = 1.e-7
 output_folder = 'Output_Plots/'
 data_folder = 'Output_Data/'
 equation = 'PaSR_Autoignition'
@@ -40,8 +40,14 @@ CEMAvals = np.load(os.path.join(os.getcwd(),
 
 data = loadpasrdata(9)
 
-#ratiovals = ratiovals[:, 0]
-#CEMAvals = CEMAvals[:, 0]
+print(np.shape(ratiovals))
+print(np.shape(CEMAvals))
 
-#np.save(data_folder + CEMAfilename, CEMAvals)
-#np.save(data_folder + ratiofilename, ratiovals)
+ratiovals = ratiovals[:, 0]
+CEMAvals = CEMAvals[:, 0]
+
+np.save(data_folder + CEMAfilename, CEMAvals)
+np.save(data_folder + ratiofilename, ratiovals)
+
+print(np.shape(ratiovals))
+print(np.shape(CEMAvals))
