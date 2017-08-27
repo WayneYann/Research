@@ -38,7 +38,7 @@ pasrfilesloaded = 9
 # Figure out a way of doing this later.
 # diffcolors = False
 # Define the range of the computation.
-dt = 1.e-9
+dt = 1.e-8
 tstart = 0.
 tstop = 0.2
 # To be implemented later.
