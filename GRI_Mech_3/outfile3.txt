@@ -1,4 +1,4 @@
-Start time: 2017-08-26 16:28:30.414012
+Start time: 2017-08-26 11:54:42.234009
 Loading data...
 Code progress:
 0
@@ -452,5 +452,5 @@ Code progress:
 448000
 449000
 450000
-Finish time: 2017-08-27 20:48:37.279733
-Duration: 1 day, 4:20:06.865721
+Finish time: 2017-08-28 04:27:08.521212
+Duration: 1 day, 16:32:26.287203
