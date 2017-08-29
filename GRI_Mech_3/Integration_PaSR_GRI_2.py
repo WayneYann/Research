@@ -11,7 +11,8 @@ import numpy as np
 import pyjacob as pyjacob
 # import scipy as sci
 import datetime
-# import time as timer
+import time as timer
+import warnings
 
 # from scipy.integrate import odeint
 from scipy.integrate import ode
@@ -319,7 +320,7 @@ All of the values that need to be adjusted should be in this section.
 # Specify if you want to save the data
 savedata = True
 # Specify if you want all of the stiffness metrics
-getmetrics = True
+getmetrics = False
 # Possible options will be 'VDP', 'Autoignition', or 'Oregonator'
 # Oregonator not yet implemented
 equation = 'Autoignition'
@@ -327,11 +328,10 @@ equation = 'Autoignition'
 # 'Stiffness_Ratio'
 # method = 'Stiffness_Indicator'
 # Options are 'vode' and 'dopri5'
-intmode = 'vode'
+intmode = 'dopri5'
 # Make this true if you want to test all of the values across the PaSR.
-# Otherwise, this will run a single autoignition at particle 92, timestep 4.
+# Non-PaSR currently not functional
 PaSR = True
-pasrfilesloaded = 9
 # Define the range of the computation.
 dt = 1.e-7
 tstart = 0.
@@ -355,6 +355,8 @@ makesecondderivplots = False
 -------------------------------------------------------------------------------
 """
 
+warnings.filterwarnings("ignore", category=UserWarning)
+
 if equation == 'VDP':
     # Makes no sense to have PaSR for this, so it won't be allowed.
     PaSR = False
@@ -376,25 +378,28 @@ if PaSR:
     particlelist = range(numparticles)
     # We don't want long integrations for every point in the PaSR
     tstart = 0.
-    tstop = 5 * dt
+    tstop = 4 * dt
 else:
     particlelist = [92]
+    # Second set of coords was p=679, t=646
+    # Third set was p = 877, t = 865
 
 # Create the list of times to compute
 tlist = np.arange(tstart, tstop + 0.5 * dt, dt)
 
-functionwork, ratiovals, indexvals, indicatorvals, CEMAvals =\
-    [], [], [], [], []
+functionwork, tstepsneeded, ratiovals, indexvals, indicatorvals, CEMAvals,\
+    inttimes = [], [], [], [], [], [], []
 
 for particle in particlelist:
     if PaSR:
         # Provide code progress
         if particle % 1000 == 0:
             print(particle)
+    # Set up the initial conditions for autoignition
     if equation == 'Autoignition':
-        # Set up the initial conditions for autoignition
         Y = pasr[particle, :].copy()
         initcond, RHSparam = rearrangepasr(Y, 50)
+        # Display the conditions if we're running diagnostics
         if displayconditions:
             print('Initial Condition:')
             for i in Y:
@@ -405,7 +410,8 @@ for particle in particlelist:
 
     if not PaSR:
         print('Integrating...')
-    solution = []
+    # Put the initial condition into the solution vector
+    solution = [initcond]
     failflag = False
 
     # Specify the integrator
@@ -419,27 +425,27 @@ for particle in particlelist:
                      jac=intj
                      ).set_integrator(intmode,
                                       method='bdf',
-                                      nsteps=99999999,
-                                      atol=abserr,
-                                      rtol=relerr,
+                                      nsteps=1,
+                                      # atol=abserr,
+                                      # rtol=relerr,
                                       with_jacobian=usejac,
-                                      # first_step=dt,
+                                      first_step=dt,
                                       # min_step=dt,
-                                      # max_step=dt
+                                      max_step=dt
                                       )
     elif intmode == 'dopri5':
         # Assign the explicit solver
+        # Note that we can figure out how many intermediate steps for
+        # dopri5 by calculating [(functioncalls - 1) / 3]
         solver = ode(RHSfunction,
                      jac=intj
                      ).set_integrator(intmode,
-                                      # method='bdf',
-                                      nsteps=99999999,
-                                      atol=abserr,
-                                      rtol=relerr
-                                      # with_jacobian=usejac,
-                                      # first_step=dt,
+                                      nsteps=1,
+                                      # atol=abserr,
+                                      # rtol=relerr
                                       # min_step=dt,
-                                      # max_step=dt
+                                      first_step=dt,
+                                      max_step=dt
                                       )
     else:
         raise Exception("Error: Select 'vode' or 'dopri5'.")
@@ -448,107 +454,194 @@ for particle in particlelist:
     solver.set_initial_value(initcond, tstart)
     solver.set_f_params(RHSparam)
     solver.set_jac_params(RHSparam)
+    solver._integrator.iwork[2] = -1
 
     # Integrate the ODE across all steps
-    k = 0
-    while solver.t <= tstop:
-        # Initialize global variable for counting RHS function calls
-        functioncalls = 0
-        # time0 = timer.time()
-        solver.integrate(solver.t + dt)
-        # time1 = timer.time()
-        localsol = solver.y
-        localtime = solver.t
-        if not solver.successful():
-            # Assuming that the only way this will happen is if dopri5
-            # fails.  Switch to vode and do it over again.
-            failflag = True
-            if not PaSR:
-                raise Exception('dopri5 failed!')
-            solution = []
-            print('dopri5 failed at particle {}!'.format(
-                    particle))
-            solver = ode(RHSfunction,
-                         jac=intj
-                         ).set_integrator('vode',
-                                          method='bdf',
-                                          nsteps=99999999,
-                                          atol=abserr,
-                                          rtol=relerr,
-                                          with_jacobian=usejac,
-                                          # first_step=dt,
-                                          # min_step=dt,
-                                          # max_step=dt
-                                          )
-            solver.set_initial_value(initcond, tstart)
-            solver.set_f_params(RHSparam)
-            solver.set_jac_params(RHSparam)
-            k = 0
-        else:
-            localtemp = localsol[0]
-            if PaSR:
-                solution.append(localsol)
-                if k == 2:
-                    # solutiontimes.append(time1 - time0)
+    tnext = tstart + dt
+    halfflag = False
+    timetwo = 0
+    while solver.t < tstop:
+        stepstaken = 0
+        # Integrate until hitting the next tstep
+        while solver.t < tnext:
+            # Do this to force it to stop at every dt
+            # Obtain the previous state values
+            prevsol = solver.y
+            prevtime = solver.t
+            # Reinitialize
+            if failflag or intmode == 'vode':
+                solver = ode(RHSfunction,
+                             jac=intj
+                             # Set up for vode
+                             ).set_integrator('vode',
+                                              method='bdf',
+                                              nsteps=1,
+                                              # atol=abserr,
+                                              # rtol=relerr,
+                                              with_jacobian=usejac,
+                                              first_step=dt,
+                                              # min_step=dt,
+                                              max_step=(tnext - solver.t)
+                                              )
+                # Reset IC's
+                solver.set_initial_value(prevsol, prevtime)
+                solver.set_f_params(RHSparam)
+                solver.set_jac_params(RHSparam)
+                solver._integrator.iwork[2] = -1
+            else:
+                solver = ode(RHSfunction,
+                             jac=intj
+                             # Set up for dopri5
+                             ).set_integrator('dopri5',
+                                              method='bdf',
+                                              nsteps=1,
+                                              first_step=dt,
+                                              max_step=(tnext - solver.t)
+                                              )
+                # Reset IC's
+                solver.set_initial_value(prevsol, prevtime)
+                solver.set_f_params(RHSparam)
+                solver.set_jac_params(RHSparam)
+                solver._integrator.iwork[2] = -1
+            # Initialize global variable for counting RHS function calls
+            functioncalls = 0
+            time0 = timer.time()
+            solver.integrate(tnext, step=True)
+            time1 = timer.time()
+            if prevtime >= (tstart + 2*dt) and prevtime < (tstart + 3*dt):
+                timetwo += time1 - time0
+            # if solver.t <= prevtime:
+            #     raise Exception('Error: Simulation not advancing!')
+            stepstaken += 1
+            # Save the solution
+            if solver.t >= tnext:
+                solution.append(solver.y)
+            # Reinitialize if dopri5 fails.
+            if intmode == 'dopri5' and not solver.successful():
+                # Assuming that the only way this will happen is if dopri5
+                # fails.  Switch to vode and do it over again.
+                failflag = True
+                if not PaSR:
+                    raise Exception('dopri5 failed!')
+                solution = [initcond]
+                # print('dopri5 failed at particle {}, tstep {}!'.format(
+                #         particle, tstep))
+                solver = ode(RHSfunction,
+                             jac=intj
+                             ).set_integrator('vode',
+                                              method='bdf',
+                                              nsteps=1,
+                                              # atol=abserr,
+                                              # rtol=relerr,
+                                              with_jacobian=usejac,
+                                              first_step=dt,
+                                              # min_step=dt,
+                                              max_step=dt
+                                              )
+                solver.set_initial_value(initcond, tstart)
+                solver.set_f_params(RHSparam)
+                solver.set_jac_params(RHSparam)
+                solver._integrator.iwork[2] = -1
+                stepstaken = 0
+                halfflag = False
+                timetwo = 0.0
+            else:
+                localtemp = solver.y[0]
+                if PaSR:
+                    # Calculate metrics at the midpoint
+                    # and get functioncalls
+                    if (solver.t >= (tstart + 2*dt)) and not halfflag:
+                        # solutiontimes.append(time1 - time0)
+                        # Calculate the indicator, ratio, and CEM
+                        if getmetrics:
+                            indicator = stiffnessindicator(solver.t,
+                                                           solver.y,
+                                                           EQjac,
+                                                           RHSparam
+                                                           )
+                            stiffratio = stiffnessratio(solver.t,
+                                                        solver.y,
+                                                        EQjac,
+                                                        RHSparam
+                                                        )
+                            chemexmode = CEMA(solver.t,
+                                              solver.y,
+                                              EQjac,
+                                              RHSparam
+                                              )
+                        tempfuncwork = functioncalls
+                        tstepsneeded.append(stepstaken)
+                        # print('Halfway value: {}'.format(tstart + 2*dt))
+                        # print('Current value: {}'.format(solver.t))
+                        halfflag = True
+                    # Save the metrics and work when done
+                    if solver.t >= tstop:
+                        # Print the solution shape
+                        # print('Solution shape: {}'.format(
+                        #     np.shape(solution)))
+                        # Save all the metrics in the lists
+                        if getmetrics:
+                            solution = np.array(solution)
+                            stiffindices = stiffnessindex(tlist,
+                                                          solution,
+                                                          RHSfunction,
+                                                          EQjac,
+                                                          RHSparam
+                                                          )
+                            ratiovals.append(stiffratio)
+                            indexvals.append(stiffindices[2])
+                            indicatorvals.append(indicator)
+                            CEMAvals.append(chemexmode)
+                            inttimes.append(timetwo)
+                        # Save the functionwork
+                        if failflag:
+                            functionwork.append(-1)
+                        else:
+                            functionwork.append(tempfuncwork)
+                # Part of the code for non-PaSR.  Non-functional currently.
+                else:
+                    solution.append(solver.y)
                     if getmetrics:
-                        indicator = stiffnessindicator(localtime,
-                                                       localsol,
+                        indicator = stiffnessindicator(solver.t,
+                                                       solver.y,
                                                        EQjac,
                                                        RHSparam
                                                        )
-                        stiffratio = stiffnessratio(localtime,
-                                                    localsol,
+                        indicatorvals.append(indicator)
+                        stiffratio = stiffnessratio(solver.t,
+                                                    solver.y,
                                                     EQjac,
                                                     RHSparam
                                                     )
-                        chemexmode = CEMA(localtime,
-                                          localsol,
+                        ratiovals.append(stiffratio)
+                        chemexmode = CEMA(solver.t,
+                                          solver.y,
                                           EQjac,
                                           RHSparam
                                           )
-                    tempfuncwork = functioncalls
-                if k == 5:
-                    if failflag:
-                        functionwork.append(-1)
-                    else:
-                        functionwork.append(functioncalls)
-                    if getmetrics:
-                        solution = np.array(solution)
-                        stiffindices = stiffnessindex(tlist,
-                                                      solution,
-                                                      RHSfunction,
-                                                      EQjac,
-                                                      RHSparam
-                                                      )
-                        ratiovals.append(stiffratio)
-                        indexvals.append(stiffindices[2])
-                        indicatorvals.append(indicator)
                         CEMAvals.append(chemexmode)
-                k += 1
-            else:
-                solution.append(localsol)
-                if getmetrics:
-                    indicator = stiffnessindicator(localtime,
-                                                   localsol,
-                                                   EQjac,
-                                                   RHSparam
-                                                   )
-                    indicatorvals.append(indicator)
-                    stiffratio = stiffnessratio(localtime,
-                                                localsol,
-                                                EQjac,
-                                                RHSparam
-                                                )
-                    ratiovals.append(stiffratio)
-                    chemexmode = CEMA(localtime,
-                                      localsol,
-                                      EQjac,
-                                      RHSparam
-                                      )
-                    CEMAvals.append(chemexmode)
-                # solutiontimes.append(time1 - time0)
-                functionwork.append(functioncalls)
+                    # solutiontimes.append(time1 - time0)
+                    functionwork.append(functioncalls)
+        stepstaken = 0
+        tnext += dt
 
+    # print('Timesteps needed:')
+    # for i in tstepsneeded:
+    #     print(i)
+    # print(functionwork)
+    # for i in inttimes:
+    #     print(i)
+    # print('Stop solution:')
+    # for i in solution:
+    #     print(i)
+    # print(ratiovals)
+    # print(indexvals)
+    # print(indicatorvals)
+    # print(CEMAvals)
+    # print('tstop: {}'.format(tstop))
+    # raise Exception('Test run, solver t at {}'.format(solver.t))
+
+    # Display the conditions if we're running diagnostics
     if displayconditions:
         print('Final time:')
         print(solver.t)
@@ -564,6 +657,8 @@ for particle in particlelist:
 # numpy function to begin with would be faster?
 solution = np.array(solution)
 functionwork = np.array(functionwork)
+tstepsneeded = np.array(tstepsneeded)
+inttimes = np.array(inttimes)
 
 if getmetrics and not PaSR:
     print('Finding stiffness index...')
@@ -590,12 +685,17 @@ if len(solution) != len(tlist):
 if savedata:
     solfilename = equation + '_Solution_' + intmode + '_' + str(dt)
     workfilename = equation + '_FunctionWork_' + intmode + '_' + str(dt)
+    stepsfilename = equation + '_Timesteps_' + intmode + '_' + str(dt)
+    inttimingfilename = equation + '_Int_Times_' + str(dt) + '_' +\
+        timer.strftime("%m_%d")
     ratiofilename = equation + '_Stiffness_Ratio_' + str(dt)
     indexfilename = equation + '_Stiffness_Index_' + str(dt)
     indicatorfilename = equation + '_Stiffness_Indicator_' + str(dt)
     CEMAfilename = equation + '_CEMA_' + str(dt)
     if PaSR:
         workfilename = 'PaSR_' + workfilename
+        stepsfilename = 'PaSR_' + stepsfilename
+        inttimingfilename = 'PaSR_' + inttimingfilename
         ratiofilename = 'PaSR_' + ratiofilename
         indexfilename = 'PaSR_' + indexfilename
         indicatorfilename = 'PaSR_' + indicatorfilename
@@ -603,6 +703,8 @@ if savedata:
     else:
         np.save(data_folder + solfilename, solution)
     np.save(data_folder + workfilename, functionwork)
+    np.save(data_folder + stepsfilename, tstepsneeded)
+    np.save(data_folder + inttimingfilename, inttimes)
     if getmetrics:
         np.save(data_folder + ratiofilename, ratiovals)
         np.save(data_folder + indexfilename, indexvals)
