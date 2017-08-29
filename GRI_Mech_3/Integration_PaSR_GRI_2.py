@@ -686,8 +686,8 @@ if savedata:
     solfilename = equation + '_Solution_' + intmode + '_' + str(dt)
     workfilename = equation + '_FunctionWork_' + intmode + '_' + str(dt)
     stepsfilename = equation + '_Timesteps_' + intmode + '_' + str(dt)
-    inttimingfilename = equation + '_Int_Times_' + str(dt) + '_' +\
-        timer.strftime("%m_%d")
+    inttimingfilename = equation + '_Int_Times_' + intmode + '_' +\
+        str(dt) + '_' + timer.strftime("%m_%d")
     ratiofilename = equation + '_Stiffness_Ratio_' + str(dt)
     indexfilename = equation + '_Stiffness_Index_' + str(dt)
     indicatorfilename = equation + '_Stiffness_Indicator_' + str(dt)
