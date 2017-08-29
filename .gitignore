@@ -8,11 +8,11 @@ NCM17/Combustion_Meeting_Paper/Data/IndexVals_1e-07.npy
 NCM17/Combustion_Meeting_Paper/Data/IndexVals_Order5_1e-07.npy
 GRI_Mech_3/ch4_full_pasr_data.npy
 pyJac/
-GRI_Mech_3/Output_Plots
-GRI_Mech_3/A_Posteriori/Output_Plots
-GRI_Mech_3/Scheduler/Output_Plots
-H2_CO/Output_Plots
-H2_CO/PaSR_Grouping/Output_Plots
+GRI_Mech_3/Output_Plots/
+GRI_Mech_3/A_Posteriori/Output_Plots/
+GRI_Mech_3/Scheduler/Output_Plots/
+H2_CO/Output_Plots/
+H2_CO/PaSR_Grouping/Output_Plots/
 
 # Compiled source #
 ###################
