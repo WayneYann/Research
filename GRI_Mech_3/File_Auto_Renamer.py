@@ -20,8 +20,8 @@ filename = 'PaSR_Autoignition_Int_Times_1e-07_08_28.npy'
 newfilename = 'PaSR_Autoignition_Int_Times_REVIEW_1e-07_08_28.npy'
 
 currentdir = os.getcwd()
-new_file = Path(currentdir + '/' + newfilename)
 
+# Make sure to change this number to something that makes sense
 while time.time() < 1504640790:
     my_file = Path(currentdir + '/' + filename)
     if my_file.exists():
