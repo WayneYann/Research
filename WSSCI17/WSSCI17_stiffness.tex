@@ -147,6 +147,7 @@ These relatively small Jacobian matrices allow for much faster evaluations of st
 
 The code used to run autoignition simulations and calculate stiffness metrics was written in Python and made use of open-source software, including the \texttt{ode} integrator function of SciPy~\cite{SciPy}.
 Two different integrators of the \texttt{ode} integrator function were used: the implicit \texttt{vode} integrator, which uses an implicit Adams method for non-stiff problems and a method based on the backwards differentiation formulae (BDF) for stiff problems~\cite{Brown1989}, and the explicit \texttt{dopri5} integrator, which uses a Runge-Kutta method of order (4)5 developed by Dormand and Prince with automatic step size control~\cite{E.HairerSPNorsett1990}.
+The \texttt{vode} integrator was set to use the default behavior of using first-order finite differencing to provide an estimate of the Jacobian matrix.
 \texttt{NumPy}~\cite{VanDerWalt2011} was also extensively used in the code to determine eigenvalues and perform numerous basic mathematical functions.
 To ensure a high degree of accuracy, the integrator was given values of \num{e-15} and \num{e-17} for the error control parameters \texttt{relerr} and \texttt{abserr}, respectively.
 
