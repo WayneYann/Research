@@ -328,7 +328,7 @@ All of the values that need to be adjusted should be in this section.
 # Specify if you want to save the data
 savedata = True
 # Specify if you want all of the stiffness metrics
-getmetrics = True
+getmetrics = False
 # Possible options will be 'VDP', 'Autoignition', or 'Oregonator'
 # Oregonator not yet implemented
 equation = 'Autoignition'
@@ -336,13 +336,13 @@ equation = 'Autoignition'
 # 'Stiffness_Ratio'
 # method = 'Stiffness_Indicator'
 # Options are 'vode' and 'dopri5'
-intmode = 'vode'
+intmode = 'dopri5'
 # Make this true if you want to test all of the values across the PaSR.
 # Non-PaSR currently not functional
 PaSR = True
 pasrfilesloaded = 9
 # Define the range of the computation.
-dt = 1.e-8
+dt = 1.e-7
 tstart = 0.
 tstop = 0.2
 # ODE Solver parameters.
@@ -522,8 +522,8 @@ for particle in particlelist:
                 time1 = timer.time()
                 if prevtime >= (tstart + 2*dt) and prevtime < (tstart + 3*dt):
                     timetwo += time1 - time0
-                if solver.t <= prevtime:
-                    raise Exception('Error: Simulation not advancing!')
+                # if solver.t <= prevtime:
+                #     raise Exception('Error: Simulation not advancing!')
                 stepstaken += 1
                 # Save the solution
                 if solver.t >= tnext:
@@ -536,8 +536,8 @@ for particle in particlelist:
                     if not PaSR:
                         raise Exception('dopri5 failed!')
                     solution = [initcond]
-                    print('dopri5 failed at particle {}, tstep {}!'.format(
-                            particle, tstep))
+                    # print('dopri5 failed at particle {}, tstep {}!'.format(
+                    #         particle, tstep))
                     solver = ode(RHSfunction,
                                  jac=intj
                                  ).set_integrator('vode',
@@ -589,8 +589,8 @@ for particle in particlelist:
                         # Save the metrics and work when done
                         if solver.t >= tstop:
                             # Print the solution shape
-                            print('Solution shape: {}'.format(
-                                np.shape(solution)))
+                            # print('Solution shape: {}'.format(
+                            #     np.shape(solution)))
                             # Save all the metrics in the lists
                             if getmetrics:
                                 solution = np.array(solution)
@@ -651,7 +651,7 @@ for particle in particlelist:
         # print(indicatorvals)
         # print(CEMAvals)
         # print('tstop: {}'.format(tstop))
-        raise Exception('Test run, solver t at {}'.format(solver.t))
+        # raise Exception('Test run, solver t at {}'.format(solver.t))
 
         # Display the conditions if we're running diagnostics
         if displayconditions:
@@ -697,7 +697,7 @@ if len(solution) != len(tlist):
 if savedata:
     solfilename = equation + '_Solution_' + intmode + '_' + str(dt)
     workfilename = equation + '_FunctionWork_' + intmode + '_' + str(dt)
-    stepsfilename = equation + '_Timesteps_' + intmode + str(dt)
+    stepsfilename = equation + '_Timesteps_' + intmode + '_' + str(dt)
     inttimingfilename = equation + '_Int_Times_' + str(dt) + '_' +\
         timer.strftime("%m_%d")
     ratiofilename = equation + '_Stiffness_Ratio_' + str(dt)
