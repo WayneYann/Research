@@ -342,7 +342,7 @@ intmode = 'dopri5'
 PaSR = True
 pasrfilesloaded = 9
 # Define the range of the computation.
-dt = 1.e-7
+dt = 1.e-8
 tstart = 0.
 tstop = 0.2
 # ODE Solver parameters.
@@ -471,9 +471,10 @@ for particle in particlelist:
         # Integrate the ODE across all steps
         tnext = tstart + dt
         halfflag = False
-        timetwo = 0
         while solver.t < tstop:
             stepstaken = 0
+            functioncalls = 0
+            timetwo = 0.
             # Integrate until hitting the next tstep
             while solver.t < tnext:
                 # Do this to force it to stop at every dt
@@ -515,16 +516,15 @@ for particle in particlelist:
                     solver.set_f_params(RHSparam)
                     solver.set_jac_params(RHSparam)
                     solver._integrator.iwork[2] = -1
-                # Initialize global variable for counting RHS function calls
-                functioncalls = 0
                 time0 = timer.time()
                 solver.integrate(tnext, step=True)
                 time1 = timer.time()
-                if prevtime >= (tstart + 2*dt) and prevtime < (tstart + 3*dt):
+                if prevtime >= (tstart + dt) and prevtime < (tstart + 2*dt):
                     timetwo += time1 - time0
+                    tempfcalls = functioncalls
+                    stepstaken += 1
                 # if solver.t <= prevtime:
                 #     raise Exception('Error: Simulation not advancing!')
-                stepstaken += 1
                 # Save the solution
                 if solver.t >= tnext:
                     solution.append(solver.y)
@@ -582,7 +582,6 @@ for particle in particlelist:
                                                   RHSparam
                                                   )
                             tempfuncwork = functioncalls
-                            tstepsneeded.append(stepstaken)
                             # print('Halfway value: {}'.format(tstart + 2*dt))
                             # print('Current value: {}'.format(solver.t))
                             halfflag = True
@@ -604,12 +603,15 @@ for particle in particlelist:
                                 indexvals.append(stiffindices[2])
                                 indicatorvals.append(indicator)
                                 CEMAvals.append(chemexmode)
-                                inttimes.append(timetwo)
                             # Save the functionwork
                             if failflag:
                                 functionwork.append(-1)
+                                inttimes.append(-1)
+                                tstepsneeded.append(-1)
                             else:
                                 functionwork.append(tempfuncwork)
+                                inttimes.append(timetwo)
+                                tstepsneeded.append(stepstaken)
                     # Part of the code for non-PaSR.  Non-functional currently.
                     else:
                         solution.append(solver.y)
