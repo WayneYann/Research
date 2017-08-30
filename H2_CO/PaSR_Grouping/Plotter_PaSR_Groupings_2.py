@@ -168,15 +168,6 @@ speciesnames = ['H', 'H$_2$', 'O', 'OH', 'H$_2$O', 'O$_2$', 'HO$_2$',
 
 tlist = np.arange(tstart, tstop + 0.5 * dt, dt)
 
-for i in range(10):
-    print(imptstepsneeded[i])
-    print(extstepsneeded[i])
-    print(impinttimes[i])
-    print(impinttimes[i])
-    print(impfunctionwork[i])
-    print(exfunctionwork[i])
-    print('----')
-
 print('Plotting...')
 
 # Clear all previous figures and close them all
@@ -361,8 +352,6 @@ if PaSR:
     print("Average implicit timesteps taken: {:.7f}".format(impstepsavg))
     print("Maximum implicit timesteps taken: {:.7f}".format(
         max(imptstepsneeded)))
-
-    raise Exception
 
     # Plot of function calls vs. computation number
     pyl.figure(0)

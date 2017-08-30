@@ -440,7 +440,7 @@ for particle in particlelist:
         solver = ode(RHSfunction,
                      jac=intj
                      ).set_integrator(intmode,
-                                      nsteps=1,
+                                      nsteps=1e10,
                                       # atol=abserr,
                                       # rtol=relerr
                                       # min_step=dt,
@@ -495,7 +495,7 @@ for particle in particlelist:
                              jac=intj
                              # Set up for dopri5
                              ).set_integrator('dopri5',
-                                              method='bdf',
+                                              # method='bdf',
                                               nsteps=1,
                                               first_step=dt,
                                               max_step=(tnext - solver.t)
@@ -505,12 +505,18 @@ for particle in particlelist:
                 solver.set_f_params(RHSparam)
                 solver.set_jac_params(RHSparam)
                 solver._integrator.iwork[2] = -1
-            time0 = timer.time()
-            solver.integrate(tnext, step=True)
-            time1 = timer.time()
+            if intmode == 'vode':
+                time0 = timer.time()
+                solver.integrate(tnext, step=True)
+                time1 = timer.time()
+            else:
+                time0 = timer.time()
+                solver.integrate(tnext)
+                time1 = timer.time()
             if prevtime >= (tstart + dt) and prevtime < (tstart + 2*dt):
                 timetwo += time1 - time0
-                stepstaken += 1
+                if intmode == 'vode':
+                    stepstaken += 1
                 fcallstwo += functioncalls
             # if solver.t <= prevtime:
             #     raise Exception('Error: Simulation not advancing!')
@@ -546,7 +552,7 @@ for particle in particlelist:
                 stepstaken = 0
                 halfflag = False
                 timetwo = 0.0
-                fcallstwo = 0”
+                fcallstwo = 0
             else:
                 localtemp = solver.y[0]
                 if PaSR:
@@ -592,7 +598,7 @@ for particle in particlelist:
                             indexvals.append(stiffindices[2])
                             indicatorvals.append(indicator)
                             CEMAvals.append(chemexmode)
-                            # Save the functionwork
+                        # Save the functionwork
                         if failflag:
                             functionwork.append(-1)
                             inttimes.append(-1)
@@ -600,6 +606,8 @@ for particle in particlelist:
                         else:
                             functionwork.append(fcallstwo)
                             inttimes.append(timetwo)
+                            if intmode == 'dopri5':
+                                stepstaken = (fcallstwo - 1) / 6
                             tstepsneeded.append(stepstaken)
                 # Part of the code for non-PaSR.  Non-functional currently.
                 else:
