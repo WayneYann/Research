@@ -23,7 +23,7 @@ def loadpasrdata(num):
     return np.concatenate(pasrarrays, 1)
 
 
-dt = 1.e-7
+dt = 1.e-8
 output_folder = 'Output_Plots/'
 data_folder = 'Output_Data/'
 equation = 'PaSR_Autoignition'

@@ -246,7 +246,7 @@ def CEMA(xlist, solution, jfun, *args):
             values.append(max(np.linalg.eigvals(jacobian)))
     except TypeError:
         jacobian = jfun(xlist, solution, funcparams[0])
-        values.append(max(np.linalg.eigvals(jacobian)))
+        values = (max(np.linalg.eigvals(jacobian)))
     return values
 
 
@@ -272,7 +272,7 @@ def stiffnessratio(xlist, solution, jfun, *args):
         jacobian = jfun(xlist, solution, funcparams[0])
         eigvals = np.array([abs(j) for j in np.linalg.eigvals(jacobian)
                             if j != 0])
-        values.append(max(eigvals)/min(eigvals))
+        values = (max(eigvals)/min(eigvals))
     return values
 
 
@@ -471,12 +471,13 @@ for particle in particlelist:
         # Integrate the ODE across all steps
         tnext = tstart + dt
         halfflag = False
+        stepstaken = 0
+        timetwo = 0.
+        fcallstwo = 0
         while solver.t < tstop:
-            stepstaken = 0
-            functioncalls = 0
-            timetwo = 0.
             # Integrate until hitting the next tstep
             while solver.t < tnext:
+                functioncalls = 0
                 # Do this to force it to stop at every dt
                 # Obtain the previous state values
                 prevsol = solver.y
@@ -521,8 +522,8 @@ for particle in particlelist:
                 time1 = timer.time()
                 if prevtime >= (tstart + dt) and prevtime < (tstart + 2*dt):
                     timetwo += time1 - time0
-                    tempfcalls = functioncalls
                     stepstaken += 1
+                    fcallstwo += functioncalls
                 # if solver.t <= prevtime:
                 #     raise Exception('Error: Simulation not advancing!')
                 # Save the solution
@@ -557,6 +558,7 @@ for particle in particlelist:
                     stepstaken = 0
                     halfflag = False
                     timetwo = 0.0
+                    fcallstwo = 0
                 else:
                     localtemp = solver.y[0]
                     if PaSR:
@@ -581,7 +583,6 @@ for particle in particlelist:
                                                   EQjac,
                                                   RHSparam
                                                   )
-                            tempfuncwork = functioncalls
                             # print('Halfway value: {}'.format(tstart + 2*dt))
                             # print('Current value: {}'.format(solver.t))
                             halfflag = True
@@ -609,7 +610,7 @@ for particle in particlelist:
                                 inttimes.append(-1)
                                 tstepsneeded.append(-1)
                             else:
-                                functionwork.append(tempfuncwork)
+                                functionwork.append(fcallstwo)
                                 inttimes.append(timetwo)
                                 tstepsneeded.append(stepstaken)
                     # Part of the code for non-PaSR.  Non-functional currently.
@@ -636,7 +637,6 @@ for particle in particlelist:
                             CEMAvals.append(chemexmode)
                         # solutiontimes.append(time1 - time0)
                         functionwork.append(functioncalls)
-            stepstaken = 0
             tnext += dt
 
         # print('Timesteps needed:')

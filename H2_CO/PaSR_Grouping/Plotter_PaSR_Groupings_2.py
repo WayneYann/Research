@@ -163,18 +163,21 @@ print('indexvals: {}'.format(np.shape(indexvals)))
 print('indicatorvals: {}'.format(np.shape(indicatorvals)))
 print('CEMAvals: {}'.format(np.shape(CEMAvals)))
 
-failcount = 0
-for i in range(len(exfunctionwork)):
-    if exfunctionwork[i] == -1:
-        # print('dopri5 failed at {}'.format(i))
-        failcount += 1
-        # print(extstepsneeded[i])
-print('dopri5 steps failed: {}'.format(failcount))
-
 speciesnames = ['H', 'H$_2$', 'O', 'OH', 'H$_2$O', 'O$_2$', 'HO$_2$',
                 'H$_2$O$_2$', 'Ar', 'He', 'CO', 'CO$_2$', 'N$_2$']
 
 tlist = np.arange(tstart, tstop + 0.5 * dt, dt)
+
+for i in range(10):
+    print(imptstepsneeded[i])
+    print(extstepsneeded[i])
+    print(impinttimes[i])
+    print(impinttimes[i])
+    print(impfunctionwork[i])
+    print(exfunctionwork[i])
+    print('----')
+
+raise Exception
 
 print('Plotting...')
 
