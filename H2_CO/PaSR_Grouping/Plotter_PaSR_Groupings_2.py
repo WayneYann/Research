@@ -42,8 +42,8 @@ getmetrics = False
 # Can be either 'clock', 'RHS', or 'tsteps'
 fastermethod = 'clock'
 # Explicit and implicit target dates
-impdate = '08_29'
-exdate = '08_28'
+impdate = '08_30'
+exdate = '08_30'
 # Make this true if you want to test all of the values across the PaSR.
 # Otherwise, this will run a single autoignition.
 PaSR = True
@@ -51,7 +51,7 @@ pasrfilesloaded = 9
 # Figure out a way of doing this later.
 # diffcolors = False
 # Define the range of the computation.
-dt = 1.e-7
+dt = 1.e-8
 tstart = 0.
 tstop = 0.2
 # To be implemented later.
