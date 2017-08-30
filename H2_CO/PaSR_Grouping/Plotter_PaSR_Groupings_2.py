@@ -177,8 +177,6 @@ for i in range(10):
     print(exfunctionwork[i])
     print('----')
 
-raise Exception
-
 print('Plotting...')
 
 # Clear all previous figures and close them all
@@ -322,7 +320,8 @@ if PaSR:
     exworkavg = 0.0
     impworkavg = 0.0
     for i in range(datanum):
-        exworkavg += exfunctionwork[i]
+        if exfunctionwork[i] > 0:
+            exworkavg += exfunctionwork[i]
         impworkavg += impfunctionwork[i]
     exworkavg = (exworkavg / datanum)
     impworkavg = (impworkavg / datanum)
@@ -336,7 +335,8 @@ if PaSR:
     exclockavg = 0.0
     impclockavg = 0.0
     for i in range(datanum):
-        exclockavg += exinttimes[i]
+        if exinttimes[i] > 0:
+            exclockavg += exinttimes[i]
         impclockavg += impinttimes[i]
     exclockavg = (exclockavg / datanum)
     impclockavg = (impclockavg / datanum)
@@ -350,7 +350,8 @@ if PaSR:
     exstepsavg = 0.0
     impstepsavg = 0.0
     for i in range(datanum):
-        exstepsavg += extstepsneeded[i]
+        if extstepsneeded[i] > 0:
+            exstepsavg += extstepsneeded[i]
         impstepsavg += imptstepsneeded[i]
     exstepsavg = (exstepsavg / datanum)
     impstepsavg = (impstepsavg / datanum)
@@ -360,6 +361,8 @@ if PaSR:
     print("Average implicit timesteps taken: {:.7f}".format(impstepsavg))
     print("Maximum implicit timesteps taken: {:.7f}".format(
         max(imptstepsneeded)))
+
+    raise Exception
 
     # Plot of function calls vs. computation number
     pyl.figure(0)

@@ -517,9 +517,14 @@ for particle in particlelist:
                     solver.set_f_params(RHSparam)
                     solver.set_jac_params(RHSparam)
                     solver._integrator.iwork[2] = -1
-                time0 = timer.time()
-                solver.integrate(tnext, step=True)
-                time1 = timer.time()
+                if intmode == 'vode':
+                    time0 = timer.time()
+                    solver.integrate(tnext, step=True)
+                    time1 = timer.time()
+                else:
+                    time0 = timer.time()
+                    solver.integrate(tnext)
+                    time1 = timer.time()
                 if prevtime >= (tstart + dt) and prevtime < (tstart + 2*dt):
                     timetwo += time1 - time0
                     stepstaken += 1
