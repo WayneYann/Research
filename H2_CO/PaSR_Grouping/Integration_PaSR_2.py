@@ -452,7 +452,7 @@ for particle in particlelist:
             solver = ode(RHSfunction,
                          jac=intj
                          ).set_integrator(intmode,
-                                          nsteps=1e99,
+                                          nsteps=1e10,
                                           # atol=abserr,
                                           # rtol=relerr
                                           # min_step=dt,
@@ -508,7 +508,7 @@ for particle in particlelist:
                                  # Set up for dopri5
                                  ).set_integrator('dopri5',
                                                   # method='bdf',
-                                                  nsteps=1e99,
+                                                  nsteps=1e10,
                                                   first_step=dt,
                                                   max_step=(tnext - solver.t)
                                                   )
