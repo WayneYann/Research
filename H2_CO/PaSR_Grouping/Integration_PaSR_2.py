@@ -452,7 +452,7 @@ for particle in particlelist:
             solver = ode(RHSfunction,
                          jac=intj
                          ).set_integrator(intmode,
-                                          nsteps=1,
+                                          nsteps=1e99,
                                           # atol=abserr,
                                           # rtol=relerr
                                           # min_step=dt,
@@ -507,8 +507,8 @@ for particle in particlelist:
                                  jac=intj
                                  # Set up for dopri5
                                  ).set_integrator('dopri5',
-                                                  method='bdf',
-                                                  nsteps=1,
+                                                  # method='bdf',
+                                                  nsteps=1e99,
                                                   first_step=dt,
                                                   max_step=(tnext - solver.t)
                                                   )
@@ -527,7 +527,8 @@ for particle in particlelist:
                     time1 = timer.time()
                 if prevtime >= (tstart + dt) and prevtime < (tstart + 2*dt):
                     timetwo += time1 - time0
-                    stepstaken += 1
+                    if intmode == 'vode':
+                        stepstaken += 1
                     fcallstwo += functioncalls
                 # if solver.t <= prevtime:
                 #     raise Exception('Error: Simulation not advancing!')
@@ -617,6 +618,8 @@ for particle in particlelist:
                             else:
                                 functionwork.append(fcallstwo)
                                 inttimes.append(timetwo)
+                                if intmode == 'dopri5':
+                                    stepstaken = (fcallstwo - 1) / 6
                                 tstepsneeded.append(stepstaken)
                     # Part of the code for non-PaSR.  Non-functional currently.
                     else:
