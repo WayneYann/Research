@@ -333,7 +333,7 @@ intmode = 'vode'
 # Non-PaSR currently not functional
 PaSR = True
 # Define the range of the computation.
-dt = 1.e-7
+dt = 1.e-8
 tstart = 0.
 tstop = 0.2
 # ODE Solver parameters.
