@@ -40,7 +40,7 @@ equation = 'Autoignition'
 getmetrics = False
 # Select the method to determine what was fastest
 # Can be either 'clock', 'RHS', or 'tsteps'
-fastermethod = 'clock'
+fastermethod = 'RHS'
 # Explicit and implicit target dates
 impdate = '08_30'
 exdate = '08_30'
@@ -152,16 +152,16 @@ CEMAvals = np.load(os.path.join(os.getcwd(),
                                 CEMAfilename +
                                 '.npy'))
 
-print('impfunctionwork: {}'.format(np.shape(impfunctionwork)))
-print('exfunctionwork: {}'.format(np.shape(exfunctionwork)))
-print('extstepsneeded: {}'.format(np.shape(extstepsneeded)))
-print('imptstepsneeded: {}'.format(np.shape(imptstepsneeded)))
-print('exinttimes: {}'.format(np.shape(exinttimes)))
-print('impinttimes: {}'.format(np.shape(impinttimes)))
-print('ratiovals: {}'.format(np.shape(ratiovals)))
-print('indexvals: {}'.format(np.shape(indexvals)))
-print('indicatorvals: {}'.format(np.shape(indicatorvals)))
-print('CEMAvals: {}'.format(np.shape(CEMAvals)))
+# print('impfunctionwork: {}'.format(np.shape(impfunctionwork)))
+# print('exfunctionwork: {}'.format(np.shape(exfunctionwork)))
+# print('extstepsneeded: {}'.format(np.shape(extstepsneeded)))
+# print('imptstepsneeded: {}'.format(np.shape(imptstepsneeded)))
+# print('exinttimes: {}'.format(np.shape(exinttimes)))
+# print('impinttimes: {}'.format(np.shape(impinttimes)))
+# print('ratiovals: {}'.format(np.shape(ratiovals)))
+# print('indexvals: {}'.format(np.shape(indexvals)))
+# print('indicatorvals: {}'.format(np.shape(indicatorvals)))
+# print('CEMAvals: {}'.format(np.shape(CEMAvals)))
 
 speciesnames = ['H', 'H$_2$', 'O', 'OH', 'H$_2$O', 'O$_2$', 'HO$_2$',
                 'H$_2$O$_2$', 'Ar', 'He', 'CO', 'CO$_2$', 'N$_2$']
@@ -294,6 +294,7 @@ elif fastermethod == 'tsteps':
             eqCEM.append(CEMAvals[i])
 
 # Print out some statistics on how whatever ran faster
+print('Statistics for ' + fastermethod + ':')
 print('Implicit faster:')
 print(np.shape(impfmeasure))
 print('Explicit faster:')
@@ -354,7 +355,7 @@ if PaSR:
         max(imptstepsneeded)))
 
     # Plot of function calls vs. computation number
-    pyl.figure(0)
+    pyl.figure(plotnum)
     pyl.xlim(0, datanum)
     pyl.ylim(0, max(max(impfunctionwork), max(exfunctionwork)))
     pyl.xlabel('Computation Number')
@@ -364,6 +365,7 @@ if PaSR:
     pyl.scatter(range(datanum), exfunctionwork, 1.0, c='r', label='dopri5',
                 lw=0)
     pyl.legend(fontsize='small', markerscale=5)
+    pyl.tight_layout()
     pyl.grid(b=True, which='both')
     if savefigures == 1:
         pyl.savefig(output_folder +
@@ -373,7 +375,7 @@ if PaSR:
     plotnum += 1
 
     # Plot of clock time vs. computation number
-    pyl.figure(0)
+    pyl.figure(plotnum)
     pyl.xlim(0, datanum)
     pyl.ylim(0, max(max(impinttimes), max(exinttimes)))
     pyl.xlabel('Computation Number')
@@ -383,6 +385,7 @@ if PaSR:
     pyl.scatter(range(datanum), exinttimes, 1.0, c='r', label='dopri5',
                 lw=0)
     pyl.legend(fontsize='small', markerscale=5)
+    pyl.tight_layout()
     pyl.grid(b=True, which='both')
     if savefigures == 1:
         pyl.savefig(output_folder +
@@ -392,7 +395,7 @@ if PaSR:
     plotnum += 1
 
     # Plot of time steps needed vs. computation number
-    pyl.figure(0)
+    pyl.figure(plotnum)
     pyl.xlim(0, datanum)
     pyl.ylim(0, max(max(imptstepsneeded), max(extstepsneeded)))
     pyl.xlabel('Computation Number')
@@ -402,6 +405,7 @@ if PaSR:
     pyl.scatter(range(datanum), extstepsneeded, 1.0, c='r', label='dopri5',
                 lw=0)
     pyl.legend(fontsize='small', markerscale=5)
+    pyl.tight_layout()
     pyl.grid(b=True, which='both')
     if savefigures == 1:
         pyl.savefig(output_folder +
@@ -425,6 +429,7 @@ if PaSR:
     ax.scatter(ratiovals, exmeasure, 1.0, c='r', label='dopri5',
                lw=0)
     ax.legend(fontsize='small', markerscale=5)
+    pyl.tight_layout()
     pyl.grid(b=True, which='both')
     if savefigures == 1:
         name = output_folder + 'PaSR' + savestring + 'Stiffness_Ratio_' +\
@@ -447,6 +452,7 @@ if PaSR:
     ax1.scatter(indexvals, exmeasure, 1.0, c='r', label='dopri5',
                 lw=0)
     ax1.legend(fontsize='small', markerscale=5)
+    pyl.tight_layout()
     pyl.grid(b=True, which='both')
     if savefigures == 1:
         name = output_folder + 'PaSR' + savestring + 'Stiffness_Index_' +\
@@ -469,6 +475,7 @@ if PaSR:
                 label='dopri5',
                 lw=0)
     ax2.legend(fontsize='small', markerscale=5)
+    pyl.tight_layout()
     pyl.grid(b=True, which='both')
     if savefigures == 1:
         name = output_folder + 'PaSR' + savestring + 'Stiffness_Indicator_' +\
@@ -491,6 +498,7 @@ if PaSR:
     ax3.scatter(CEMAvals, exmeasure, 1.0, c='r', label='dopri5',
                 lw=0)
     ax3.legend(fontsize='small', markerscale=5)
+    pyl.tight_layout()
     pyl.grid(b=True, which='both')
     if savefigures == 1:
         name = output_folder + 'PaSR' + savestring + 'CEMA_' + str(dt)
@@ -501,12 +509,20 @@ if PaSR:
     fig4 = pyl.figure(plotnum)
     pyl.xlabel('Stiffness Ratio')
     pyl.ylabel(ylabel)
-    pyl.ylim(min(min(impmeasure), min(exmeasure)),
-             max(max(impfmeasure),
-                 max(exfmeasure),
-                 max(eqmeasure)  # ,
-                 # max(failimpwork)
-                 ))
+    try:
+        pyl.ylim(min(min(impmeasure), min(exmeasure)),
+                 max(max(impfmeasure),
+                     max(exfmeasure),
+                     max(eqmeasure)  # ,
+                     # max(failimpwork)
+                     ))
+    except ValueError:
+        pyl.ylim(min(min(impmeasure), min(exmeasure)),
+                 max(max(impfmeasure),
+                     max(exfmeasure)  # ,
+                     # max(eqmeasure)  # ,
+                     # max(failimpwork)
+                     ))
     pyl.xscale('log')
     ax4 = fig4.add_subplot(111)
     ax4.scatter(impfratio, impfmeasure, 1.0, c='b', label='vode Faster',
@@ -519,6 +535,7 @@ if PaSR:
                 label='dopri5 Failed',
                 lw=0)
     ax4.legend(fontsize='small', markerscale=5)
+    pyl.tight_layout()
     pyl.grid(b=True, which='both')
     if savefigures == 1:
         name = output_folder + 'PaSR' + savestring + 'Ratio_Groupings_' +\
@@ -530,12 +547,20 @@ if PaSR:
     fig5 = pyl.figure(plotnum)
     pyl.xlabel('Stiffness Index')
     pyl.ylabel(ylabel)
-    pyl.ylim(min(min(impmeasure), min(exmeasure)),
-             max(max(impfmeasure),
-                 max(exfmeasure),
-                 max(eqmeasure)  # ,
-                 # max(failimpwork)
-                 ))
+    try:
+        pyl.ylim(min(min(impmeasure), min(exmeasure)),
+                 max(max(impfmeasure),
+                     max(exfmeasure),
+                     max(eqmeasure)  # ,
+                     # max(failimpwork)
+                     ))
+    except ValueError:
+        pyl.ylim(min(min(impmeasure), min(exmeasure)),
+                 max(max(impfmeasure),
+                     max(exfmeasure)  # ,
+                     # max(eqmeasure)  # ,
+                     # max(failimpwork)
+                     ))
     # pyl.xlim(min(ratiovals), max(ratiovals))
     pyl.xscale('log')
     ax5 = fig5.add_subplot(111)
@@ -549,6 +574,7 @@ if PaSR:
                 label='dopri5 Failed',
                 lw=0)
     ax5.legend(fontsize='small', markerscale=5)
+    pyl.tight_layout()
     pyl.grid(b=True, which='both')
     if savefigures == 1:
         name = output_folder + 'PaSR' + savestring + 'Index_Groupings_' +\
@@ -562,12 +588,20 @@ if PaSR:
     fig6 = pyl.figure(plotnum)
     pyl.xlabel('Stiffness Indicator')
     pyl.ylabel(ylabel)
-    pyl.ylim(min(min(impmeasure), min(exmeasure)),
-             max(max(impfmeasure),
-                 max(exfmeasure),
-                 max(eqmeasure)  # ,
-                 # max(failimpwork)
-                 ))
+    try:
+        pyl.ylim(min(min(impmeasure), min(exmeasure)),
+                 max(max(impfmeasure),
+                     max(exfmeasure),
+                     max(eqmeasure)  # ,
+                     # max(failimpwork)
+                     ))
+    except ValueError:
+        pyl.ylim(min(min(impmeasure), min(exmeasure)),
+                 max(max(impfmeasure),
+                     max(exfmeasure)  # ,
+                     # max(eqmeasure)  # ,
+                     # max(failimpwork)
+                     ))
     ax6 = fig6.add_subplot(111)
     ax6.scatter(impfindicator, impfmeasure, 1.0, c='b',
                 label='vode Faster',
@@ -581,6 +615,7 @@ if PaSR:
                 label='dopri5 Failed',
                 lw=0)
     ax6.legend(fontsize='small', markerscale=5)
+    pyl.tight_layout()
     pyl.grid(b=True, which='both')
     if savefigures == 1:
         name = output_folder + 'PaSR' + savestring + 'Indicator_Groupings_' +\
@@ -594,12 +629,20 @@ if PaSR:
     fig7 = pyl.figure(plotnum)
     pyl.xlabel('Chemical Explosive Mode')
     pyl.ylabel(ylabel)
-    pyl.ylim(min(min(impmeasure), min(exmeasure)),
-             max(max(impfmeasure),
-                 max(exfmeasure),
-                 max(eqmeasure)  # ,
-                 # max(failimpwork)
-                 ))
+    try:
+        pyl.ylim(min(min(impmeasure), min(exmeasure)),
+                 max(max(impfmeasure),
+                     max(exfmeasure),
+                     max(eqmeasure)  # ,
+                     # max(failimpwork)
+                     ))
+    except ValueError:
+        pyl.ylim(min(min(impmeasure), min(exmeasure)),
+                 max(max(impfmeasure),
+                     max(exfmeasure)  # ,
+                     # max(eqmeasure)  # ,
+                     # max(failimpwork)
+                     ))
     pyl.xscale('log')
     pyl.xlim(1e-16, max(CEMAvals))
     # colors = plt.cm.spectral(np.linspace(0, 1, pasrfilesloaded))
@@ -614,6 +657,7 @@ if PaSR:
                 label='dopri5 Failed',
                 lw=0)
     ax7.legend(fontsize='small', markerscale=5)
+    pyl.tight_layout()
     pyl.grid(b=True, which='both')
     if savefigures == 1:
         name = output_folder + 'PaSR' + savestring + 'CEMA_Groupings_' +\
@@ -656,6 +700,7 @@ else:
     pyl.scatter(tlist, exprimaryvals, 1.0, c='r', lw=0, label='dopri5')
     pyl.scatter(tlist, impprimaryvals, 1.0, c='b', lw=0, label='vode')
     pyl.grid(b=True, which='both')
+    pyl.tight_layout()
     pyl.legend(fontsize='small')
     if savefigures == 1:
         pyl.savefig(output_folder +
@@ -680,6 +725,7 @@ else:
     pyl.scatter(tlist, impfunctionwork, 1.0, c='b', lw=0, label='vode')
     pyl.scatter(tlist, exfunctionwork, 1.0, c='r', lw=0, label='dopri5')
     pyl.grid(b=True, which='both')
+    pyl.tight_layout()
     pyl.legend(fontsize='small')
     if savefigures == 1:
         pyl.savefig(output_folder +
