@@ -465,6 +465,7 @@ for particle in particlelist:
     while solver.t < tstop:
         # Integrate until hitting the next tstep
         while solver.t < tnext:
+            warnings.filterwarnings("ignore", category=UserWarning)
             functioncalls = 0
             # Do this to force it to stop at every dt
             # Obtain the previous state values
@@ -496,7 +497,7 @@ for particle in particlelist:
                              # Set up for dopri5
                              ).set_integrator('dopri5',
                                               # method='bdf',
-                                              nsteps=1,
+                                              nsteps=1e10,
                                               first_step=dt,
                                               max_step=(tnext - solver.t)
                                               )
@@ -633,6 +634,7 @@ for particle in particlelist:
                         CEMAvals.append(chemexmode)
                     # solutiontimes.append(time1 - time0)
                     functionwork.append(functioncalls)
+            warnings.resetwarnings()
         tnext += dt
 
     # print('Timesteps needed:')

@@ -35,8 +35,8 @@ getmetrics = False
 # Can be either 'clock', 'RHS', or 'tsteps'
 fastermethod = 'clock'
 # Explicit and implicit target dates
-impdate = '08_30'
-exdate = '08_30'
+impdate = '08_31'
+exdate = '08_31'
 # Make this true if you want to test all of the values across the PaSR.
 # Otherwise, this will run a single autoignition.
 PaSR = True
@@ -144,16 +144,16 @@ CEMAvals = np.load(os.path.join(os.getcwd(),
                                 CEMAfilename +
                                 '.npy'))
 
-# print('impfunctionwork: {}'.format(np.shape(impfunctionwork)))
-# print('exfunctionwork: {}'.format(np.shape(exfunctionwork)))
-# print('extstepsneeded: {}'.format(np.shape(extstepsneeded)))
-# print('imptstepsneeded: {}'.format(np.shape(imptstepsneeded)))
-# print('exinttimes: {}'.format(np.shape(exinttimes)))
-# print('impinttimes: {}'.format(np.shape(impinttimes)))
-# print('ratiovals: {}'.format(np.shape(ratiovals)))
-# print('indexvals: {}'.format(np.shape(indexvals)))
-# print('indicatorvals: {}'.format(np.shape(indicatorvals)))
-# print('CEMAvals: {}'.format(np.shape(CEMAvals)))
+print('impfunctionwork: {}'.format(np.shape(impfunctionwork)))
+print('exfunctionwork: {}'.format(np.shape(exfunctionwork)))
+print('extstepsneeded: {}'.format(np.shape(extstepsneeded)))
+print('imptstepsneeded: {}'.format(np.shape(imptstepsneeded)))
+print('exinttimes: {}'.format(np.shape(exinttimes)))
+print('impinttimes: {}'.format(np.shape(impinttimes)))
+print('ratiovals: {}'.format(np.shape(ratiovals)))
+print('indexvals: {}'.format(np.shape(indexvals)))
+print('indicatorvals: {}'.format(np.shape(indicatorvals)))
+print('CEMAvals: {}'.format(np.shape(CEMAvals)))
 
 speciesnames = ['H', 'H$_2$', 'O', 'OH', 'H$_2$O', 'O$_2$', 'HO$_2$',
                 'H$_2$O$_2$', 'Ar', 'He', 'CO', 'CO$_2$', 'N$_2$']

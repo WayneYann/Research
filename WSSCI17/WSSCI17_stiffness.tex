@@ -140,19 +140,21 @@ We look to these methods of stiffness quantification to determine their usefulne
 In doing so, we hope to reduce the computational expense of combustion simulations.
 
 \section{Methods}
-% REVIEW IF GRI MECH CAN'T BE COMPLETED IN TIME
 We considered two different chemical kinetic models in this study: the relatively small hydrogen\slash carbon monoxide (\ce{H2}\slash \ce{CO}) model of Burke et al.~\cite{Burke:2011fh} and GRI Mech 3.0~\cite{grimech3}, which uses \ce{CH4} as fuel.
 The \ce{H2}\slash \ce{CO} model uses 13 species while the GRI Mech 3.0 is larger and uses 53 species, allowing for Jacobian matrices of system of ODEs of $13 \times 13$ and $53 \times 53$, respectively.
 These relatively small Jacobian matrices allow for much faster evaluations of stiffness than would be possible with larger, more complicated kinetic systems, which can have hundreds to hundreds of thousands of chemical species~\cite{Niemeyer:2013}.
 
 The code used to run autoignition simulations and calculate stiffness metrics was written in Python and made use of open-source software, including the \texttt{ode} integrator function of SciPy~\cite{SciPy}.
-Two different integrators of the \texttt{ode} integrator function were used: the implicit \texttt{vode} integrator, which uses an implicit Adams method for non-stiff problems and a method based on the backwards differentiation formulae (BDF) for stiff problems~\cite{Brown1989}, and the explicit \texttt{dopri5} integrator, which uses a Runge-Kutta method of order (4)5 developed by Dormand and Prince with automatic step size control~\cite{E.HairerSPNorsett1990}.
+Two different integrators of the \texttt{ode} integrator function were used to compare explicit to implicit methods. 
+The first integrator was \texttt{vode}, which uses an implicit Adams method for non-stiff problems and a method based on the backwards differentiation formulae (BDF) for stiff problems~\cite{Brown1989}.
+The explicit integrator used was \texttt{dopri5}, which uses a Runge-Kutta method of order (4)5 developed by Dormand and Prince with automatic step size control~\cite{E.HairerSPNorsett1990}.
 The \texttt{vode} integrator was set to use the default behavior of using first-order finite differencing to provide an estimate of the Jacobian matrix.
+Both integrators use internal time-steps in between the user defined time-steps for accuracy control and make use of \texttt{FORTRAN} libraries to perform the integrations.
 \texttt{NumPy}~\cite{VanDerWalt2011} was also extensively used in the code to determine eigenvalues and perform numerous basic mathematical functions.
-To ensure a high degree of accuracy, the integrator was given values of \num{e-15} and \num{e-17} for the error control parameters \texttt{relerr} and \texttt{abserr}, respectively.
+The integrator used default values of \num{e-6} and \num{e-12} for the error control parameters \texttt{rtol} and \texttt{atol}, respectively.
 
 Computation of the right hand side (RHS) function and the Jacobian matrix of the systems of ODEs were readily achieved using pyJac~\cite{pyJac:1.0.2}, a Python-based open-source program that generates analytical Jacobian matrices for use in chemical kinetics modeling and analysis~\cite{Niemeyer:2017}.
-pyJac uses a chemical mechanism developed using Cantera~\cite{Goodwin:2015aa} software and a set of initial conditions to generate functions that return the required values.  A global variable was added to the RHS function to count the number of calls from the integrator for each time-step.
+pyJac uses a chemical mechanism developed using Cantera~\cite{Goodwin:2015aa} software and a set of initial conditions to generate functions that return the required values.
 
 Our analysis was conducted using information gathered from partially stirred reactor (PaSR) simulations.
 As described by Niemeyer et al.~\cite{Niemeyer:2017}, the PaSR model consists of a number of particles, each with a time-varying composition.
@@ -162,10 +164,13 @@ The \ce{H2}\slash \ce{CO} simulation used a different set of PaSR data than the 
 Both sets of PaSR data included nine different configurations of temperature and pressure; the initial temperature values were 400, 600, and 800 K, while the pressure values were 1, 10, and 25 atm.
 Pressure remained constant throughout the simulations.
 
-% Not sure why this one is here.
-% (Please refer to Niemeyer et al.~\cite{Niemeyer:2017} for a detailed description of the relevant equations and solution technique.)
+The wall clock time required by \texttt{vode} and \texttt{dopri5} to advance one user specified time step was measured for each particle of the PaSR simulation.
+The number of RHS function calls used by the integrator to advance one time-step was measured by adding a global variable, and the number of internal time-steps used by \texttt{vode} was measured.
+Measurement of the time-steps used by \texttt{vode} was accomplished without manipulation of the original \texttt{FORTRAN} code by limiting the integrator to one time step each time the integrator was called.
+\texttt{dopri5} is explicit and uses six function calls to advance each internal time step, therefore the number of internal time-steps for this integrator was calculated by dividing the number of RHS function calls by six.
 
-% To ensure that the code was running properly, the van der Pol equation with a \(\epsilon\) value of 1000 was used as a test equation.
+% Not sure why this one was here in the last paper.
+% (Please refer to Niemeyer et al.~\cite{Niemeyer:2017} for a detailed description of the relevant equations and solution technique.)
 
 The four stiffness quantification methods discussed within this paper are the stiffness ratio, the stiffness index, the stiffness indicator, and the chemical explosive mode.
 Variable names have been changed in the equations below to maintain consistency throughout this paper.
@@ -228,8 +233,7 @@ In addition to this vector of derivatives, computation of the stiffness index re
 
 After generating this data using pyJac, the values of the second derivative of the thermochemical composition vector were calculated numerically using a fourth-order central differencing formula.
 Numerical approximations of higher-level derivatives may also be generated using the same approach.
-% REVIEW THIS
-Use of the central differencing formula was possible because the stiffness index was calculated after solving for the thermochemical composition vector, and the reaction was modeled using time-steps of a constant size.
+Use of the central differencing formula was possible because the stiffness index was calculated after solving for the thermochemical composition vector, and the reaction was modeled using user defined time-steps of a constant size.
 Forward and backward difference formulae were used at the boundaries where central differencing could not be used.
 Variable time-step methods for calculating the second derivative or higher-level derivatives may also be used, however these methods were not necessary at the current stage of the investigation.
 
@@ -264,154 +268,147 @@ The chemical explosive modes are associated with positive eigenvalues of the Jac
 Similar to the stiffness ratio, the CEMA is readily implemented and carries little computational cost beyond determining the eigenvalues of the Jacobian matrix.
 
 \section{Results and Discussion}
-% NEED TO UPDATE
-%Initial conditions were picked using particles of the PaSR simulation where weak reactions were taking place but ignition had not yet occurred.
-%The simulation was run until 0.2 seconds of data was obtained, in which time the particles exhibited autoignition.
-%Using state data obtained during the simulation, the Jacobian matrix was calculated at each time-step using \texttt{pyJac}, which allowed the numerical values of each stiffness matrix to be calculated.
 
 An analysis of each stiffness metric was performed using every particle in the PaSR simulation.
 In this analysis, a simulation at each particle of the PaSR was advanced only as long as needed to obtain an accurate numerical value of each stiffness metric.
-Because a fourth order central difference formula was used to numerically calculate the second derivatives in the calculation of the stiffness index, this resulted in five time-steps being used for each particle.
+Because a fourth order central difference formula was used to numerically approximate the second derivatives in the calculation of the stiffness index, the simulation was advanced until five solution values existed at each particle.
 The only information needed to calculate the stiffness ratio, stiffness indicator, and chemical explosive modes is the Jacobian matrix, therefore these values could be calculated at every time-step as soon as the solution was known.
-A constant step size of $1 \times 10^{-6}$ s was used for the computation, however the built in methods of the \texttt{ode} package have automatic step size control to ensure that values remain within tolerance, and the integrator may take many steps in between the specified time-step.
+Constant step sizes of $1 \times 10^{-7}$ s and $1 \times 10^{-8}$ s were used for computations of the \ce{H2}\slash \ce{CO} model and GRI Mech 3.0 models, respectively, however the built in methods of the \texttt{ode} package have automatic step size control to ensure that values remain within tolerance, and the integrator may take many steps in between the specified time-step.
 Using state data obtained during the simulation, the Jacobian matrix was calculated at each time-step using \texttt{pyJac}, which allowed the numerical values of each stiffness matrix to be calculated.
-The code was configured to count the number of RHS function calls used by either \texttt{vode} or \texttt{dopri5} while integrating.
+As previously discussed, the wall clock time, number of RHS function calls, and internal time-steps were measured once at each particle, however we are most interested in wall clock time for the purposes of this study.
+The simulation was performed on an early 2015 MacBook Pro with a 2.9 GHz Intel Core i5 processor.
 
 \subsection{Results}
-%% NEED TO RUN DATA FOR CEMA OR OTHERWISE FIND THE PLOT
-%\begin{figure}[htbp]
-%    \centering
-%    \begin{subfigure}{0.42\textwidth}
-%        \includegraphics[width=\linewidth]{Autoignition_Temperature_1e-06_08_03.png}
-%        \caption{The temperature of the simulation rises from approximately \SI{850}{\kelvin} prior to autoigniton to approximatley \SI{2775}{\kelvin}, with a residence time of approximately 0.10 seconds.}
-%        \label{fig:tempcurveH2COAuto}
-%    \end{subfigure}
-%    \hfill
-%    % NEED TO FIX LEGEND
-%    \begin{subfigure}{0.42\textwidth}
-%        \includegraphics[width=\linewidth]{Autoignition_Function_Work_1e-06_08_17.png}
-%        \caption{The number of RHS function calls per time-step increases slowly prior to autoignition and rapidly increases during ignition, then remains relatively constant and large after ignition.}
-%        \label{fig:fnworkH2COAuto}
-%    \end{subfigure}
-%    \begin{subfigure}{0.42\textwidth}
-%        \includegraphics[width=\linewidth]{Autoignition_Stiffness_Ratio_1e-06_08_03.png}
-%        \caption{The stiffness ratio remains large throughout the simulation, but decreases in magnitude after ignition.}
-%        \label{fig:SRH2COAuto}
-%    \end{subfigure}
-%    \hfill
-%    \begin{subfigure}{0.42\textwidth}
-%        \includegraphics[width=\linewidth]{Autoignition_Stiffness_Index_1e-06_08_03.png}
-%        \caption{The stiffness index slowly decreases prior to autoignition and increases following autoignition.}
-%        \label{fig:SI1H2COAuto}
-%    \end{subfigure}
-%        \begin{subfigure}{0.42\textwidth}
-%        \includegraphics[width=\linewidth]{Autoignition_Stiffness_Indicator_1e-06_08_03.png}
-%        \caption{A plot of the stiffness indicator resembles an upside down plot of RHS function calls.}
-%        \label{fig:SI2H2COAuto}
-%    \end{subfigure}
-%    \caption{Temperature, RHS function calls, and stiffness metrics of the \ce{H2}\slash \ce{CO} reaction calculated with a constant step size of \SI{e-6}{\second}, integration time of \SIrange{0.0}{0.2}{\second}.}
-%    \label{fig:H2COAutoStiffness}
-%\end{figure}
-The PaSR data for the \ce{H2}\slash \ce{CO} model consisted of 900900 different particles.
-It was found that \texttt{vode} used fewer RHS function calls than \texttt{dopri5} for 139234 particles or 15.4\% of the PaSR data for this model, while \texttt{dopri5} used fewer function calls for 757569 particles or 84.0\% of the PaSR data.
-\texttt{vode} and \texttt{dopri5} used the same number of function calls for 4097 particles, and \texttt{dopri5} did not fail at any particle in the \ce{H2}\slash \ce{CO} model.
-A depiction of the number of function calls used by both \texttt{vode} and \texttt{dopri5} can be found in Figure~\ref{fig:FWH2COPaSR}.
-In general, \texttt{vode} outperformed \texttt{dopri5} when pressure was 1 atm and at 400K while pressure was 10 atm.
-At higher pressures and temperatures, the explicit \texttt{dopri5} generally outperformed the implicit \texttt{vode} when using this model.
+The \ce{H2}\slash \ce{CO} model was examined first due to its relative simplicity.
+The PaSR data for the this model consisted of 900900 different particles.
+It was found that \texttt{vode} had a smaller clock time than \texttt{dopri5} for 729384 particles or 81.0\% of the PaSR data for this model, while \texttt{dopri5} had a smaller clock time for 165001 particles or 18.3\% of the PaSR data.
+\texttt{vode} and \texttt{dopri5} had the same clock time within the numerical tolerance of the Python code for 6515 particles, and \texttt{dopri5} did not fail when integrating at any particle.
+% A depiction of the number of function calls used by both \texttt{vode} and \texttt{dopri5} can be found in Figure~\ref{fig:WCTH2COPaSR}.
+In general, \texttt{vode} was likely to outperform \texttt{dopri5} when pressure was 1 atm, and also when pressure was 10 atm at 400K.
+At higher pressures and temperatures, the explicit \texttt{dopri5} was more likely to outperform the implicit \texttt{vode} when using this model.
+This may be because the \ce{H2}\slash \ce{CO} model is generally more limited by accuracy requirements as opposed to stability requirements.
+\texttt{vode} uses backward differentiation formulae, which require multiple data points for higher order approximations.
+At the boundary conditions where few or no adjacent data points exist, lower order approximations are used.
+The use of lower order methods may be advantageous when few internal time-steps are needed because fewer RHS function calls are required to provide an approximation.
+Higher order methods may be advantageous when an intermediate number of time-steps are needed to provide the required accuracy because higher order methods are often able to make use of larger time-steps.
+Additionally, unlike implicit methods, explicit methods do not require calculation of Jacobian matrices to advance time.
 
 \begin{figure}[htbp]
     \centering
+%    \begin{subfigure}{0.43\textwidth}
+%        \includegraphics[width=\linewidth]{H2_CO/PaSR_Int_Times_1e-07.png}
+%        \caption{Wall clock time required to integrate one time-step for both \texttt{dopri5} and \texttt{vode} at each particle of the PaSR model.}
+%        \label{fig:WCTH2COPaSR}
+%    \end{subfigure}
     \begin{subfigure}{0.43\textwidth}
-        \includegraphics[width=\linewidth]{H2_CO/PaSR_Fn_Work_1e-06.png}
-        \caption{Number of function calls used to integrate one time-step for both \texttt{dopri5} and \texttt{vode} at each particle of the PaSR model.}
-        \label{fig:FWH2COPaSR}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}{0.43\textwidth}
-        \includegraphics[width=\linewidth]{H2_CO/PaSR_Fn_Work_Ratio_Groupings_1e-06.png}
-        \caption{Stiffness ratio versus the least function calls used to integrate one time-step at each particle of the PaSR model.}
+        \includegraphics[width=\linewidth]{H2_CO/PaSR_Int_Times_Ratio_Groupings_1e-07.png}
+        \caption{Stiffness ratio versus wall clock time used to integrate one time-step at each particle of the PaSR model.}
         \label{fig:SRH2COPaSR}
     \end{subfigure}
+    \hfill
     \begin{subfigure}{0.43\textwidth}
-        \includegraphics[width=\linewidth]{H2_CO/PaSR_Fn_Work_Index_Groupings_1e-06.png}
-        \caption{Stiffness index versus the least function calls used to integrate one time-step at each particle of the PaSR model.}
+        \includegraphics[width=\linewidth]{H2_CO/PaSR_Int_Times_Index_Groupings_1e-07.png}
+        \caption{Stiffness index versus wall clock time used to integrate one time-step at each particle of the PaSR model.}
         \label{fig:SI1H2COPaSR}
+    \end{subfigure}
+    \begin{subfigure}{0.43\textwidth}
+        \includegraphics[width=\linewidth]{H2_CO/PaSR_Int_Times_Indicator_Groupings_1e-07.png}
+        \caption{Stiffness indicator versus wall clock time used to integrate one time-step at each particle of the PaSR model.}
+        \label{fig:SI2H2COPaSR}
     \end{subfigure}
     \hfill
     \begin{subfigure}{0.43\textwidth}
-        \includegraphics[width=\linewidth]{H2_CO/PaSR_Fn_Work_Indicator_Groupings_1e-06.png}
-        \caption{Stiffness indicator versus the least function calls used to integrate one time-step at each particle of the PaSR model.}
-        \label{fig:SI2H2COPaSR}
-    \end{subfigure}
-    \begin{subfigure}{0.43\textwidth}
-        \includegraphics[width=\linewidth]{H2_CO/PaSR_Fn_Work_CEMA_Groupings_1e-06.png}
-        \caption{Chemical explosive mode versus the least function calls used to integrate one time-step at each particle of the PaSR model.}
+        \includegraphics[width=\linewidth]{H2_CO/PaSR_Int_Times_CEMA_Groupings_1e-07.png}
+        \caption{Chemical explosive mode versus wall clock time used to integrate one time-step at each particle of the PaSR model.}
         \label{fig:CEMH2COPaSR}
     \end{subfigure}
-    \caption{Stiffness metrics versus RHS function calls used to advance one time-step of the \ce{H2}\slash \ce{CO} model using either \texttt{vode} or \texttt{dopri5}.  Calculated with a constant step size of \SI{e-6}{\second} for every initial condition represented in the PaSR model.}
+    \caption{Stiffness metrics versus RHS function calls used to advance one time-step of the \ce{H2}\slash \ce{CO} model using either \texttt{vode} or \texttt{dopri5}.  Calculated with a user defined constant step size of \SI{e-7}{\second} for every initial condition represented in the PaSR model.}
     \label{fig:H2COPaSRStiffness}
 \end{figure}
 
-As seen in Figure~\ref{fig:SRH2COPaSR}, the stiffness ratio was not highly correlated with the number of function calls required for either \texttt{vode} or \texttt{dopri5}, nor did it provide a particularly efficient indicator of the relative performance of either method.
-\texttt{dopri5} outperformed \texttt{vode} at values of the stiffness ratio greater than $10^{19}$, however neither method had a clear advantage when values of the stiffness ratio were less than this.
+As seen in Figure~\ref{fig:SRH2COPaSR}, the stiffness ratio was not highly correlated with wall clock time required for either \texttt{vode} or \texttt{dopri5}, nor did it provide a particularly efficient indicator of the relative performance of either method.
+\texttt{dopri5} appears to outperform \texttt{vode} at values of the stiffness ratio greater than $10^{19}$, however neither method had a clear advantage when values of the stiffness ratio were less than this.
+The stiffness index did not appear to perform any better than the stiffness ratio in the current set of data from this simulation, as seen in Figure~\ref{fig:SI1H2COPaSR}.
+Neither method had a clear advantage at any range of the stiffness index, nor was the stiffness index a good indicator of wall clock time.
+As is the case in all of the plots obtained from this simulation, many of the integrations used very little clock time, making it difficult to draw correlations.
+Better correlations may become apparent if the user defined step size were increased to a value larger than $1 \times 10^{-7}$ s.
+Similar to the stiffness ratio and the stiffness index, the chemical explosive mode was not highly correlated with the wall clock time required to integrate one step.
+When the chemical explosive mode values were greater than $10^2$, \texttt{dopri5} appears to generally outperform \texttt{vode}.
 
-The stiffness index had similar performance to the stiffness ratio, as seen in Figure~\ref{fig:SI1H2COPaSR}.
-When the values of the stiffness index were less than $10^8$, \texttt{vode} typically outperformed \texttt{dopri5}.
-At larger values of the stiffness index, neither method had a clear advantage.
+The stiffness indicator had a better correlation with the wall clock time and the number of function calls used by either \texttt{vode} or \texttt{dopri5} than the other stiffness metrics, with a larger negative stiffness indicator correlating to a longer wall clock time as seen in Figure~\ref{fig:SI2H2COPaSR}.
+Further investigation will determine if this trend becomes more apparent when the step size is increased to a value larger than $1 \times 10^{-7}$ s.
+There did not appear to be a clear correlation between the value of the stiffness indicator and the relative performance of either method in the current set of data.
 
-The stiffness indicator had a better correlation with the number of function call used by either \texttt{vode} or \texttt{dopri5} than the other stiffness metrics, with a larger negative stiffness indicator correlating to a greater number of function calls as seen in Figure~\ref{fig:SI2H2COPaSR}.
-Clear trends can be seen in plots of function calls versus the stiffness indicator values, which will be investigated in further research.
-The stiffness indicator was less useful than the stiffness ratio or stiffness index at determining the relative speed of either method, as there is no clear correlation between the value of the stiffness indicator and the superiority of either method.
-
-Similar to the stiffness ratio and the stiffness index, the chemical explosive mode was not highly correlated with the number of RHS function calls used.  \texttt{vode} outperformed \texttt{dopri5} when values of the chemical explosive mode were greater than $10^4$.
-
-The PaSR data for GRI Mech 3.0 consisted of 450900 particles.  If I can ever get some data that tells me anything useful about these particles, I will be a happy man.
+We looked to the GRI Mech 3.0 model next to determine how the stiffness metrics are impacted by using a stiffer model than the \ce{H2}\slash \ce{CO} model.
+The PaSR data for GRI Mech 3.0 consisted of 450900 particles.
+It was found that \texttt{vode} had a smaller clock time than \texttt{dopri5} for 408232 particles or 90.5\% of the PaSR data for this model, while \texttt{dopri5} had a smaller clock time for 165001 particles or 9.4\% of the PaSR data.
+\texttt{vode} and \texttt{dopri5} had the same clock time within the numerical tolerance of the Python code for only six particles, and \texttt{dopri5} did not fail when integrating at any particle.
+%A depiction of the number of function calls used by both \texttt{vode} and \texttt{dopri5} can be found in Figure~\ref{fig:WCTGRIPaSR}.
+The conditions in which \texttt{vode} was likely to outperform \texttt{dopri5} when using the GRI Mech 3.0 model ranged from low pressure and low temperature to high temperature and high pressure initial conditions of the PaSR data.
+Superior performance of \texttt{vode} in the high pressure and high temperature conditions is a potential indication that the internal step size of the integrator is limited by stability rather than accuracy requirements.
 
 \begin{figure}[htbp]
    \centering
+%   \begin{subfigure}{0.43\textwidth}
+%       \includegraphics[width=\linewidth]{GRI_Mech_3/PaSR_Int_Times_1e-08.png}
+%       \caption{Wall clock time required to integrate one time-step for both \texttt{dopri5} and \texttt{vode} at each particle of the PaSR model.}
+%       \label{fig:WCTGRIPaSR}
+%   \end{subfigure}
    \begin{subfigure}{0.43\textwidth}
-       \includegraphics[width=\linewidth]{GRI_Mech_3/PaSR_Fn_Work_1e-09.png}
-       \caption{Number of function calls used to integrate one time-step for both \texttt{dopri5} and \texttt{vode} at each particle of the PaSR model.}
-       \label{fig:FWGRIPaSR}
-   \end{subfigure}
-   \hfill
-   \begin{subfigure}{0.43\textwidth}
-       \includegraphics[width=\linewidth]{GRI_Mech_3/PaSR_Fn_Work_Ratio_Groupings_1e-09.png}
-       \caption{Stiffness ratio versus the least function calls used to integrate one time-step at each particle of the PaSR model.}
+       \includegraphics[width=\linewidth]{GRI_Mech_3/PaSR_Int_Times_Ratio_Groupings_1e-08.png}
+       \caption{Stiffness ratio versus the wall clock time used to integrate one time-step at each particle of the PaSR model.}
        \label{fig:SRGRIPaSR}
    \end{subfigure}
+    \hfill
    \begin{subfigure}{0.43\textwidth}
-       \includegraphics[width=\linewidth]{GRI_Mech_3/PaSR_Fn_Work_Index_Groupings_1e-09.png}
-       \caption{Stiffness index versus the least function calls used to integrate one time-step at each particle of the PaSR model.}
+       \includegraphics[width=\linewidth]{GRI_Mech_3/PaSR_Int_Times_Index_Groupings_1e-08.png}
+       \caption{Stiffness index versus the wall clock time used to integrate one time-step at each particle of the PaSR model.}
        \label{fig:SI1GRIPaSR}
    \end{subfigure}
-   \hfill
    \begin{subfigure}{0.43\textwidth}
-       \includegraphics[width=\linewidth]{GRI_Mech_3/PaSR_Fn_Work_Indicator_Groupings_1e-09.png}
-       \caption{Stiffness indicator versus the least function calls used to integrate one time-step at each particle of the PaSR model.}
+       \includegraphics[width=\linewidth]{GRI_Mech_3/PaSR_Int_Times_Indicator_Groupings_1e-08.png}
+       \caption{Stiffness indicator versus the wall clock time used to integrate one time-step at each particle of the PaSR model.}
        \label{fig:SI2GRIPaSR}
    \end{subfigure}
+    \hfill   
    \begin{subfigure}{0.43\textwidth}
-       \includegraphics[width=\linewidth]{GRI_Mech_3/PaSR_Fn_Work_CEMA_Groupings_1e-09.png}
-       \caption{Chemical explosive mode versus the least function calls used to integrate one time-step at each particle of the PaSR model.}
+       \includegraphics[width=\linewidth]{GRI_Mech_3/PaSR_Int_Times_CEMA_Groupings_1e-08.png}
+       \caption{Chemical explosive mode versus the wall clock time used to integrate one time-step at each particle of the PaSR model.}
        \label{fig:CEMGRIPaSR}
    \end{subfigure}
-   \caption{Stiffness metrics versus RHS function calls used to advance one time-step of the GRI Mech 3.0 model using either \texttt{vode} or \texttt{dopri5}.  Calculated with a constant step size of \SI{e-9}{\second} for every initial condition represented in the PaSR model.}
+   \caption{Stiffness metrics versus RHS function calls used to advance one time-step of the GRI Mech 3.0 model using either \texttt{vode} or \texttt{dopri5}.  Calculated with a constant step size of \SI{e-8}{\second} for every initial condition represented in the PaSR model.}
    \label{fig:GRIPaSRStiffness}
 \end{figure}
 
+As seen in Figure~\ref{fig:SRGRIPaSR}, the stiffness ratio was not correlated with the wall clock time required to integrate one time step, however \texttt{vode} appeared to generally outperform \texttt{dopri5} at values of the stiffness ratio greater than $10^{22}$.
+At values of the stiffness ratio less than $10^{22}$, it is not clear which method has better performance.
+The stiffness index behaved similarly to the stiffness ratio, as seen in Figure~\ref{fig:SI1GRIPaSR}
+While the stiffness ratio was not correlated with the wall clock time required to integrate one time step, \texttt{vode} appeared to outperform \texttt{dopri5} at index values greater than approximately $5 \times 10^{10}$.
+
+The usefulness of the stiffness indicator in predicting the wall clock time per time step was more clear in the set of data from the GRI Mech 3.0 model, as seen in Figure~\ref{fig:SI2GRIPaSR}.
+Larger negative values of the stiffness indicator correspond to a longer wall clock time per integration for the \texttt{dopri5} integrator.
+Further investigation will determine if additional trends may be made clear for the \texttt{vode} integrator if the time step were increased to a value larger than \SI{e-8}{\second}.
+\texttt{vode} generally outperformed \texttt{dopri5} at values of the stiffness indicator value less than $-2 \times 10^{9}$ in the current set of data.
+Additional investigation will determine if the stiffness indicator can reliably be used to predict relative performance of the two methods.
+
+The usefulness chemical explosive mode in the GRI Mech 3.0 simulation was similar to the usefulness of the chemical explosive mode in the \ce{H2}\slash \ce{CO} simulation.
+While the chemical explosive mode was not useful in predicting values of the wall clock time used to integrate one time step, \texttt{dopri5} outperformed \texttt{vode} when values of the chemical explosive mode were greater than $1.5 \times 10^2$.
+
+We are interested in determining the potential speedup offered by an integrator using these metrics.
+% May need a citation for this sentence.
+Because implicit methods such as \texttt{vode} are used by default for most simulations of combustion, we are most interested in methods that predict when explicit methods such as \texttt{dopri5} have superior performance to explicit methods.
+Using the data obtained from the simulations above, we are able to select integration times from either integrator based on stiffness metric values at those points.
+For the set of data obtained from the GRI Mech 3.0 simulation, we selected the timing data from \texttt{vode} from particles that had a chemical explosive mode value of less than $1.5 \times 10^2$, and timing data from \texttt{dopri5} for all particles with a chemical explosive mode value of greater than $1.5 \times 10^2$.
+The total clock time \texttt{vode} needed to integrate one time step at each particle of the PaSR simulation was 287.3 s, while the ``scheduler'' had a total wall clock time of 238.5 s to complete all integrations, a speedup of approximately 1.2$\times$ compared to \texttt{vode}.
+For comparison, a perfect scheduler that selects the faster method at every particle would have a total integration time of 136.1 s, a speedup of approximately 2.1$\times$ compared to \texttt{vode}.
 
 \section{Conclusions}
-
-Our analysis demonstrated that \texttt{dopri5} generally outperformed \texttt{vode} for the \ce{H2}\slash \ce{CO} model, especially when the pressure and initial temperature values were low.
-%
-% Our analysis demonstrated that the stiffness of the model prior to autoignition increases significantly during and after autoignition.
-% This observation matches the expected behavior based on our intuition of the problem, but is based on a calculated metric.
-% It also demonstrates the feasibility of using an explicit method prior to autoignition to save computational expense.
-% Interestingly, we did not observe the maximum value of stiffness index during ignition; instead, this value occurred around \SI{0.02}{\second} after the reaching equilibrium (i.e., steady-state temperature and mass fractions).
-% After reaching its maximum value, the stiffness remained relatively constant.
-% The stiffness index evaluated provides a reasonable means of detecting the stiffness of combustion reactions.
-% Incorporating calculation of this index in the code used to integrate the derivative vector will both accelerate calculation of the index and enable the index to be calculated on-the-fly.
+Four stiffness quantification metrics were investigated using partially stirred reactor simulations for two chemical kinetic models.
+These metrics were the stiffness ratio, stiffness index, stiffness indicator, and the chemical explosive mode.
+Our analysis demonstrated that the four stiffness quantification metrics investigated have the potential to be used by a scheduler that automatically selects the most efficient integration method at each point.
+As an example, it was found that the wall clock time needed to integrate 450900 time steps of \SI{e-8}{\second} in the GRI Mech 3.0 model could have been reduced by a factor of 1.2$\times$ if a scheduler had selected an explicit method when the chemical explosive mode exceeded a value of $1.5 \times 10^2$.
+Further analysis is needed to determine which stiffness quantification metric may be used to provide the largest speedup, as well as the sensitivity of these metrics to the user defined step size.
+Additionally, the cost of determining the value of each stiffness quantification metric will be considered when implementing a scheduler in further research.
 
 \section{Acknowledgements}
 This material is based upon work supported by the National Science Foundation under grant ACI-1535065.
