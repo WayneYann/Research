@@ -16,7 +16,7 @@ def loadpasrdata():
     return np.load(filepath)
 
 
-dt = 1.e-8
+dt = 1.e-7
 output_folder = 'Output_Plots/'
 data_folder = 'Output_Data/'
 equation = 'PaSR_Autoignition'
