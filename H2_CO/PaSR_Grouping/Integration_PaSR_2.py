@@ -367,7 +367,7 @@ equation = 'Autoignition'
 # 'Stiffness_Ratio'
 # method = 'Stiffness_Indicator'
 # Options are 'vode' and 'dopri5'
-intmode = 'vode'
+intmode = 'dopri5'
 # Make this true if you want to test all of the values across the PaSR.
 # Non-PaSR currently not functional
 PaSR = True
