@@ -276,6 +276,37 @@ def stiffnessratio(xlist, solution, jfun, *args):
     return values
 
 
+def stiffmetrics(xlist, solution, jfun, *args):
+    """
+    Find values of the stiffness ratio, stiffness indicator, and CEMA.
+    """
+    funcparams = []
+    for arg in args:
+        funcparams.append(arg)
+
+    ratios, indicators, CEMs = [], [], []
+    try:
+        for i in range(len(solution)):
+            jacobian = jfun(xlist[i], solution[i], funcparams[0])
+            eigvals1 = np.array([abs(j) for j in np.linalg.eigvals(jacobian)
+                                if j != 0])
+            Hermitian = 0.5 * (jacobian + np.transpose(jacobian))
+            eigvals2 = np.linalg.eigvals(Hermitian)
+            ratios.append(max(eigvals1)/min(eigvals1))
+            indicators.append(0.5 * (min(eigvals2) + max(eigvals2)))
+            CEMs.append(max(np.linalg.eigvals(jacobian)))
+    except TypeError:
+        jacobian = jfun(xlist, solution, funcparams[0])
+        eigvals1 = np.array([abs(j) for j in np.linalg.eigvals(jacobian)
+                            if j != 0])
+        Hermitian = 0.5 * (jacobian + np.transpose(jacobian))
+        eigvals2 = np.linalg.eigvals(Hermitian)
+        ratios = (max(eigvals1)/min(eigvals1))
+        indicators = 0.5 * (min(eigvals2) + max(eigvals2))
+        CEMs = max(np.linalg.eigvals(jacobian))
+    return ratios, indicators, CEMs
+
+
 def loadpasrdata(num):
     """Load the initial conditions from the PaSR files."""
     pasrarrays = []
@@ -328,7 +359,7 @@ All of the values that need to be adjusted should be in this section.
 # Specify if you want to save the data
 savedata = True
 # Specify if you want all of the stiffness metrics
-getmetrics = False
+getmetrics = True
 # Possible options will be 'VDP', 'Autoignition', or 'Oregonator'
 # Oregonator not yet implemented
 equation = 'Autoignition'
@@ -336,7 +367,7 @@ equation = 'Autoignition'
 # 'Stiffness_Ratio'
 # method = 'Stiffness_Indicator'
 # Options are 'vode' and 'dopri5'
-intmode = 'dopri5'
+intmode = 'vode'
 # Make this true if you want to test all of the values across the PaSR.
 # Non-PaSR currently not functional
 PaSR = True
@@ -489,7 +520,7 @@ for particle in particlelist:
                                  # Set up for vode
                                  ).set_integrator('vode',
                                                   method='bdf',
-                                                  nsteps=1,
+                                                  nsteps=1e10,
                                                   # atol=abserr,
                                                   # rtol=relerr,
                                                   with_jacobian=usejac,
@@ -517,14 +548,14 @@ for particle in particlelist:
                     solver.set_f_params(RHSparam)
                     solver.set_jac_params(RHSparam)
                     solver._integrator.iwork[2] = -1
-                if intmode == 'vode':
-                    time0 = timer.time()
-                    solver.integrate(tnext, step=True)
-                    time1 = timer.time()
-                else:
-                    time0 = timer.time()
-                    solver.integrate(tnext)
-                    time1 = timer.time()
+                # if intmode == 'vode':
+                #     time0 = timer.time()
+                #     solver.integrate(tnext, step=True)
+                #     time1 = timer.time()
+                # else:
+                time0 = timer.time()
+                solver.integrate(tnext)
+                time1 = timer.time()
                 if prevtime >= (tstart + dt) and prevtime < (tstart + 2*dt):
                     timetwo += time1 - time0
                     if intmode == 'vode':
@@ -574,21 +605,27 @@ for particle in particlelist:
                             # solutiontimes.append(time1 - time0)
                             # Calculate the indicator, ratio, and CEM
                             if getmetrics:
-                                indicator = stiffnessindicator(solver.t,
-                                                               solver.y,
-                                                               EQjac,
-                                                               RHSparam
-                                                               )
-                                stiffratio = stiffnessratio(solver.t,
-                                                            solver.y,
-                                                            EQjac,
-                                                            RHSparam
-                                                            )
-                                chemexmode = CEMA(solver.t,
-                                                  solver.y,
-                                                  EQjac,
-                                                  RHSparam
-                                                  )
+                                stiffratio, indicator, chemexmode =\
+                                    stiffmetrics(solver.t,
+                                                 solver.y,
+                                                 EQjac,
+                                                 RHSparam
+                                                 )
+                                # indicator = stiffnessindicator(solver.t,
+                                #                                solver.y,
+                                #                                EQjac,
+                                #                                RHSparam
+                                #                                )
+                                # stiffratio = stiffnessratio(solver.t,
+                                #                             solver.y,
+                                #                             EQjac,
+                                #                             RHSparam
+                                #                             )
+                                # chemexmode = CEMA(solver.t,
+                                #                   solver.y,
+                                #                   EQjac,
+                                #                   RHSparam
+                                #                   )
                             # print('Halfway value: {}'.format(tstart + 2*dt))
                             # print('Current value: {}'.format(solver.t))
                             halfflag = True
@@ -625,23 +662,14 @@ for particle in particlelist:
                     else:
                         solution.append(solver.y)
                         if getmetrics:
-                            indicator = stiffnessindicator(solver.t,
-                                                           solver.y,
-                                                           EQjac,
-                                                           RHSparam
-                                                           )
-                            indicatorvals.append(indicator)
-                            stiffratio = stiffnessratio(solver.t,
-                                                        solver.y,
-                                                        EQjac,
-                                                        RHSparam
-                                                        )
+                            stiffratio, indicator, chemexmode =\
+                                stiffmetrics(solver.t,
+                                             solver.y,
+                                             EQjac,
+                                             RHSparam
+                                             )
                             ratiovals.append(stiffratio)
-                            chemexmode = CEMA(solver.t,
-                                              solver.y,
-                                              EQjac,
-                                              RHSparam
-                                              )
+                            indicatorvals.append(indicator)
                             CEMAvals.append(chemexmode)
                         # solutiontimes.append(time1 - time0)
                         functionwork.append(functioncalls)
