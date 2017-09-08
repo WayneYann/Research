@@ -40,10 +40,10 @@ equation = 'Autoignition'
 getmetrics = False
 # Select the method to determine what was fastest
 # Can be either 'clock', 'RHS', or 'tsteps'
-fastermethod = 'RHS'
+fastermethod = 'clock'
 # Explicit and implicit target dates
-impdate = '08_31'
-exdate = '08_30'
+impdate = '09_07'
+exdate = '09_07'
 # Make this true if you want to test all of the values across the PaSR.
 # Otherwise, this will run a single autoignition.
 PaSR = True
@@ -51,7 +51,7 @@ pasrfilesloaded = 9
 # Figure out a way of doing this later.
 # diffcolors = False
 # Define the range of the computation.
-dt = 1.e-7
+dt = 1.e-6
 tstart = 0.
 tstop = 0.2
 # To be implemented later.
@@ -399,7 +399,7 @@ if PaSR:
     pyl.xlim(0, datanum)
     pyl.ylim(0, max(max(imptstepsneeded), max(extstepsneeded)))
     pyl.xlabel('Computation Number')
-    pyl.ylabel(ylabel)
+    pyl.ylabel('Time Steps Needed')
     pyl.scatter(range(datanum), imptstepsneeded, 1.0, c='b', label='vode',
                 lw=0)
     pyl.scatter(range(datanum), extstepsneeded, 1.0, c='r', label='dopri5',
