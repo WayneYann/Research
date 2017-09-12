@@ -351,7 +351,7 @@ All of the values that need to be adjusted should be in this section.
 # Specify if you want to save the data
 savedata = True
 # Specify if you want all of the stiffness metrics
-getmetrics = True
+getmetrics = False
 # Possible options will be 'VDP', 'Autoignition', or 'Oregonator'
 # Oregonator not yet implemented
 equation = 'Autoignition'
@@ -359,7 +359,7 @@ equation = 'Autoignition'
 # 'Stiffness_Ratio'
 # method = 'Stiffness_Indicator'
 # Options are 'vode' and 'dopri5'
-intmode = 'vode'
+intmode = 'dopri5'
 # Make this true if you want to test all of the values across the PaSR.
 # Non-PaSR currently not functional
 PaSR = True
