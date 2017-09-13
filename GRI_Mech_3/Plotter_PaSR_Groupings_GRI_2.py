@@ -35,8 +35,8 @@ getmetrics = False
 # Can be either 'clock', 'RHS', or 'tsteps'
 fastermethod = 'clock'
 # Explicit and implicit target dates
-impdate = '09_07'
-exdate = '09_08'
+impdate = '09_11'
+exdate = '09_12'
 # Make this true if you want to test all of the values across the PaSR.
 # Otherwise, this will run a single autoignition.
 PaSR = True
@@ -44,7 +44,7 @@ pasrfilesloaded = 9
 # Figure out a way of doing this later.
 # diffcolors = False
 # Define the range of the computation.
-dt = 1.e-7
+dt = 1.e-6
 tstart = 0.
 tstop = 0.2
 # To be implemented later.
@@ -505,15 +505,15 @@ if PaSR:
         pyl.ylim(min(min(impmeasure), min(exmeasure)),
                  max(max(impfmeasure),
                      max(exfmeasure),
-                     max(eqmeasure)  # ,
-                     # max(failimpwork)
+                     # max(eqmeasure),
+                     max(failimpmeasure)
                      ))
     except ValueError:
         pyl.ylim(min(min(impmeasure), min(exmeasure)),
                  max(max(impfmeasure),
-                     max(exfmeasure)  # ,
-                     # max(eqmeasure)  # ,
-                     # max(failimpwork)
+                     max(exfmeasure),
+                     # max(eqmeasure),
+                     max(failimpmeasure)
                      ))
     pyl.xscale('log')
     ax4 = fig4.add_subplot(111)
@@ -543,15 +543,15 @@ if PaSR:
         pyl.ylim(min(min(impmeasure), min(exmeasure)),
                  max(max(impfmeasure),
                      max(exfmeasure),
-                     max(eqmeasure)  # ,
-                     # max(failimpwork)
+                     # max(eqmeasure),
+                     max(failimpmeasure)
                      ))
     except ValueError:
         pyl.ylim(min(min(impmeasure), min(exmeasure)),
                  max(max(impfmeasure),
-                     max(exfmeasure)  # ,
-                     # max(eqmeasure)  # ,
-                     # max(failimpwork)
+                     max(exfmeasure),
+                     # max(eqmeasure),
+                     max(failimpmeasure)
                      ))
     # pyl.xlim(min(ratiovals), max(ratiovals))
     pyl.xscale('log')
@@ -584,15 +584,15 @@ if PaSR:
         pyl.ylim(min(min(impmeasure), min(exmeasure)),
                  max(max(impfmeasure),
                      max(exfmeasure),
-                     max(eqmeasure)  # ,
-                     # max(failimpwork)
+                     # max(eqmeasure),
+                     max(failimpmeasure)
                      ))
     except ValueError:
         pyl.ylim(min(min(impmeasure), min(exmeasure)),
                  max(max(impfmeasure),
-                     max(exfmeasure)  # ,
-                     # max(eqmeasure)  # ,
-                     # max(failimpwork)
+                     max(exfmeasure),
+                     # max(eqmeasure),
+                     max(failimpmeasure)
                      ))
     ax6 = fig6.add_subplot(111)
     ax6.scatter(impfindicator, impfmeasure, 1.0, c='b',
@@ -625,15 +625,15 @@ if PaSR:
         pyl.ylim(min(min(impmeasure), min(exmeasure)),
                  max(max(impfmeasure),
                      max(exfmeasure),
-                     max(eqmeasure)  # ,
-                     # max(failimpwork)
+                     # max(eqmeasure),
+                     max(failimpmeasure)
                      ))
     except ValueError:
         pyl.ylim(min(min(impmeasure), min(exmeasure)),
                  max(max(impfmeasure),
-                     max(exfmeasure)  # ,
-                     # max(eqmeasure)  # ,
-                     # max(failimpwork)
+                     max(exfmeasure),
+                     # max(eqmeasure),
+                     max(failimpmeasure)
                      ))
     pyl.xscale('log')
     pyl.xlim(1e-16, max(CEMAvals))
