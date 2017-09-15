@@ -346,6 +346,14 @@ if PaSR:
     print("Maximum implicit timesteps taken: {:.7f}".format(
         max(imptstepsneeded)))
 
+    # if fastermethod == 'clock':
+    #     for t in impmeasure:
+    #         if t == -1:
+    #             t = 0.0
+    #     for t in exmeasure:
+    #         if t == -1:
+    #             t = 0.0
+
     # Plot of function calls vs. computation number
     pyl.figure(plotnum)
     pyl.xlim(0, datanum)
@@ -391,7 +399,7 @@ if PaSR:
     pyl.xlim(0, datanum)
     pyl.ylim(0, max(max(imptstepsneeded), max(extstepsneeded)))
     pyl.xlabel('Computation Number')
-    pyl.ylabel(ylabel)
+    pyl.ylabel('Time Steps Needed')
     pyl.scatter(range(datanum), imptstepsneeded, 1.0, c='b', label='vode',
                 lw=0)
     pyl.scatter(range(datanum), extstepsneeded, 1.0, c='r', label='dopri5',
@@ -410,7 +418,7 @@ if PaSR:
     fig = pyl.figure(plotnum)
     pyl.xlabel('Stiffness Ratio')
     pyl.ylabel(ylabel)
-    pyl.ylim(min(min(impmeasure), min(exmeasure)),
+    pyl.ylim(0,  # min(min(impmeasure), min(exmeasure)),
              max(max(impmeasure), max(exmeasure)))
     # pyl.xlim(min(ratiovals), max(ratiovals))
     pyl.xscale('log')
@@ -433,7 +441,7 @@ if PaSR:
     fig1 = pyl.figure(plotnum)
     pyl.xlabel('Stiffness Index')
     pyl.ylabel(ylabel)
-    pyl.ylim(min(min(impmeasure), min(exmeasure)),
+    pyl.ylim(0,  # min(min(impmeasure), min(exmeasure)),
              max(max(impmeasure), max(exmeasure)))
     pyl.xlim(min(indexvals), max(indexvals))
     pyl.xscale('log')
@@ -456,7 +464,7 @@ if PaSR:
     fig2 = pyl.figure(plotnum)
     pyl.xlabel('Stiffness Indicator')
     pyl.ylabel(ylabel)
-    pyl.ylim(min(min(impmeasure), min(exmeasure)),
+    pyl.ylim(0,  # min(min(impmeasure), min(exmeasure)),
              max(max(impmeasure), max(exmeasure)))
     pyl.xlim(min(indicatorvals), max(indicatorvals))
     # colors = plt.cm.spectral(np.linspace(0, 1, pasrfilesloaded))
@@ -479,7 +487,7 @@ if PaSR:
     fig3 = pyl.figure(plotnum)
     pyl.xlabel('Chemical Explosive Mode')
     pyl.ylabel(ylabel)
-    pyl.ylim(min(min(impmeasure), min(exmeasure)),
+    pyl.ylim(0,  # min(min(impmeasure), min(exmeasure)),
              max(max(impmeasure), max(exmeasure)))
     pyl.xlim(1e-16, max(CEMAvals))
     pyl.xscale('log')
@@ -502,14 +510,14 @@ if PaSR:
     pyl.xlabel('Stiffness Ratio')
     pyl.ylabel(ylabel)
     try:
-        pyl.ylim(min(min(impmeasure), min(exmeasure)),
+        pyl.ylim(0,  # min(min(impmeasure), min(exmeasure)),
                  max(max(impfmeasure),
                      max(exfmeasure),
                      # max(eqmeasure),
                      max(failimpmeasure)
                      ))
     except ValueError:
-        pyl.ylim(min(min(impmeasure), min(exmeasure)),
+        pyl.ylim(0,  # min(min(impmeasure), min(exmeasure)),
                  max(max(impfmeasure),
                      max(exfmeasure),
                      # max(eqmeasure),
@@ -540,14 +548,14 @@ if PaSR:
     pyl.xlabel('Stiffness Index')
     pyl.ylabel(ylabel)
     try:
-        pyl.ylim(min(min(impmeasure), min(exmeasure)),
+        pyl.ylim(0,  # min(min(impmeasure), min(exmeasure)),
                  max(max(impfmeasure),
                      max(exfmeasure),
                      # max(eqmeasure),
                      max(failimpmeasure)
                      ))
     except ValueError:
-        pyl.ylim(min(min(impmeasure), min(exmeasure)),
+        pyl.ylim(0,  # min(min(impmeasure), min(exmeasure)),
                  max(max(impfmeasure),
                      max(exfmeasure),
                      # max(eqmeasure),
@@ -581,14 +589,14 @@ if PaSR:
     pyl.xlabel('Stiffness Indicator')
     pyl.ylabel(ylabel)
     try:
-        pyl.ylim(min(min(impmeasure), min(exmeasure)),
+        pyl.ylim(0,  # min(min(impmeasure), min(exmeasure)),
                  max(max(impfmeasure),
                      max(exfmeasure),
                      # max(eqmeasure),
                      max(failimpmeasure)
                      ))
     except ValueError:
-        pyl.ylim(min(min(impmeasure), min(exmeasure)),
+        pyl.ylim(0,  # min(min(impmeasure), min(exmeasure)),
                  max(max(impfmeasure),
                      max(exfmeasure),
                      # max(eqmeasure),
@@ -622,14 +630,14 @@ if PaSR:
     pyl.xlabel('Chemical Explosive Mode')
     pyl.ylabel(ylabel)
     try:
-        pyl.ylim(min(min(impmeasure), min(exmeasure)),
+        pyl.ylim(0,  # min(min(impmeasure), min(exmeasure)),
                  max(max(impfmeasure),
                      max(exfmeasure),
                      # max(eqmeasure),
                      max(failimpmeasure)
                      ))
     except ValueError:
-        pyl.ylim(min(min(impmeasure), min(exmeasure)),
+        pyl.ylim(0,  # min(min(impmeasure), min(exmeasure)),
                  max(max(impfmeasure),
                      max(exfmeasure),
                      # max(eqmeasure),
