@@ -35,8 +35,8 @@ getmetrics = False
 # Can be either 'clock', 'RHS', or 'tsteps'
 fastermethod = 'clock'
 # Explicit and implicit target dates
-impdate = '09_14'
-exdate = '09_14'
+impdate = '09_17'
+exdate = '09_17'
 # Make this true if you want to test all of the values across the PaSR.
 # Otherwise, this will run a single autoignition.
 PaSR = True
@@ -44,7 +44,7 @@ pasrfilesloaded = 9
 # Figure out a way of doing this later.
 # diffcolors = False
 # Define the range of the computation.
-dt = 5.e-7
+dt = 7.5e-7
 tstart = 0.
 tstop = 0.2
 # To be implemented later.
@@ -194,6 +194,31 @@ eqmeasure, eqratio, eqindex, eqindicator, eqCEM =\
 failimpmeasure, failratio, failindex, failindicator, failCEM =\
     [], [], [], [], []
 
+failedflag = False
+
+if fastermethod == 'clock':
+    for i in range(len(exinttimes)):
+        if exinttimes[i] < 0:
+            failedflag = True
+            if dt == 1e-7:
+                exinttimes[i] = 0.16
+                yvalmax = 0.18
+            elif dt == 2.5e-7:
+                exinttimes[i] = 0.26
+                yvalmax = 0.28
+            elif dt == 5e-7:
+                exinttimes[i] = 0.56
+                yvalmax = 0.60
+            elif dt == 7.5e-7:
+                exinttimes[i] = 0.81
+                yvalmax = 0.85
+            elif dt == 1e-6:
+                exinttimes[i] = 1.21
+                yvalmax = 1.30
+
+if not failedflag:
+    yvalmax = max(max(exinttimes), max(impinttimes))
+
 if fastermethod == 'RHS':
     ylabel = 'Function Calls'
     impmeasure = impfunctionwork.copy()
@@ -303,11 +328,13 @@ if PaSR:
     datanum = len(impfunctionwork)
     exworkavg = 0.0
     impworkavg = 0.0
+    exgoodnum = 0
     for i in range(datanum):
         if exfunctionwork[i] > 0:
             exworkavg += exfunctionwork[i]
+            exgoodnum += 1
         impworkavg += impfunctionwork[i]
-    exworkavg = (exworkavg / datanum)
+    exworkavg = (exworkavg / exgoodnum)
     impworkavg = (impworkavg / datanum)
     print("Average explicit RHS function calls: {:.7f}".format(exworkavg))
     print("Maximum explicit RHS function calls: {:.7f}".format(
@@ -322,7 +349,7 @@ if PaSR:
         if exinttimes[i] > 0:
             exclockavg += exinttimes[i]
         impclockavg += impinttimes[i]
-    exclockavg = (exclockavg / datanum)
+    exclockavg = (exclockavg / exgoodnum)
     impclockavg = (impclockavg / datanum)
     print("Average explicit clock time: {:.7f}".format(exclockavg))
     print("Maximum explicit clock time: {:.7f}".format(
@@ -337,7 +364,7 @@ if PaSR:
         if extstepsneeded[i] > 0:
             exstepsavg += extstepsneeded[i]
         impstepsavg += imptstepsneeded[i]
-    exstepsavg = (exstepsavg / datanum)
+    exstepsavg = (exstepsavg / exgoodnum)
     impstepsavg = (impstepsavg / datanum)
     print("Average explicit timesteps taken: {:.7f}".format(exstepsavg))
     print("Maximum explicit timesteps taken: {:.7f}".format(
@@ -377,7 +404,7 @@ if PaSR:
     # Plot of clock time vs. computation number
     pyl.figure(plotnum)
     pyl.xlim(0, datanum)
-    pyl.ylim(0, max(max(impinttimes), max(exinttimes)))
+    pyl.ylim(0, max(max(impinttimes), yvalmax))
     pyl.xlabel('Computation Number')
     pyl.ylabel('Clock Time (s)')
     pyl.scatter(range(datanum), impinttimes, 1.0, c='b', label='vode',
@@ -414,12 +441,12 @@ if PaSR:
                     '.' + figformat)
     plotnum += 1
 
-    # Plot of timesteps neeeded vs. stiffness ratio
+    # Plot of timing measure vs. stiffness ratio
     fig = pyl.figure(plotnum)
     pyl.xlabel('Stiffness Ratio')
     pyl.ylabel(ylabel)
-    pyl.ylim(0,  # min(min(impmeasure), min(exmeasure)),
-             max(max(impmeasure), max(exmeasure)))
+    pyl.ylim(0, yvalmax)  # min(min(impmeasure), min(exmeasure)),
+    # max(max(impmeasure), max(exmeasure)))
     # pyl.xlim(min(ratiovals), max(ratiovals))
     pyl.xscale('log')
     # colors = plt.cm.spectral(np.linspace(0, 1, pasrfilesloaded))
@@ -441,8 +468,8 @@ if PaSR:
     fig1 = pyl.figure(plotnum)
     pyl.xlabel('Stiffness Index')
     pyl.ylabel(ylabel)
-    pyl.ylim(0,  # min(min(impmeasure), min(exmeasure)),
-             max(max(impmeasure), max(exmeasure)))
+    pyl.ylim(0, yvalmax)  # min(min(impmeasure), min(exmeasure)),
+    # max(max(impmeasure), max(exmeasure)))
     pyl.xlim(min(indexvals), max(indexvals))
     pyl.xscale('log')
     # colors = plt.cm.spectral(np.linspace(0, 1, pasrfilesloaded))
@@ -464,8 +491,8 @@ if PaSR:
     fig2 = pyl.figure(plotnum)
     pyl.xlabel('Stiffness Indicator')
     pyl.ylabel(ylabel)
-    pyl.ylim(0,  # min(min(impmeasure), min(exmeasure)),
-             max(max(impmeasure), max(exmeasure)))
+    pyl.ylim(0, yvalmax)  # min(min(impmeasure), min(exmeasure)),
+    # max(max(impmeasure), max(exmeasure)))
     pyl.xlim(min(indicatorvals), max(indicatorvals))
     # colors = plt.cm.spectral(np.linspace(0, 1, pasrfilesloaded))
     ax2 = fig2.add_subplot(111)
@@ -487,8 +514,8 @@ if PaSR:
     fig3 = pyl.figure(plotnum)
     pyl.xlabel('Chemical Explosive Mode')
     pyl.ylabel(ylabel)
-    pyl.ylim(0,  # min(min(impmeasure), min(exmeasure)),
-             max(max(impmeasure), max(exmeasure)))
+    pyl.ylim(0, yvalmax)  # min(min(impmeasure), min(exmeasure)),
+    # max(max(impmeasure), max(exmeasure)))
     pyl.xlim(1e-16, max(CEMAvals))
     pyl.xscale('log')
     # colors = plt.cm.spectral(np.linspace(0, 1, pasrfilesloaded))
@@ -521,7 +548,7 @@ if PaSR:
                  max(max(impfmeasure),
                      max(exfmeasure),
                      # max(eqmeasure),
-                     max(failimpmeasure)
+                     # max(failimpmeasure)
                      ))
     pyl.xscale('log')
     ax4 = fig4.add_subplot(111)
@@ -559,7 +586,7 @@ if PaSR:
                  max(max(impfmeasure),
                      max(exfmeasure),
                      # max(eqmeasure),
-                     max(failimpmeasure)
+                     # max(failimpmeasure)
                      ))
     # pyl.xlim(min(ratiovals), max(ratiovals))
     pyl.xscale('log')
@@ -600,7 +627,7 @@ if PaSR:
                  max(max(impfmeasure),
                      max(exfmeasure),
                      # max(eqmeasure),
-                     max(failimpmeasure)
+                     # max(failimpmeasure)
                      ))
     ax6 = fig6.add_subplot(111)
     ax6.scatter(impfindicator, impfmeasure, 1.0, c='b',
@@ -641,7 +668,7 @@ if PaSR:
                  max(max(impfmeasure),
                      max(exfmeasure),
                      # max(eqmeasure),
-                     max(failimpmeasure)
+                     # max(failimpmeasure)
                      ))
     pyl.xscale('log')
     pyl.xlim(1e-16, max(CEMAvals))
