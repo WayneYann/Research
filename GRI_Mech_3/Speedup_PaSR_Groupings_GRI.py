@@ -35,8 +35,8 @@ getmetrics = False
 # Can be either 'clock', 'RHS', or 'tsteps'
 fastermethod = 'clock'
 # Explicit and implicit target dates
-impdate = '08_31'
-exdate = '08_31'
+impdate = '09_11'
+exdate = '09_12'
 # Make this true if you want to test all of the values across the PaSR.
 # Otherwise, this will run a single autoignition.
 PaSR = True
@@ -44,7 +44,7 @@ pasrfilesloaded = 9
 # Figure out a way of doing this later.
 # diffcolors = False
 # Define the range of the computation.
-dt = 1.e-8
+dt = 1.e-6
 tstart = 0.
 tstop = 0.2
 # To be implemented later.
@@ -353,14 +353,19 @@ indexschedtime = 0.0
 indexschedsteps = 0
 indexschedcalls = 0
 for i in range(len(impfunctionwork)):
-    if CEMAvals[i] <= 1.5e2:
+    if indicatorvals[i] <= -1e9:
         CEMschedtime += impinttimes[i]
         CEMschedsteps += imptstepsneeded[i]
         CEMschedcalls += impfunctionwork[i]
     else:
-        CEMschedtime += exinttimes[i]
-        CEMschedsteps += extstepsneeded[i]
-        CEMschedcalls += exfunctionwork[i]
+        if exinttimes[i] > 0:
+            CEMschedtime += exinttimes[i]
+            CEMschedsteps += extstepsneeded[i]
+            CEMschedcalls += exfunctionwork[i]
+        else:
+            CEMschedtime += impinttimes[i]
+            CEMschedsteps += imptstepsneeded[i]
+            CEMschedcalls += impfunctionwork[i]
     # if indexvals[i] >= 5e10:
     #     indexschedtime += impinttimes[i]
     #     indexschedsteps += imptstepsneeded[i]
@@ -388,7 +393,7 @@ for i in range(len(impfunctionwork)):
 # print('Implicit calls speedup: {}'.format(1 / (ratioschedcalls /
 #                                                imptotalRHS)))
 print('-----------')
-print('CEM Scheduler (default vode):')
+print('Indicator Scheduler (default vode):')
 print('Integration time w/ scheduler: {}'.format(CEMschedtime))
 print('Time steps w/ scheduler: {}'.format(CEMschedsteps))
 print('RHS function calls w/ scheduler: {}'.format(CEMschedcalls))
