@@ -11,10 +11,10 @@ import csv as csv
 import matplotlib.pyplot as plt
 
 
-def readsolver(solver):
+def readsolver(solver, dt, value):
     """Take the input file and return the QoI."""
     ratios, indicators, CEMAvals, inttimes = [], [], [], []
-    with open('speciesdata-' + solver + '.csv', newline='') as csvfile:
+    with open('speciesdata-' + solver + dt + '.csv', newline='') as csvfile:
         reader = csv.reader(csvfile, delimiter=',')
         for row in reader:
             ratios.append(float(row[1]))
@@ -28,10 +28,12 @@ def readsolver(solver):
     return [ratios, indicators, CEMAvals, inttimes]
 
 
-solvers = ['cvodes', 'radau2a', 'exprb43', 'radau2a']
+dt = ''
+
+solvers = ['cvodes', 'radau2a', 'exprb43', 'radau2a', 'rkc']
 data = {}
 for key in solvers:
-    data[key] = readsolver(key)
+    data[key] = readsolver(key, dt)
 
 # Clear all previous figures and close them all
 for i in range(15):
@@ -41,18 +43,19 @@ plt.close('all')
 
 print('Plotting...')
 
+
+
+# Loop to plot all of the scatter points
 ymax = 0
-xmax = np.array([0, 0, 0])
-xmin = np.array([0, 0, 0])
+xmax = np.zeros(3)
+xmin = np.zeros(3)
 for key in solvers:
     ymax = max(ymax, max(data[key][3]))
     for i in range(3):
         plt.figure(i)
-        plt.ylabel('Integration Times')
-        plt.grid(b=True, which='both')
         plt.scatter(data[key][i], data[key][3], 1.0, lw=0, label=key)
-        xmax[i] = max(xmax[i], max(data[key][i]))
-        xmin[i] = min(xmin[i], min(data[key][i]))
+        xmax[i] = max(xmax[i], max([i for i in data[key][i] if i != -1.0]))
+        xmin[i] = min(xmin[i], min([i for i in data[key][i] if i != -1.0]))
 
 ymax = 0.00005
 
@@ -60,7 +63,7 @@ plt.figure(0)
 plt.title('Ratios vs. Int Times')
 plt.xlabel('Ratio Values')
 plt.xscale('log')
-plt.xlim(0, xmax[0])
+plt.xlim(1e-9, xmax[0])
 plt.ylim(0, ymax)
 
 plt.figure(1)
@@ -72,11 +75,13 @@ plt.ylim(0, ymax)
 plt.figure(2)
 plt.title('CEM vs. Int Times')
 plt.xlabel('CEM Values')
-plt.xlim(max(1e-6, xmin[2]), xmax[2])
+plt.xlim(max(1e-9, xmin[2]), xmax[2])
 plt.ylim(0, ymax)
 
 for i in range(3):
     plt.figure(i)
+    plt.ylabel('Integration Times')
+    plt.grid(b=True, which='both')
     plt.legend(fontsize='small', markerscale=5)
     plt.tight_layout()
 
