@@ -11,7 +11,7 @@ import csv as csv
 import matplotlib.pyplot as plt
 
 
-def readsolver(solver, dt, value):
+def readsolver(solver, dt):
     """Take the input file and return the QoI."""
     ratios, indicators, CEMAvals, inttimes = [], [], [], []
     with open('speciesdata-' + solver + dt + '.csv', newline='') as csvfile:
@@ -28,7 +28,7 @@ def readsolver(solver, dt, value):
     return [ratios, indicators, CEMAvals, inttimes]
 
 
-dt = ''
+dt = '-1e-5'
 
 solvers = ['cvodes', 'radau2a', 'exprb43', 'radau2a', 'rkc']
 data = {}
