@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 def readsolver(solver, dt):
     """Take the input file and return the QoI."""
     ratios, indicators, CEMAvals, inttimes = [], [], [], []
-    with open('speciesdata-' + solver + dt + '.csv', newline='') as csvfile:
+    with open('speciesdata-' + solver + '-' + dt + '.csv', newline='') as csvfile:
         reader = csv.reader(csvfile, delimiter=',')
         for row in reader:
             ratios.append(float(row[1]))
@@ -28,12 +28,12 @@ def readsolver(solver, dt):
     return [ratios, indicators, CEMAvals, inttimes]
 
 
-dt = '-1e-5'
+dts = ['1e-6', '1e-5', '1e-4']
+figformat = 'png'
+output_folder = 'Output_Plots/'
 
 solvers = ['cvodes', 'radau2a', 'exprb43', 'radau2a', 'rkc']
-data = {}
-for key in solvers:
-    data[key] = readsolver(key, dt)
+xlabels = ['Ratios', 'Indicators', 'CEM']
 
 # Clear all previous figures and close them all
 for i in range(15):
@@ -41,48 +41,59 @@ for i in range(15):
     plt.clf()
 plt.close('all')
 
-print('Plotting...')
+for t in range(len(dts)):
+    data = {}
+    for key in solvers:
+        data[key] = readsolver(key, dts[t])
 
+    print('Plotting ' + dts[t] + '...')
 
+    # Loop to plot all of the scatter points and set the xmin/xmax
+    ymax = 0
+    xmax = np.zeros(3)
+    xmin = np.zeros(3)
+    for key in solvers:
+        ymax = max(ymax, max(data[key][3]))
+        for i in range(3):
+            plt.figure(t * len(dts) + i)
+            plt.scatter(data[key][i], data[key][3], 1.0, lw=0, label=key)
+            if i == 0:
+                xmin[i] = min([j for j in data[key][i] if j != -1.0])
+                xmax[i] = max([j for j in data[key][i] if j != -1.0])
+            else:
+                xmin[i] = min(xmin[i],
+                              min([j for j in data[key][i] if j != -1.0]))
+                xmax[i] = max(xmax[i],
+                              max([j for j in data[key][i] if j != -1.0]))
 
-# Loop to plot all of the scatter points
-ymax = 0
-xmax = np.zeros(3)
-xmin = np.zeros(3)
-for key in solvers:
-    ymax = max(ymax, max(data[key][3]))
-    for i in range(3):
+    # print(xmax)
+    # print(xmin)
+    # ymax = 0.00005
+
+    # Set the limits and unique values for each plot
+    plt.figure(t * len(dts) + 0)
+    plt.xscale('log')
+    plt.xlim(xmin[0], xmax[0])
+    plt.ylim(0, ymax)
+
+    plt.figure(t * len(dts) + 1)
+    plt.xlim(xmin[1], xmax[1])
+    plt.ylim(0, ymax)
+
+    plt.figure(t * len(dts) + 2)
+    plt.xlim(max(1e-9, xmin[2]), xmax[2])
+    plt.ylim(0, ymax)
+
+    # Set up the labels and options, then plot
+    for i in range(len(xlabels)):
         plt.figure(i)
-        plt.scatter(data[key][i], data[key][3], 1.0, lw=0, label=key)
-        xmax[i] = max(xmax[i], max([i for i in data[key][i] if i != -1.0]))
-        xmin[i] = min(xmin[i], min([i for i in data[key][i] if i != -1.0]))
-
-ymax = 0.00005
-
-plt.figure(0)
-plt.title('Ratios vs. Int Times')
-plt.xlabel('Ratio Values')
-plt.xscale('log')
-plt.xlim(1e-9, xmax[0])
-plt.ylim(0, ymax)
-
-plt.figure(1)
-plt.title('Indicators vs. Int Times')
-plt.xlabel('Indicator Values')
-plt.xlim(xmin[1], xmax[1])
-plt.ylim(0, ymax)
-
-plt.figure(2)
-plt.title('CEM vs. Int Times')
-plt.xlabel('CEM Values')
-plt.xlim(max(1e-9, xmin[2]), xmax[2])
-plt.ylim(0, ymax)
-
-for i in range(3):
-    plt.figure(i)
-    plt.ylabel('Integration Times')
-    plt.grid(b=True, which='both')
-    plt.legend(fontsize='small', markerscale=5)
-    plt.tight_layout()
+        plt.title(xlabels[i] + ' vs. Int Times, dt={}'.format(dts[t]))
+        plt.xlabel(xlabels[i] + ' Values')
+        plt.ylabel('Integration Times')
+        plt.grid(b=True, which='both')
+        plt.legend(fontsize='small', markerscale=5)
+        plt.tight_layout()
+        plt.savefig(output_folder + xlabels[i] + '_' + 'Int_Times_' + dts[t] +
+                    '.' + figformat)
 
 plt.show()
