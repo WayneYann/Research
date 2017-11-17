@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Thu Jul 27 13:34 2017
+Created on Wed Nov 15 2017
 
 @author: andrewalferman
 """
@@ -25,7 +25,7 @@ def readsolver(solver, dt):
     indicators = np.array(indicators)
     CEMAvals = np.array(CEMAvals)
     inttimes = np.array(inttimes)
-    return [ratios, indicators, CEMAvals, inttimes]
+    return np.array([ratios, indicators, CEMAvals, inttimes])
 
 
 dts = ['1e-6', '1e-5', '1e-4']
@@ -52,23 +52,31 @@ for t in range(len(dts)):
     ymax = 0
     xmax = np.zeros(3)
     xmin = np.zeros(3)
+    # First loop through to get min/max
     for key in solvers:
         ymax = max(ymax, max(data[key][3]))
         for i in range(3):
+            if key == solvers[0]:
+                xmin[i] = min(data[key][i])
+                xmax[i] = max(data[key][i])
+            else:
+                xmin[i] = min(xmin[i], min(data[key][i]))
+                xmax[i] = max(xmax[i], max(data[key][i]))
+    # Now loop through to modify failed vals to 95% ymax and plot results
+    for key in solvers:
+        print(key)
+        print('Shape:')
+        print(np.shape(data[key][3]))
+        print('Old min value:')
+        print(min(data[key][3]))
+        for i in range(len(data[key][3])):
+            if data[key][3][i] < 0:
+                data[key][3][i] = 0.95 * ymax
+        print('New min value:')
+        print(min(data[key][3]))
+        for i in range(3):
             plt.figure(t * len(dts) + i)
             plt.scatter(data[key][i], data[key][3], 1.0, lw=0, label=key)
-            if i == 0:
-                xmin[i] = min([j for j in data[key][i] if j != -1.0])
-                xmax[i] = max([j for j in data[key][i] if j != -1.0])
-            else:
-                xmin[i] = min(xmin[i],
-                              min([j for j in data[key][i] if j != -1.0]))
-                xmax[i] = max(xmax[i],
-                              max([j for j in data[key][i] if j != -1.0]))
-
-    # print(xmax)
-    # print(xmin)
-    # ymax = 0.00005
 
     # Set the limits and unique values for each plot
     plt.figure(t * len(dts) + 0)
