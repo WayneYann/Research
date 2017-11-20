@@ -28,7 +28,8 @@ def readsolver(solver, dt):
     return np.array([ratios, indicators, CEMAvals, inttimes])
 
 
-dts = ['1e-6', '1e-5', '1e-4']
+# dts = ['1e-6', '1e-5', '1e-4']
+dts = ['1e-8', '1e-7']
 figformat = 'png'
 output_folder = 'Output_Plots/'
 
@@ -64,16 +65,9 @@ for t in range(len(dts)):
                 xmax[i] = max(xmax[i], max(data[key][i]))
     # Now loop through to modify failed vals to 95% ymax and plot results
     for key in solvers:
-        print(key)
-        print('Shape:')
-        print(np.shape(data[key][3]))
-        print('Old min value:')
-        print(min(data[key][3]))
         for i in range(len(data[key][3])):
             if data[key][3][i] < 0:
                 data[key][3][i] = 0.95 * ymax
-        print('New min value:')
-        print(min(data[key][3]))
         for i in range(3):
             plt.figure(t * len(dts) + i)
             plt.scatter(data[key][i], data[key][3], 1.0, lw=0, label=key)
