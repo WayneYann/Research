@@ -28,11 +28,13 @@ def readsolver(solver, dt):
     return np.array([ratios, indicators, CEMAvals, inttimes])
 
 
-dts = ['1e-8']  # , '1e-7', '1e-6', '1e-5', '1e-4']
+dts = ['1e-8', '1e-7', '1e-6', '1e-5', '1e-4']
 figformat = 'png'
 output_folder = 'Output_Plots/'
 
+# Implemented solvers are 'cvodes', 'radau2a', 'exprb43', 'radau2a', 'rkc'
 solvers = ['cvodes', 'radau2a', 'exprb43', 'radau2a', 'rkc']
+# Implemented metrics are 'Ratios', 'Indicators', 'CEM'
 xlabels = ['Ratios', 'Indicators', 'CEM']
 
 # Clear all previous figures and close them all
@@ -42,8 +44,10 @@ for i in range(15):
 plt.close('all')
 
 for t in range(len(dts)):
+    print('Loading ' + dts[t] + '...')
     data = {}
     for key in solvers:
+        print(key)
         data[key] = readsolver(key, dts[t])
 
     print('Plotting ' + dts[t] + '...')
@@ -63,6 +67,11 @@ for t in range(len(dts)):
                 xmin[i] = min(xmin[i], min(data[key][i]))
                 xmax[i] = max(xmax[i], max(data[key][i]))
     # Now loop through to modify failed vals to 95% ymax and plot results
+    # Cheat a little and set ymax manually to make better plots, as needed
+    if dts[t] == '1e-8':
+        ymax = 0.000002
+    elif dts[t] == '1e-7':
+        ymax = 0.000006
     for key in solvers:
         for i in range(len(data[key][3])):
             if data[key][3][i] < 0:
