@@ -28,8 +28,7 @@ def readsolver(solver, dt):
     return np.array([ratios, indicators, CEMAvals, inttimes])
 
 
-# dts = ['1e-6', '1e-5', '1e-4']
-dts = ['1e-8', '1e-7']
+dts = ['1e-8']  # , '1e-7', '1e-6', '1e-5', '1e-4']
 figformat = 'png'
 output_folder = 'Output_Plots/'
 
@@ -96,6 +95,6 @@ for t in range(len(dts)):
         plt.legend(fontsize='small', markerscale=5)
         plt.tight_layout()
         plt.savefig(output_folder + xlabels[i] + '_' + 'Int_Times_' + dts[t] +
-                    '.' + figformat)
+                    '.' + figformat, dpi=600)
 
 plt.show()
