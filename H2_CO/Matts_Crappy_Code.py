@@ -123,7 +123,7 @@ try:
                 T_burn[i] = react.T
                 if i > 0:
                     change = abs(T_burn[i] - T_burn[i-1])
-                if change > 5 and temperature < 1000.0:
+                if change > 10 and temperature < 1000.0:
                     print('Ignition detected at {}!'.format(time[i]))
                     print('Ignition temperature is {}'.format(T_burn[i]))
                     print('{},{},'.format(temperature, pressure) +
