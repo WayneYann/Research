@@ -126,7 +126,7 @@ try:
                 if change > 5:
                     print('Ignition detected at {}!'.format(time[i]))
                     print('Ignition temperature is {}'.format(T_burn[i]))
-                    print(temperature + ',' + pressure + ',' +
+                    print('{},{},'.format(temperature, pressure) +
                           canterastring.replace(':', '='))
                     # Trogdor_time[eq] = time[i]
                     # Burnating_temp[eq] = T_burn[i]
