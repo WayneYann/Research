@@ -16,6 +16,10 @@ import cantera as ct
 import os as os
 
 
+class GetOutOfLoop(Exception):
+    pass
+
+
 def loadpasrdata(num):
     """Load the initial conditions from the PaSR files."""
     pasrarrays = []
@@ -67,14 +71,12 @@ time = np.linspace(0, t, n)
 change = 0.0
 # plt.figure(num=None, figsize=(12, 8), dpi=900, facecolor='w', edgecolor='k')
 
-ignited = False
-
 pasr = loadpasrdata(1)
 numparticles = len(pasr[0, :, 0])
 numtsteps = len(pasr[:, 0, 0])
 
 # for eq in range(len(phi)):
-while not ignited:
+try:
     for p in range(numparticles):
         for t in range(numtsteps):
             # reset the ignition time flag and temperature
@@ -120,16 +122,19 @@ while not ignited:
                 T_burn[i] = react.T
                 if i > 0:
                     change = abs(T_burn[i] - T_burn[i-1])
-                if Burnating_begins and change > 5:
+                if change > 5:
                     Burnating_begins = True
-                    ignited = True
                     print('Ignition detected at {}!'.format(time[i]))
                     print('Ignition temperature is {}'.format(T_burn[i]))
                     print(canterastring.replace(':', '='))
                     # Trogdor_time[eq] = time[i]
                     # Burnating_temp[eq] = T_burn[i]
+                    raise GetOutOfLoop
 
     # plt.plot(time, T_burn)
+
+except GetOutOfLoop:
+    raise Exception('Error - Nothing combusted!')
 
 # plt.xlabel('Residence Time')
 # plt.ylabel('Temperature')
