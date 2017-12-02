@@ -133,12 +133,10 @@ try:
                     raise GetOutOfLoop
 
     # plt.plot(time, T_burn)
-
+    if not ignited:
+        raise Exception('Error - Nothing combusted!')
 except GetOutOfLoop:
     ignited = True
-
-if not ignited:
-    raise Exception('Error - Nothing combusted!')
 
 # plt.xlabel('Residence Time')
 # plt.ylabel('Temperature')
