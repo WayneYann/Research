@@ -75,12 +75,13 @@ pasr = loadpasrdata(1)
 numparticles = len(pasr[0, :, 0])
 numtsteps = len(pasr[:, 0, 0])
 
+ignited = False
+
 # for eq in range(len(phi)):
 try:
     for p in range(numparticles):
         for t in range(numtsteps):
             # reset the ignition time flag and temperature
-            Burnating_begins = False
             T_burn = np.zeros(len(time))
             # utilize a constant pressure reactor from cantera
             # to set equilivalence ratios.
@@ -123,7 +124,6 @@ try:
                 if i > 0:
                     change = abs(T_burn[i] - T_burn[i-1])
                 if change > 5:
-                    Burnating_begins = True
                     print('Ignition detected at {}!'.format(time[i]))
                     print('Ignition temperature is {}'.format(T_burn[i]))
                     print(canterastring.replace(':', '='))
@@ -134,6 +134,9 @@ try:
     # plt.plot(time, T_burn)
 
 except GetOutOfLoop:
+    ignited = True
+
+if not ignited:
     raise Exception('Error - Nothing combusted!')
 
 # plt.xlabel('Residence Time')
