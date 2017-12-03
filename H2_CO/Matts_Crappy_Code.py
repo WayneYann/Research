@@ -77,9 +77,11 @@ numtsteps = len(pasr[:, 0, 0])
 
 ignited = False
 
+print('Searching for conditions...')
 # for eq in range(len(phi)):
 try:
     for p in range(numparticles):
+        print(p)
         for t in range(numtsteps):
             # reset the ignition time flag and temperature
             T_burn = np.zeros(len(time))
