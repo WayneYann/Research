@@ -10,6 +10,9 @@ GRI_Mech_3/ch4_full_pasr_data.npy
 pyJac/
 Output_Plots
 *temp.linux*
+accelerInt_Data/GRI_PaSR_index_values_old.csv
+accelerInt_Data/GRI_PaSR_index_values.csv
+Old_Research_Data/
 
 # Compiled source #
 ###################
@@ -49,3 +52,7 @@ Output_Plots
 ehthumbs.db
 Thumbs.db
 .AppleDouble
+
+# Typically very large files #
+##############################
+data.bin
