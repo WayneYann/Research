@@ -85,7 +85,7 @@ change = 0.0
 # plt.figure(num=None, figsize=(12, 8), dpi=900, facecolor='w', edgecolor='k')
 
 pasr = loadpasrdata(1)
-numparticles = len(pasr[0, :2, 0])
+numparticles = len(pasr[0, :, 0])
 numtsteps = len(pasr[:, 0, 0])
 
 ignited = False
