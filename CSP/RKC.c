@@ -4,7 +4,7 @@
 //
 // based on Sommeijer, Shampine, Verwer RKC.f (http://www.netlib.org/ode/rkc.f)
 
-//#include "test.h"
+#include "test.h"
 
 
 void RKC (Real t, Real* Y0, Real h, Real* Yj) {
