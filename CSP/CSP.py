@@ -42,7 +42,9 @@ def intDriver(tim, dt, y_global, mu, setup, CSPtols):
             solver.set_initial_value(Y, t0)
             solver.set_f_params(eps, derivfun, jacfun, CSPtols)
             # solver.set_jac_params(eps)
+            tstart_step = time.time()
             solver.integrate(t0 + dt)
+            comp_time = time.time() - tstart_step
             tim = solver.t
             yn_local = solver.y
         rc_array = radical_correction(tim, yn_local, Rc)
@@ -54,7 +56,7 @@ def intDriver(tim, dt, y_global, mu, setup, CSPtols):
             if y0_local[i] > 1.0 or y0_local[i] < 0.0:
                 print("Something was less than 1 or negative.")
                 print(tim, M, y0_local)
-    return tim, y0_local
+    return tim, y0_local, comp_time
 
 # CSP Tolerances
 eps_r = 1.0e-3  # Real CSP tolerance
@@ -144,23 +146,25 @@ while tim < tend:
     solver._integrator.iwork[2] = -1
 
     if CSPon:
-        tim, Y = intDriver(tim, dt, Y, mu, setup, CSPtols)
+        tim, Y, comp_time = intDriver(tim, dt, Y, mu, setup, CSPtols)
         if humanreadable:
-            print('t={:<6.2g}\ty:'.format(solver.t),
+            print('t={:<6.2g} t_comp={:<6.2g}\ty:'.format(solver.t, comp_time),
                   ''.join('{:<12.8g}'.format(solver.y[i])
                   for i in range(len(solver.y))))
         else:
-            output = np.array2string(np.hstack((solver.t, solver.y)),
+            output = np.array2string(np.hstack((solver.t, comp_time, solver.y)),
                                      separator=',')
             print(''.join(output.strip('[]').split()))
     else:
+        tstart_step = time.time()
         solver.integrate(t0 + dt)
+        comp_time = time.time() - tstart_step
         if humanreadable:
-            print('t={:<6.2g}\ty:'.format(solver.t),
+            print('t={:<6.2g} t_comp={:<6.2g}\ty:'.format(solver.t, comp_time),
                   ''.join('{:<12.8g}'.format(solver.y[i])
                   for i in range(len(solver.y))))
         else:
-            output = np.array2string(np.hstack((solver.t, solver.y)),
+            output = np.array2string(np.hstack((solver.t, comp_time, solver.y)),
                                      separator=',')
             print(''.join(output.strip('[]').split()))
         tim += dt
