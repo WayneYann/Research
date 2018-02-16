@@ -147,8 +147,9 @@ while tim < tend:
 
     if CSPon:
         tim, Y, comp_time = intDriver(tim, dt, Y, mu, setup, CSPtols)
+        comp_speed = dt / comp_time
         if humanreadable:
-            print('t={:<6.2g} t_comp={:<6.2g}\ty:'.format(solver.t, comp_time),
+            print('t={:<6.2g} t_comp={:<6.2g}\ty:'.format(solver.t, comp_speed),
                   ''.join('{:<12.8g}'.format(solver.y[i])
                   for i in range(len(solver.y))))
         else:
@@ -159,8 +160,9 @@ while tim < tend:
         tstart_step = time.time()
         solver.integrate(t0 + dt)
         comp_time = time.time() - tstart_step
+        comp_speed = dt / comp_time
         if humanreadable:
-            print('t={:<6.2g} t_comp={:<6.2g}\ty:'.format(solver.t, comp_time),
+            print('t={:<6.2g} t_comp={:<6.2g}\ty:'.format(solver.t, comp_speed),
                   ''.join('{:<12.8g}'.format(solver.y[i])
                   for i in range(len(solver.y))))
         else:
