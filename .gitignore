@@ -22,6 +22,7 @@ Old_Research_Data/
 *.exe
 *.o
 *.so
+*.pyc
 
 # Packages #
 ############

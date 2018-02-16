@@ -87,7 +87,7 @@ for i in range(NN):
     Y.append(1.0)
 
 # Make this either human readable or better for saving into a table
-humanreadable = True
+humanreadable = False
 
 # Initialize the specific problem
 if problem == 'CSPtest':
