@@ -24,7 +24,7 @@ def intDriver(tim, dt, y_global, mu, setup, CSPtols):
     derivfun, jacfun, mode = setup
     eps_a, eps_r, eps = CSPtols
 
-    y0_local = y_global.copy()
+    y0_local = y_global[:]
 
     while tim < t0 + dt:
         M, tau, Qs, Rc = get_slow_projector(tim, y0_local, eps, derivfun,
