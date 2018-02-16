@@ -153,7 +153,7 @@ while tim < tend:
                   ''.join('{:<12.8g}'.format(solver.y[i])
                   for i in range(len(solver.y))))
         else:
-            output = np.array2string(np.hstack((solver.t, comp_time, solver.y)),
+            output = np.array2string(np.hstack((solver.t, comp_speed, solver.y)),
                                      separator=',')
             print(''.join(output.strip('[]').split()))
     else:
@@ -166,7 +166,7 @@ while tim < tend:
                   ''.join('{:<12.8g}'.format(solver.y[i])
                   for i in range(len(solver.y))))
         else:
-            output = np.array2string(np.hstack((solver.t, comp_time, solver.y)),
+            output = np.array2string(np.hstack((solver.t, comp_speed, solver.y)),
                                      separator=',')
             print(''.join(output.strip('[]').split()))
         tim += dt
