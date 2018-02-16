@@ -146,7 +146,6 @@ while tim < tend:
             # solver.set_jac_params(eps)
     solver._integrator.iwork[2] = -1
 
-<<<<<<< HEAD
     # if CSPon:
     tim, Y, comp_time = intDriver(tim, dt, Y, mu, setup, CSPtols)
     comp_speed = dt / comp_time
@@ -173,34 +172,6 @@ while tim < tend:
     #         print(''.join(output.strip('[]').split()))
     #     tim += dt
     #     t0 = tim
-=======
-    if CSPon:
-        tim, Y, comp_time = intDriver(tim, dt, Y, mu, setup, CSPtols)
-        comp_speed = dt / comp_time
-        if humanreadable:
-            print('t={:<6.2g} t_comp={:<6.2g}\ty:'.format(solver.t, comp_speed),
-                  ''.join('{:<12.8g}'.format(solver.y[i])
-                  for i in range(len(solver.y))))
-        else:
-            output = np.array2string(np.hstack((solver.t, comp_speed, solver.y)),
-                                     separator=',')
-            print(''.join(output.strip('[]').split()))
-    else:
-        tstart_step = time.time()
-        solver.integrate(t0 + dt)
-        comp_time = time.time() - tstart_step
-        comp_speed = dt / comp_time
-        if humanreadable:
-            print('t={:<6.2g} t_comp={:<6.2g}\ty:'.format(solver.t, comp_speed),
-                  ''.join('{:<12.8g}'.format(solver.y[i])
-                  for i in range(len(solver.y))))
-        else:
-            output = np.array2string(np.hstack((solver.t, comp_speed, solver.y)),
-                                     separator=',')
-            print(''.join(output.strip('[]').split()))
-        tim += dt
-        t0 = tim
->>>>>>> 58b9b4b124b5fb4c1bda9bd0fceae81cdb20dc31
 
 t_end = time.time()
 
