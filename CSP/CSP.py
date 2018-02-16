@@ -21,7 +21,7 @@ def intDriver(tim, dt, y_global, mu, setup, CSPtols):
     pflag = False
 
     # Unpack variables
-    derivfun, jacfun, mode = setup
+    derivfun, jacfun, mode, CSPon = setup
     eps_a, eps_r, eps = CSPtols
 
     y0_local = y_global[:]
@@ -35,19 +35,20 @@ def intDriver(tim, dt, y_global, mu, setup, CSPtols):
         # print(tim, M, Y)
 
         # Call some integrator
-        if mode == 'RK4':
-            tim, yn_local = RK4(derivfun, y0_local, tim, dt, Qs, 1)
-            #tim, yn_local = RK4(tim, h, y0_local, Qs)
-        else:
-            solver.set_initial_value(Y, t0)
-            solver.set_f_params(eps, derivfun, jacfun, CSPtols)
-            # solver.set_jac_params(eps)
-            tstart_step = time.time()
-            solver.integrate(t0 + dt)
-            comp_time = time.time() - tstart_step
-            tim = solver.t
-            yn_local = solver.y
-        rc_array = radical_correction(tim, yn_local, Rc)
+        if CSPon:
+            if mode == 'RK4':
+                tim, yn_local = RK4(derivfun, y0_local, tim, dt, Qs, 1)
+                #tim, yn_local = RK4(tim, h, y0_local, Qs)
+            else:
+                solver.set_initial_value(Y, t0)
+                solver.set_f_params(eps, derivfun, jacfun, CSPtols)
+                # solver.set_jac_params(eps)
+                tstart_step = time.time()
+                solver.integrate(t0 + dt)
+                comp_time = time.time() - tstart_step
+                tim = solver.t
+                yn_local = solver.y
+            rc_array = radical_correction(tim, yn_local, Rc)
 
         for i in range(NN):
             y0_local[i] = yn_local[i] - rc_array[i]
@@ -81,7 +82,7 @@ dt = 1.0e-8  # Printing time step
 # Options are 'RK4', 'vode'
 mode = 'vode'
 problem = 'CSPtest'
-CSPon = True
+CSPon = True  # Decides if the integration actually will use CSP
 
 # Set initial conditions
 Y = []
@@ -95,7 +96,7 @@ humanreadable = False
 if problem == 'CSPtest':
     derivfun = testfunc
     jacfun = testjac
-setup = (derivfun, jacfun, mode)
+setup = (derivfun, jacfun, mode, CSPon)
 CSPtols = eps_a, eps_r, eps
 
 # Need to also reshape because this was originally written in C
@@ -145,32 +146,32 @@ while tim < tend:
             # solver.set_jac_params(eps)
     solver._integrator.iwork[2] = -1
 
-    if CSPon:
-        tim, Y, comp_time = intDriver(tim, dt, Y, mu, setup, CSPtols)
-        comp_speed = dt / comp_time
-        if humanreadable:
-            print('t={:<6.2g} t_comp={:<6.2g}\ty:'.format(solver.t, comp_speed),
-                  ''.join('{:<12.8g}'.format(solver.y[i])
-                  for i in range(len(solver.y))))
-        else:
-            output = np.array2string(np.hstack((solver.t, comp_time, solver.y)),
-                                     separator=',')
-            print(''.join(output.strip('[]').split()))
+    # if CSPon:
+    tim, Y, comp_time = intDriver(tim, dt, Y, mu, setup, CSPtols)
+    comp_speed = dt / comp_time
+    if humanreadable:
+        print('t={:<6.2g} t_comp={:<6.2g}\ty:'.format(solver.t, comp_speed),
+              ''.join('{:<12.8g}'.format(solver.y[i])
+              for i in range(len(solver.y))))
     else:
-        tstart_step = time.time()
-        solver.integrate(t0 + dt)
-        comp_time = time.time() - tstart_step
-        comp_speed = dt / comp_time
-        if humanreadable:
-            print('t={:<6.2g} t_comp={:<6.2g}\ty:'.format(solver.t, comp_speed),
-                  ''.join('{:<12.8g}'.format(solver.y[i])
-                  for i in range(len(solver.y))))
-        else:
-            output = np.array2string(np.hstack((solver.t, comp_time, solver.y)),
-                                     separator=',')
-            print(''.join(output.strip('[]').split()))
-        tim += dt
-        t0 = tim
+        output = np.array2string(np.hstack((solver.t, comp_time, solver.y)),
+                                 separator=',')
+        print(''.join(output.strip('[]').split()))
+    # else:
+    #     tstart_step = time.time()
+    #     solver.integrate(t0 + dt)
+    #     comp_time = time.time() - tstart_step
+    #     comp_speed = dt / comp_time
+    #     if humanreadable:
+    #         print('t={:<6.2g} t_comp={:<6.2g}\ty:'.format(solver.t, comp_speed),
+    #               ''.join('{:<12.8g}'.format(solver.y[i])
+    #               for i in range(len(solver.y))))
+    #     else:
+    #         output = np.array2string(np.hstack((solver.t, comp_time, solver.y)),
+    #                                  separator=',')
+    #         print(''.join(output.strip('[]').split()))
+    #     tim += dt
+    #     t0 = tim
 
 t_end = time.time()
 
