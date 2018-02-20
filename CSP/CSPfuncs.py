@@ -3,24 +3,7 @@
 
 import numpy as np
 import scipy.linalg as linalg
-
-
-# def RK4(func, y0, t, h, *params):
-#     """Perform a single step of RK4.
-#
-#     Currently just configured for the test problem
-#     """
-#     print(params)
-#     # Should turn Q, qflag, eps into optional arguments to be more general
-#     Y1 = y0
-#     Y2 = y0 + 0.5 * h * func(t, Y1, params)
-#     Y3 = y0 + 0.5 * h * func(t + h * 0.5, Y2, params)
-#     Y4 = y0 + h * func(t + h * 0.5, Y3, params)
-#     y = y0 + (h / 6.0) * (func(t, Y1, params)
-#                           + 2 * func(t + 0.5 * h, Y2, params)
-#                           + 2 * func(t + 0.5 * h, Y3, params)
-#                           + func(t + h, Y4, Q, qflag)
-#                          )
+import math as mth
 
 
 def RK4(func, y0, t, h, Q, qflag):
@@ -204,15 +187,13 @@ def get_slow_projector(tim, y, eps, derivfun, jacfun, CSPtols):
     """
     NN = len(y)
 
-    tau = np.empty(NN)
-
     eps_a, eps_r, eps = CSPtols
 
     # CSP vectors and covectors
     a_csp = np.empty(NN**2)  # Array with CSP vectors
     b_csp = np.empty(NN**2)  # Array with CSP covectors
 
-    M = get_fast_modes(tim, y, eps, derivfun, jacfun, eps_a, eps_r)
+    M, tau = get_fast_modes(tim, y, eps, derivfun, jacfun, eps_a, eps_r)
 
     # Rc starts as a matrix of zeros
     Rc = np.zeros(NN**2)
@@ -237,15 +218,11 @@ def get_slow_projector(tim, y, eps, derivfun, jacfun, CSPtols):
                 sum_rc = 0.0
 
                 # sum over slow modes
-                for r in range(M):
-                    sum_qs += a_csp[i + (NN * r)] * b_csp[j + (NN * r)]
-                    # sum_rc += (a_csp[i + (NN * r)]
-                    #             * b_csp[j + (NN * r)]
-                    #             * fabs( tau[r] ))
-                    sum_rc += (a_csp[i + (NN * r)]
-                               * b_csp[j + (NN * r)]
-                               * tau[r]
-                              )
+                sum_qs = mth.fsum([a_csp[i + (NN * r)] * b_csp[j + (NN * r)]
+                                   for r in range(M)])
+                sum_rc = mth.fsum([(a_csp[i + (NN * r)] * b_csp[j + (NN * r)]
+                                   * tau[r]) for r in range(M)])
+
 
                 # Qs = Id - sum_r^M a_r*b_r
                 Qs[i + (NN * j)] -= sum_qs
@@ -253,7 +230,8 @@ def get_slow_projector(tim, y, eps, derivfun, jacfun, CSPtols):
                 # Rc = sum_r^M a_r*tau_r*b_r
                 Rc[i + (NN * j)] = sum_rc
     taum1 = abs(tau[M])
-    return M, taum1, Qs, Rc
+    stiffness = float(abs(tau[0])) / float(taum1)
+    return M, taum1, Qs, Rc, stiffness
 
 
 def get_csp_vectors(tim, y, eps, jacfun):
@@ -302,7 +280,7 @@ def get_csp_vectors(tim, y, eps, jacfun):
     order = insertion_sort(evalr)
 
     for i in range(NN):
-        tau[i] = 1.0 / evalr[order[i]]  # time scales, inverse of eigenvalues
+        tau[i] = 1.0 / float(evalr[order[i]])  # time scales, inverse of eigenvalues
         for j in range(NN):
             # CSP vectors, right eigenvectors
             a_csp[j + NN * i] = evecr[j + NN * order[i]]
@@ -327,14 +305,14 @@ def get_csp_vectors(tim, y, eps, jacfun):
                 ir = j + NN * i  # location of real part
                 ii = j + NN * (i + 1)  # location of imaginary part
 
-                # sum_r += ( vr[ir] * vl[ir] ) - ( vr[ii] * vl[ii] );
-                # sum_i += ( vr[ii] * vl[ir] ) + ( vr[ir] * vl[ii] );
                 # need to treat left eigenvector as complex conjugate
                 # (so take negative of imag part)
-                sum_r += (a_csp[ir] * b_csp[ir]) + (a_csp[ii] * b_csp[ii])
-                sum_i += (a_csp[ii] * b_csp[ir]) - (a_csp[ir] * b_csp[ii])
+                sum_r = mth.fsum([sum_r, ((a_csp[ir] * b_csp[ir])
+                                          + (a_csp[ii] * b_csp[ii]))])
+                sum_i = mth.fsum([sum_i, ((a_csp[ii] * b_csp[ir])
+                                          - (a_csp[ir] * b_csp[ii]))])
 
-            sum2 = ( sum_r * sum_r ) + ( sum_i * sum_i )
+            sum2 = sum_r**2 + sum_i**2
 
             # ensure sum is not zero
             if abs(sum2) > np.finfo(float).resolution:
@@ -362,20 +340,10 @@ def get_csp_vectors(tim, y, eps, jacfun):
             # real eigenvalue
             flag = 1
 
-            # original summation
-            sumj = 0.0
-            for j in range(NN):
-                sumj += a_csp[j + NN * i] * b_csp[j + NN * i]
-
-            # // Kahan summation
-            # Real sum = ZERO;
-            # Real c = ZERO;
-            # for ( uint j = 0; j < NN; ++j ) {
-            #   Real y = ( a_csp[j + NN * i] * b_csp[j + NN * i] ) - c;
-            #   Real t = sum + y;
-            #   c = ( t - sum ) - y;
-            #   sum = t;
-            # } // end j loop
+            # More accurate summation
+            #sumj = 0.0
+            sumj = mth.fsum([a_csp[j + NN * i] * b_csp[j + NN * i]
+                            for j in range(NN)])
 
             # ensure dot product is not zero
             if abs(sumj) > np.finfo(float).resolution:
@@ -452,31 +420,18 @@ def get_fast_modes(tim, y, eps, derivfun, jacfun, eps_a, eps_r):
     # now need to find M exhausted modes
     # first calculate f^i
     f_csp = np.empty(NN)  # f^i is b* operated on g
-    # g_csp = np.empty(NN)  # array of derivatives (g in CSP)
 
     Q = np.empty(NN**2) # unused projector array
     qflag = 0 # flag telling dydt to not use projector
 
     # call derivative function
-    g_csp = derivfun(tim, y, Q, qflag)
+    g_csp = derivfun(tim, y, Q, qflag) # array of derivatives (g in CSP)
 
     for i in range(NN):
-        f_csp[i] = 0.0
-
         # operate b_csp on g
 
-        # original summation
-        for j in range(NN):
-            f_csp[i] += b_csp[j + (NN * i)] * g_csp[j]
-
-        # # Kahan summation
-        # Real c = ZERO;
-        # for ( uint j = 0; j < NN; ++j ) {
-        #     Real y = ( b_csp[j + (NN * i)] * g_csp[j] ) - c;
-        #     Real t = f_csp[i] + y;
-        #     c = ( t - f_csp[i] ) - y;
-        #     f_csp[i] = t;
-        # }
+        # More accurate summation
+        f_csp[i] = mth.fsum([b_csp[j + (NN * i)] * g_csp[j] for j in range(NN)])
 
     M = 0  # start with no slow modes
     mflag = 0
@@ -486,21 +441,11 @@ def get_fast_modes(tim, y, eps, derivfun, jacfun, eps_a, eps_r):
         #y_norm = 0.0
         #err_norm = 0.0
         for i in range(NN):
-            #for ( uint i = NN - 1; i > 0; --i ) {
-            sum_m = 0.0
+            #sum_m = 0.0
 
-            # original summation
-            for k in range(M+1):
-                sum_m += a_csp[i + (NN * k)] * f_csp[k]
-
-            # // Kahan summation
-            # Real c = ZERO;
-            # for ( uint k = 0; k < M + 1; ++k ) {
-            #   Real y = ( a_csp[i + (NN * k)] * f_csp[k] ) - c;
-            #   Real t = sum_m + y;
-            #   c = ( t - sum_m ) - y;
-            #   sum_m = t;
-            # } // end k loop
+            # More accurate summation
+            sum_m = mth.fsum([a_csp[i + (NN * k)] * f_csp[k]
+                              for k in range(M+1)])
 
             # //////
             # /*// max (infinite norm)
@@ -514,7 +459,7 @@ def get_fast_modes(tim, y, eps, derivfun, jacfun, eps_a, eps_r):
             # */
 
             # if error larger than tolerance, flag
-            if (abs(tau[M + 1] * sum_m) >= (eps_a + (eps_r * y[i]))):
+            if abs(tau[M + 1] * sum_m) >= (eps_a + (eps_r * y[i])):
                 mflag = 1;
 
             # //////
@@ -540,7 +485,7 @@ def get_fast_modes(tim, y, eps, derivfun, jacfun, eps_a, eps_r):
         else:
             mflag = 1  # explosve mode, stop here
 
-    return M
+    return M, tau
 
 
 def insertion_sort(vals):
