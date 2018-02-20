@@ -40,9 +40,12 @@ Y2s = np.array(Y2s)
 Y3s = np.array(Y3s)
 Y4s = np.array(Y4s)
 
+plt.close('all')
+
 figformat = 'png'
 output_folder = 'Output_Plots/'
 
+plt.figure(num=None, figsize=(7, 4.5))
 host = host_subplot(111, axes_class=AA.Axes)
 plt.subplots_adjust(right=0.70)
 
@@ -51,11 +54,17 @@ par2 = host.twinx()
 par3 = host.twinx()
 
 offset = 60
+new_fixed_axis = par1.get_grid_helper().new_fixed_axis
 new_fixed_axis = par2.get_grid_helper().new_fixed_axis
-new_fixed_axis2 = par3.get_grid_helper().new_fixed_axis
+new_fixed_axis = par3.get_grid_helper().new_fixed_axis
+par1.axis["right"] = new_fixed_axis(loc="right",
+                                    axes=par1,
+                                    offset=(0, 0))
+
+par1.axis["right"].toggle(all=True)
 par2.axis["right"] = new_fixed_axis(loc="right",
                                     axes=par2,
-                                    offset=(30, 0))
+                                    offset=(50, 0))
 
 par2.axis["right"].toggle(all=True)
 
@@ -70,6 +79,7 @@ host.set_ylabel('Y Value')
 par1.set_ylabel('Computation Speed [-]')
 par2.set_ylabel('Number Slow Modes')
 par3.set_ylabel('CSP Stiffness')
+
 par2.set_yticks([0, 1, 2, 3, 4])
 
 # host.title("CSP Toy Problem")
@@ -79,11 +89,11 @@ p1, = host.plot(ts, Y1s, label='Y1')
 p2, = host.plot(ts, Y2s, label='Y2')
 p3, = host.plot(ts, Y3s, label='Y3')
 p4, = host.plot(ts, Y4s, label='Y4')
-p5, = par2.plot(ts, Ms, label='M', linestyle='--')
-p6, = par3.plot(ts, CSPstiffness, label='CSP Stiffness', linestyle=':')
-p7, = par1.plot(ts_timing, comptimes, label='Comp Speed, dt=1e-4')
+p5, = par1.plot(ts_timing, comptimes, label='Comp Speed, dt=1e-4')
+p6, = par2.plot(ts, Ms, label='M', linestyle='--')
+p7, = par3.plot(ts, CSPstiffness, label='CSP Stiffness', linestyle=':')
 
-host.legend(bbox_to_anchor=(0.3, 0.4), fontsize='x-small', markerscale=3)
+host.legend(bbox_to_anchor=(0.42, 0.4), fontsize='x-small', markerscale=3)
 
 #         plt.xlabel(plotxlabel + ' Values')
 #         plt.ylabel('Integration Times')
