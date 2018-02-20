@@ -27,8 +27,10 @@ def intDriver(tim, dt, y_global, mu, setup, CSPtols):
     y0_local = y_global[:]
 
     while tim < t0 + dt:
-        M, tau, Qs, Rc = get_slow_projector(tim, y0_local, eps, derivfun,
-                                            jacfun, CSPtols)
+        M, tau, Qs, Rc, stiffness = get_slow_projector(tim, y0_local, eps,
+                                                       derivfun, jacfun,
+                                                       CSPtols
+                                                       )
 
         # time step size (controlled by fastest slow mode)
         h = mu * tau
@@ -49,15 +51,28 @@ def intDriver(tim, dt, y_global, mu, setup, CSPtols):
                 tim = solver.t
                 yn_local = solver.y
             rc_array = radical_correction(tim, yn_local, Rc)
+            for i in range(NN):
+                y0_local[i] = yn_local[i] - rc_array[i]
+        else:
+            if mode == 'RK4':
+                tim, yn_local = RK4(derivfun, y0_local, tim, dt, Qs, 0)
+                #tim, yn_local = RK4(tim, h, y0_local, Qs)
+            else:
+                solver.set_initial_value(Y, t0)
+                solver.set_f_params(Qs, 1)
+                # solver.set_jac_params(eps)
+                tstart_step = time.time()
+                solver.integrate(t0 + dt)
+                comp_time = time.time() - tstart_step
+                tim = solver.t
+                y0_local = solver.y
 
         for i in range(NN):
-            y0_local[i] = yn_local[i] - rc_array[i]
-
             # check if any > 1 or negative
             if y0_local[i] > 1.0 or y0_local[i] < 0.0:
                 print("Something was less than 1 or negative.")
                 print(tim, M, y0_local)
-    return tim, y0_local, comp_time
+    return tim, y0_local, comp_time, stiffness, M
 
 # CSP Tolerances
 eps_r = 1.0e-3  # Real CSP tolerance
@@ -65,8 +80,8 @@ eps_a = 1.0e-3  # Absolute CSP tolerance
 eps = 1.0e-2  # Stiffness factor
 
 # vode tolerances
-abserr = 1e-3
-relerr = 1e-3
+abserr = 1e-18
+relerr = 1e-12
 
 mu = 0.005  # Timestep factor
 
@@ -82,7 +97,7 @@ dt = 1.0e-8  # Printing time step
 # Options are 'RK4', 'vode'
 mode = 'vode'
 problem = 'CSPtest'
-CSPon = True  # Decides if the integration actually will use CSP
+CSPon = False  # Decides if the integration actually will use CSP
 
 # Set initial conditions
 Y = []
@@ -105,24 +120,24 @@ Qs = np.reshape(np.identity(NN), (NN**2,))
 # Timer
 t_start = time.time()
 while tim < tend:
-    if dt < 1.0e-6 and tim >= 1.0e-6:
-        dt = 1.0e-6
-    elif dt < 1.0e-5 and tim >= 1.0e-5:
-        dt = 1.0e-5
-    elif dt < 1.0e-4 and tim >= 1.0e-4:
-        dt = 1.0e-4
-    elif dt < 1.0e-3 and tim >= 1.0e-3:
-        dt = 1.0e-3
-    elif dt < 1.0e-2 and tim >= 1.0e-2:
-        dt = 1.0e-2
+    # if dt < 1.0e-6 and tim >= 1.0e-6:
+    #     dt = 1.0e-6
+    # elif dt < 1.0e-5 and tim >= 1.0e-5:
+    #     dt = 1.0e-5
+    # elif dt < 1.0e-4 and tim >= 1.0e-4:
+    #     dt = 1.0e-4
+    # elif dt < 1.0e-3 and tim >= 1.0e-3:
+    #     dt = 1.0e-3
+    # elif dt < 1.0e-2 and tim >= 1.0e-2:
+    #     dt = 1.0e-2
 
     if mode != 'RK4':
         if CSPon:
             solver = ode(CSPwrap).set_integrator(mode,
                                                  #method='bdf',
-                                                 nsteps=1e5,
-                                                 #atol=abserr,
-                                                 #rtol=relerr,
+                                                 nsteps=1e6,
+                                                 atol=abserr,
+                                                 rtol=relerr,
                                                  #with_jacobian=False,
                                                  #first_step=dt,
                                                  #min_step=dt - 1e-10,
@@ -132,8 +147,8 @@ while tim < tend:
             solver = ode(derivfun).set_integrator(mode,
                                               #method='bdf',
                                               nsteps=1e6,
-                                              # atol=abserr,
-                                              # rtol=relerr,
+                                              atol=abserr,
+                                              rtol=relerr,
                                               #with_jacobian=False,
                                               #first_step=dt,
                                               # min_step=dt,
@@ -147,14 +162,20 @@ while tim < tend:
     solver._integrator.iwork[2] = -1
 
     # if CSPon:
-    tim, Y, comp_time = intDriver(tim, dt, Y, mu, setup, CSPtols)
+    tim, Y, comp_time, stiffness, M = intDriver(tim, dt, Y, mu, setup, CSPtols)
     comp_speed = dt / comp_time
     if humanreadable:
-        print('t={:<6.2g} t_comp={:<6.2g}\ty:'.format(solver.t, comp_speed),
+        print('t={:<8.2g} M={} speed_comp={:<8.4g}\ts={:<10.8g}\ty:'.format(
+                                                                 solver.t,
+                                                                 M,
+                                                                 comp_speed,
+                                                                 stiffness
+                                                                 ),
               ''.join('{:<12.8g}'.format(solver.y[i])
               for i in range(len(solver.y))))
     else:
-        output = np.array2string(np.hstack((solver.t, comp_time, solver.y)),
+        output = np.array2string(np.hstack((solver.t, M, comp_time,
+                                            stiffness, solver.y)),
                                  separator=',')
         print(''.join(output.strip('[]').split()))
     # else:
