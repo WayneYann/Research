@@ -80,8 +80,8 @@ eps_a = 1.0e-3  # Absolute CSP tolerance
 eps = 1.0e-2  # Stiffness factor
 
 # vode tolerances
-abserr = 1e-18
-relerr = 1e-12
+abserr = 1e-24
+relerr = 1e-15
 
 mu = 0.005  # Timestep factor
 
@@ -92,12 +92,13 @@ NN = 4  # Size of problem
 t0 = 0.0  # Start time (sec)
 tend = 5.0  # End time (sec)
 tim = t0  # Current time (sec), initialized at zero
-dt = 1.0e-8  # Printing time step
+dt = 1.0e-8  # Integrating time step
 
 # Options are 'RK4', 'vode'
 mode = 'vode'
 problem = 'CSPtest'
 CSPon = False  # Decides if the integration actually will use CSP
+constantdt = False
 
 # Set initial conditions
 Y = []
@@ -119,17 +120,37 @@ Qs = np.reshape(np.identity(NN), (NN**2,))
 
 # Timer
 t_start = time.time()
+printstep = 0
+printevery = 1
 while tim < tend:
-    # if dt < 1.0e-6 and tim >= 1.0e-6:
-    #     dt = 1.0e-6
-    # elif dt < 1.0e-5 and tim >= 1.0e-5:
-    #     dt = 1.0e-5
-    # elif dt < 1.0e-4 and tim >= 1.0e-4:
-    #     dt = 1.0e-4
-    # elif dt < 1.0e-3 and tim >= 1.0e-3:
-    #     dt = 1.0e-3
-    # elif dt < 1.0e-2 and tim >= 1.0e-2:
-    #     dt = 1.0e-2
+    printstep += 1
+    if constantdt:
+        if tim >= 1.0e-8:
+            printevery = 10
+        elif tim >= 1.0e-7:
+            printevery *= 10
+        elif tim >= 1.0e-6:
+            printevery *= 10
+        elif tim >= 1.0e-5:
+            printevery *= 10
+        elif tim >= 1.0e-4:
+            printevery *= 10
+        elif tim >= 1.0e-3:
+            printevery *= 10
+        elif tim >= 1.0e-2:
+            printevery *= 10
+    else:
+        if dt < 1.0e-6 and tim >= 1.0e-6:
+            dt = 1.0e-6
+        elif dt < 1.0e-5 and tim >= 1.0e-5:
+            dt = 1.0e-5
+        elif dt < 1.0e-4 and tim >= 1.0e-4:
+            dt = 1.0e-4
+        elif dt < 1.0e-3 and tim >= 1.0e-3:
+            dt = 1.0e-3
+        elif dt < 1.0e-2 and tim >= 1.0e-2:
+            dt = 1.0e-2
+
 
     if mode != 'RK4':
         if CSPon:
@@ -164,38 +185,25 @@ while tim < tend:
     # if CSPon:
     tim, Y, comp_time, stiffness, M = intDriver(tim, dt, Y, mu, setup, CSPtols)
     comp_speed = dt / comp_time
-    if humanreadable:
-        print('t={:<8.2g} M={} speed_comp={:<8.4g}\ts={:<10.8g}\ty:'.format(
-                                                                 solver.t,
-                                                                 M,
-                                                                 comp_speed,
-                                                                 stiffness
-                                                                 ),
-              ''.join('{:<12.8g}'.format(solver.y[i])
-              for i in range(len(solver.y))))
-    else:
-        output = np.array2string(np.hstack((solver.t, M, comp_time,
-                                            stiffness, solver.y)),
-                                 separator=',')
-        print(''.join(output.strip('[]').split()))
-    # else:
-    #     tstart_step = time.time()
-    #     solver.integrate(t0 + dt)
-    #     comp_time = time.time() - tstart_step
-    #     comp_speed = dt / comp_time
-    #     if humanreadable:
-    #         print('t={:<6.2g} t_comp={:<6.2g}\ty:'.format(solver.t, comp_speed),
-    #               ''.join('{:<12.8g}'.format(solver.y[i])
-    #               for i in range(len(solver.y))))
-    #     else:
-    #         output = np.array2string(np.hstack((solver.t, comp_time, solver.y)),
-    #                                  separator=',')
-    #         print(''.join(output.strip('[]').split()))
-    #     tim += dt
-    #     t0 = tim
+    if printstep == printevery:
+        printstep = 0
+        if humanreadable:
+            print('t={:<8.2g} M={} speed_comp={:<8.4g}\ts={:<10.8g}\ty:'.format(
+                                                                     solver.t,
+                                                                     M,
+                                                                     comp_speed,
+                                                                     stiffness
+                                                                     ),
+                  ''.join('{:<12.8g}'.format(solver.y[i])
+                  for i in range(len(solver.y))))
+        else:
+            output = np.array2string(np.hstack((solver.t, M, comp_time,
+                                                stiffness, solver.y)),
+                                     separator=',')
+            print(''.join(output.strip('[]').split()))
 
 t_end = time.time()
 
 cpu_time = t_end - t_start
 
-print("Time taken: {}".format(cpu_time))
+# print("Time taken: {}".format(cpu_time))

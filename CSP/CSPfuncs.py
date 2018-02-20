@@ -87,7 +87,7 @@ def testfunc(tim, y, Q, qflag):
         sumterm = 0.0
         for j in range(i, NN - 1):
             sumterm += (y[j+1] / ((1 + y[j+1])**2))
-        ydot[i] = ((1 / (eps**(NN - 1)))
+        ydot[i] = ((1 / (eps**(NN - (i+1))))
                    * (-1 * y[i] + (y[i+1] / (1 + y[i + 1])))
                    - sumterm)
     ydot[-1] = -1 * y[-1]
