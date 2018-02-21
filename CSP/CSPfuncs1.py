@@ -280,9 +280,6 @@ def get_csp_vectors(tim, y, eps, jacfun):
     #             complexflag = True
     # if complexflag:
     #     raise Exception('Imaginary values detected.')
-    # Need to reshape because this code was originally written for C
-    #evecl = np.reshape(evecl, (NN**2,))
-    #evecr = np.reshape(evecr, (NN**2,))
 
     # Sort the eigenvalues
     order = insertion_sort(evalr)
@@ -291,10 +288,8 @@ def get_csp_vectors(tim, y, eps, jacfun):
         tau[i] = 1.0 / float(evalr[order[i]])  # time scales, inverse of eigenvalues
         for j in range(NN):
             # CSP vectors, right eigenvectors
-            #a_csp[j + NN * i] = evecr[j + NN * order[i]]
             a_csp[i][j] = evecr[order[i]][j]
             # CSP covectors, left eigenvectors
-            #b_csp[j + NN * i] = evecl[j + NN * order[i]]
             b_csp[i][j] = evecl[order[i]][j]
 
     # eliminate complex components of eigenvectors if complex eigenvalues,
@@ -312,15 +307,8 @@ def get_csp_vectors(tim, y, eps, jacfun):
             sum_i = 0.0  # imaginary part
 
             for j in range(NN):
-                #ir = j + NN * i  # location of real part
-                #ii = j + NN * (i + 1)  # location of imaginary part
-
                 # need to treat left eigenvector as complex conjugate
                 # (so take negative of imag part)
-                #sum_r = mth.fsum([sum_r, ((a_csp[ir] * b_csp[ir])
-                #                          + (a_csp[ii] * b_csp[ii]))])
-                #sum_i = mth.fsum([sum_i, ((a_csp[ii] * b_csp[ir])
-                #                          - (a_csp[ir] * b_csp[ii]))])
                 sum_r = mth.fsum(sum_r, (np.real(a_csp[i][j])
                                          * np.real(b_csp[i][j])
                                          + np.imag(a_csp[i][j])
@@ -338,13 +326,7 @@ def get_csp_vectors(tim, y, eps, jacfun):
             # ensure sum is not zero
             if abs(sum2) > np.finfo(float).resolution:
                 for j in range(NN):
-                    #ir = j + NN * i
-                    #ii = j + NN * (i + 1)
-
                     # normalize a, and set a1=real, a2=imag
-                    #a_old = a_csp[ir]
-                    #a_csp[ir] = ((a_old * sum_r) + (a_csp[ii] * sum_i)) / sum2
-                    #a_csp[ii] = ((a_csp[ii] * sum_r) - (a_old * sum_i)) / sum2
                     a_old = a_csp[i][j]
                     a_csp[i][j] = (np.real(a_old) * sum_r
                                    + np.imag(a_csp) * sum_i * 1j) / sum2
@@ -352,9 +334,7 @@ def get_csp_vectors(tim, y, eps, jacfun):
                                    - np.real(a_old) * sum_i * 1j) / sum2
 
                     # set b1=2*real, b2=-2*imag
-                    b_csp[ir] = 2.0 * b_csp[ir]
-                    # vl[ii] = -TWO * b_csp[ii];
-                    b_csp[ii] = 2.0 * b_csp[ii]
+                    b_csp[i][j] = 2.0 * b_csp[i][j]
 
             # skip next (conjugate of current)
             flag = 2
@@ -367,9 +347,6 @@ def get_csp_vectors(tim, y, eps, jacfun):
             flag = 1
 
             # More accurate summation
-            #sumj = 0.0
-            #sumj = mth.fsum([a_csp[j + NN * i] * b_csp[j + NN * i]
-            #                for j in range(NN)])
             sumj = mth.fsum([a_csp[i][j] * b_csp[i][j] for j in range(NN)])
 
             # ensure dot product is not zero
@@ -474,39 +451,15 @@ def get_fast_modes(tim, y, eps, derivfun, jacfun, eps_a, eps_r):
             sum_m = mth.fsum([a_csp[k][i] * f_csp[k]
                               for k in range(M+1)])
 
-            # //////
-            # /*// max (infinite norm)
-            # if ( fabs( eps_a + ( eps_r * y[i] ) ) > y_norm ) {
-            #   y_norm = fabs( eps_a + ( eps_r * y[i] ) );
-            # }
-            #
-            # if ( fabs ( tau[M + 1] * sum_m ) > err_norm ) {
-            #   err_norm = fabs ( tau[M + 1] * sum_m );
-            # }
-            # */
-
             # if error larger than tolerance, flag
             if abs(tau[M + 1] * sum_m) >= (eps_a + (eps_r * y[i])):
                 mflag = 1;
 
-            # //////
-            # /*// L2 norm
-            # y_norm += ( eps_a + ( eps_r * y[i] ) ) * ( eps_a + ( eps_r * y[i] ) );
-            # err_norm += ( tau[M + 1] * sum_m ) * ( tau[M + 1] * sum_m );
-            # */
-            # //////
-
-            # // ensure below error tolerance and not explosive mode (positive eigenvalue)
-            # // tau[M+1] is time scale of fastest of slow modes (driving)
-            # // tau[M] is time scale of slowest exhausted mode (current)
-
-        # /*// L2 norm
-        # y_norm = sqrt ( y_norm );
-        # err_norm = sqrt ( err_norm );
-        # */
+            # ensure below error tolerance and not explosive mode (positive eigenvalue)
+            # tau[M+1] is time scale of fastest of slow modes (driving)
+            # tau[M] is time scale of slowest exhausted mode (current)
 
         # add current mode to exhausted if under error tolerance and not explosive mode
-        #if ( ( err_norm < eps_i ) && ( tau[M] < ZERO ) ) {
         if mflag == 0 and tau[M] < 0.0:
             M += 1  # add current mode to exhausted modes
         else:

@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
-from CSPfuncs import *
+from CSPfuncs1 import *
 import time as time
 from scipy.integrate import ode
 
@@ -92,7 +92,7 @@ NN = 4  # Size of problem
 t0 = 0.0  # Start time (sec)
 tend = 5.0  # End time (sec)
 tim = t0  # Current time (sec), initialized at zero
-dt = 1.0e-8  # Integrating time step
+dt = 1.0e-9  # Integrating time step
 
 # Options are 'RK4', 'vode'
 mode = 'vode'

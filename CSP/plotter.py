@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 
 ts, ts_timing, Ms, comptimes, CSPstiffness, Y1s, Y2s, Y3s, Y4s = \
     [], [], [], [], [], [], [], [], []
-with open('csptoyproblem-vals.csv', newline='') as csvfile:
+with open('csptoyproblem2.csv', newline='') as csvfile:
     reader = csv.reader(csvfile, delimiter=',')
     for row in reader:
         ts.append(float(row[0]))
@@ -45,7 +45,7 @@ plt.close('all')
 figformat = 'png'
 output_folder = 'Output_Plots/'
 
-plt.figure(num=None, figsize=(7, 4.5))
+plt.figure(num=None, figsize=(8, 4.5))
 host = host_subplot(111, axes_class=AA.Axes)
 plt.subplots_adjust(right=0.70)
 
@@ -64,13 +64,13 @@ par1.axis["right"] = new_fixed_axis(loc="right",
 par1.axis["right"].toggle(all=True)
 par2.axis["right"] = new_fixed_axis(loc="right",
                                     axes=par2,
-                                    offset=(50, 0))
+                                    offset=(offset+10, 0))
 
 par2.axis["right"].toggle(all=True)
 
 par3.axis["right"] = new_fixed_axis(loc="right",
                                     axes=par3,
-                                    offset=(90, 0))
+                                    offset=(2*offset, 0))
 
 par3.axis["right"].toggle(all=True)
 
@@ -89,7 +89,7 @@ p1, = host.plot(ts, Y1s, label='Y1')
 p2, = host.plot(ts, Y2s, label='Y2')
 p3, = host.plot(ts, Y3s, label='Y3')
 p4, = host.plot(ts, Y4s, label='Y4')
-p5, = par1.plot(ts_timing, comptimes, label='Comp Speed, dt=1e-4')
+# p5, = par1.plot(ts_timing, comptimes, label='Comp Speed, dt=1e-4')
 p6, = par2.plot(ts, Ms, label='M', linestyle='--')
 p7, = par3.plot(ts, CSPstiffness, label='CSP Stiffness', linestyle=':')
 
