@@ -67,11 +67,11 @@ def intDriver(tim, dt, y_global, mu, setup, CSPtols):
                 tim = solver.t
                 y0_local = solver.y
 
-        for i in range(NN):
-            # check if any > 1 or negative
-            if y0_local[i] > 1.0 or y0_local[i] < 0.0:
-                print("Something was less than 1 or negative.")
-                print(tim, M, y0_local)
+        # for i in range(NN):
+        #     # check if any > 1 or negative
+        #     if y0_local[i] > 1.0 or y0_local[i] < 0.0:
+        #         print("Something was less than 1 or negative.")
+        #         print(tim, M, y0_local)
     return tim, y0_local, comp_time, stiffness, M
 
 # CSP Tolerances
@@ -86,32 +86,38 @@ relerr = 1e-15
 mu = 0.005  # Timestep factor
 
 NUM = 1  # Number of threads to solve simultaneously (not implemented yet)
-NN = 4  # Size of problem
 
 # Simulation parameters
 t0 = 0.0  # Start time (sec)
-tend = 5.0  # End time (sec)
+tend = 3000.0  # End time (sec)
 tim = t0  # Current time (sec), initialized at zero
-dt = 1.0e-9  # Integrating time step
 
 # Options are 'RK4', 'vode'
 mode = 'vode'
-problem = 'CSPtest'
+# Options are 'CSPtest', 'VDP'
+problem = 'VDP'
 CSPon = False  # Decides if the integration actually will use CSP
 constantdt = False
-
-# Set initial conditions
-Y = []
-for i in range(NN):
-    Y.append(1.0)
-
 # Make this either human readable or better for saving into a table
 humanreadable = False
 
-# Initialize the specific problem
+# Set initial conditions
 if problem == 'CSPtest':
+    dt = 1.0e-9  # Integrating time step
+    NN = 4  # Size of problem
+    Y = []
+    for i in range(NN):
+        Y.append(1.0)
     derivfun = testfunc
     jacfun = testjac
+elif problem == 'VDP':
+    dt = 1.0e-1  # Integrating time step
+    NN = 2  # Size of problem
+    Y = [2, 0]
+    derivfun = dydxvdp
+    jacfun = jacvdp
+
+# Initialize the specific problem
 setup = (derivfun, jacfun, mode, CSPon)
 CSPtols = eps_a, eps_r, eps
 
@@ -121,35 +127,39 @@ Qs = np.reshape(np.identity(NN), (NN**2,))
 # Timer
 t_start = time.time()
 printstep = 0
-printevery = 1
+if problem == 'CSPtest':
+    printevery = 1
+elif problem == 'VDP':
+    printevery = 0
 while tim < tend:
-    printstep += 1
-    if constantdt:
-        if tim >= 1.0e-8:
-            printevery = 10
-        elif tim >= 1.0e-7:
-            printevery *= 10
-        elif tim >= 1.0e-6:
-            printevery *= 10
-        elif tim >= 1.0e-5:
-            printevery *= 10
-        elif tim >= 1.0e-4:
-            printevery *= 10
-        elif tim >= 1.0e-3:
-            printevery *= 10
-        elif tim >= 1.0e-2:
-            printevery *= 10
-    else:
-        if dt < 1.0e-6 and tim >= 1.0e-6:
-            dt = 1.0e-6
-        elif dt < 1.0e-5 and tim >= 1.0e-5:
-            dt = 1.0e-5
-        elif dt < 1.0e-4 and tim >= 1.0e-4:
-            dt = 1.0e-4
-        elif dt < 1.0e-3 and tim >= 1.0e-3:
-            dt = 1.0e-3
-        elif dt < 1.0e-2 and tim >= 1.0e-2:
-            dt = 1.0e-2
+    if problem == 'CSPtest':
+        printstep += 1
+        if constantdt:
+            if tim >= 1.0e-8:
+                printevery = 10
+            elif tim >= 1.0e-7:
+                printevery *= 10
+            elif tim >= 1.0e-6:
+                printevery *= 10
+            elif tim >= 1.0e-5:
+                printevery *= 10
+            elif tim >= 1.0e-4:
+                printevery *= 10
+            elif tim >= 1.0e-3:
+                printevery *= 10
+            elif tim >= 1.0e-2:
+                printevery *= 10
+        else:
+            if dt < 1.0e-6 and tim >= 1.0e-6:
+                dt = 1.0e-6
+            elif dt < 1.0e-5 and tim >= 1.0e-5:
+                dt = 1.0e-5
+            elif dt < 1.0e-4 and tim >= 1.0e-4:
+                dt = 1.0e-4
+            elif dt < 1.0e-3 and tim >= 1.0e-3:
+                dt = 1.0e-3
+            elif dt < 1.0e-2 and tim >= 1.0e-2:
+                dt = 1.0e-2
 
 
     if mode != 'RK4':

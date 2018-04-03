@@ -25,20 +25,20 @@ def RK4(func, y0, t, h, Q, qflag):
     return t, y
 
 
-def jacvdp(x, y):
+def jacvdp(x, y, dummy):
     """Find the local Jacobian matrix of the Van der Pol equation."""
 
     # Change this parameter to modify the stiffness of the problem.
-    eta = 1
+    eta = 1e3
 
     return np.array([[0., 1.], [-1. - 2*y[0]*y[1]*eta, eta-eta*y[0]**2]])
 
 
-def dydxvdp(x, y):
+def dydxvdp(x, y, Q, qflag):
     """Find the local vector of the first derivative of the Van der Pol eqn."""
 
     # Change this parameter to modify the stiffness of the problem.
-    eta = 1
+    eta = 1e3
 
     # Unpack the y vector
     y1 = y[0]
@@ -46,7 +46,22 @@ def dydxvdp(x, y):
 
     # Create dydx vector (y1', y2')
     f = np.array([y2, eta*y2 - y1 - eta*y2*y1**2.])
-    # print(f)
+
+    NN = len(y)
+
+    ydotn = np.empty(NN)
+
+    if qflag == 1:
+        for i in range(NN):
+            sum_row = 0.0
+            for j in range (NN):
+                sum_row += Q[j][i] * f[j]
+            ydotn[i] = sum_row
+
+        # now replace f with ydotn
+        for i in range(NN):
+            f[i] = ydotn[i]
+
     return f
 
 
@@ -200,7 +215,10 @@ def get_slow_projector(tim, y, eps, derivfun, jacfun, CSPtols):
                 # Rc = sum_r^M a_r*tau_r*b_r
                 Rc[j][i] = sum_rc
     taum1 = abs(tau[M])
-    stiffness = float(abs(tau[0])) / float(taum1)
+    try:
+        stiffness = float(abs(tau[0])) / float(taum1)
+    except ZeroDivisionError:
+        stiffness = 1e99
     return M, taum1, Qs, Rc, stiffness
 
 
@@ -238,7 +256,7 @@ def get_csp_vectors(tim, y, eps, jacfun):
     jac = jacfun(tim, y, eps)
 
     # Obtain the eigenvalues and left and right eigenvectors of the jacobian
-    evale, evecl, evecr = linalg.eig(np.reshape(jac, (4, 4)), left=True)
+    evale, evecl, evecr = linalg.eig(np.reshape(jac, (NN, NN)), left=True)
 
     # Split the eigenvectors into real and imaginary parts, as was done before
     evalr = [np.real(e) for e in evale]
@@ -291,27 +309,27 @@ def get_csp_vectors(tim, y, eps, jacfun):
             for j in range(NN):
                 # need to treat left eigenvector as complex conjugate
                 # (so take negative of imag part)
-                sum_r = mth.fsum(sum_r, (np.real(a_csp[i][j])
+                sum_r = mth.fsum([sum_r, (np.real(a_csp[i][j])
                                          * np.real(b_csp[i][j])
                                          + np.imag(a_csp[i][j])
                                          * np.imag(b_csp[i][j])
-                                        ))
-                sum_i = mth.fsum(sum_i, (np.imag(a_csp[i][j])
+                                        )])
+                sum_i = mth.fsum([sum_i, (np.imag(a_csp[i][j])
                                          * np.real(b_csp[i][j])
                                          - np.real(a_csp[i][j])
                                          * np.imag(b_csp[i][j])
-                                        ))
+                                        )])
 
             sum2 = sum_r**2 + sum_i**2
 
-            print(sum2)
+            # print(sum2)
             # ensure sum is not zero
             if abs(sum2) > np.finfo(float).resolution:
                 for j in range(NN):
                     # normalize a, and set a1=real, a2=imag
                     a_old = a_csp[i][j]
                     a_csp[i][j] = (np.real(a_old) * sum_r
-                                   + np.imag(a_csp) * sum_i * 1j) / sum2
+                                   + np.imag(a_csp[i][j]) * sum_i * 1j) / sum2
                     a_csp[i][j] = (np.imag(a_csp[i][j]) * sum_r
                                    - np.real(a_old) * sum_i * 1j) / sum2
 

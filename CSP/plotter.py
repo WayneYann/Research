@@ -13,23 +13,35 @@ import mpl_toolkits.axisartist as AA
 import matplotlib.pyplot as plt
 
 
+problem = 'VDP'
+
 ts, ts_timing, Ms, comptimes, CSPstiffness, Y1s, Y2s, Y3s, Y4s = \
     [], [], [], [], [], [], [], [], []
-with open('csptoyproblem2.csv', newline='') as csvfile:
-    reader = csv.reader(csvfile, delimiter=',')
-    for row in reader:
-        ts.append(float(row[0]))
-        Ms.append(float(row[1]))
-        CSPstiffness.append(float(row[3]))
-        Y1s.append(float(row[4]))
-        Y2s.append(float(row[5]))
-        Y3s.append(float(row[6]))
-        Y4s.append(float(row[7]))
-with open('csptoyproblem.csv', newline='') as csvfile:
-    reader = csv.reader(csvfile, delimiter=',')
-    for row in reader:
-        ts_timing.append(float(row[0]))
-        comptimes.append(float(row[2]))
+if problem == 'CSPtest':
+    with open('csptoyproblem2.csv', newline='') as csvfile:
+        reader = csv.reader(csvfile, delimiter=',')
+        for row in reader:
+            ts.append(float(row[0]))
+            Ms.append(float(row[1]))
+            CSPstiffness.append(float(row[3]))
+            Y1s.append(float(row[4]))
+            Y2s.append(float(row[5]))
+            Y3s.append(float(row[6]))
+            Y4s.append(float(row[7]))
+    with open('csptoyproblem.csv', newline='') as csvfile:
+        reader = csv.reader(csvfile, delimiter=',')
+        for row in reader:
+            ts_timing.append(float(row[0]))
+            comptimes.append(float(row[2]))
+elif problem == 'VDP':
+    with open('vdp.csv', newline='') as csvfile:
+        reader = csv.reader(csvfile, delimiter=',')
+        for row in reader:
+            ts.append(float(row[0]))
+            Ms.append(float(row[1]))
+            CSPstiffness.append(float(row[3]))
+            Y1s.append(float(row[4]))
+            Y2s.append(float(row[5]))
 ts = np.array(ts)
 ts_timing = np.array(ts_timing)
 Ms = np.array(Ms)
@@ -83,12 +95,16 @@ par3.set_ylabel('CSP Stiffness')
 par2.set_yticks([0, 1, 2, 3, 4])
 
 # host.title("CSP Toy Problem")
-host.set_xscale('log')
+if problem == 'CSPtest':
+    host.set_xscale('log')
 par3.set_yscale('log')
+ymin = min(CSPstiffness)
+par3.set_ylim(ymin,2)
 p1, = host.plot(ts, Y1s, label='Y1')
-p2, = host.plot(ts, Y2s, label='Y2')
-p3, = host.plot(ts, Y3s, label='Y3')
-p4, = host.plot(ts, Y4s, label='Y4')
+# p2, = host.plot(ts, Y2s, label='Y2')
+if problem == 'CSPtest':
+    p3, = host.plot(ts, Y3s, label='Y3')
+    p4, = host.plot(ts, Y4s, label='Y4')
 # p5, = par1.plot(ts_timing, comptimes, label='Comp Speed, dt=1e-4')
 p6, = par2.plot(ts, Ms, label='M', linestyle='--')
 p7, = par3.plot(ts, CSPstiffness, label='CSP Stiffness', linestyle=':')
