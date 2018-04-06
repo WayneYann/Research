@@ -13,7 +13,7 @@ import mpl_toolkits.axisartist as AA
 import matplotlib.pyplot as plt
 
 
-problem = 'VDP'
+problem = 'Oregonator'
 
 ts, ts_timing, Ms, comptimes, CSPstiffness, Y1s, Y2s, Y3s, Y4s = \
     [], [], [], [], [], [], [], [], []
@@ -42,6 +42,16 @@ elif problem == 'VDP':
             CSPstiffness.append(float(row[3]))
             Y1s.append(float(row[4]))
             Y2s.append(float(row[5]))
+elif problem == 'Oregonator':
+    with open('oregonatorcsp.csv', newline='') as csvfile:
+        reader = csv.reader(csvfile, delimiter=',')
+        for row in reader:
+            ts.append(float(row[0]))
+            Ms.append(float(row[1]))
+            CSPstiffness.append(float(row[3]))
+            Y1s.append(float(row[4]))
+            Y2s.append(float(row[5]))
+            Y3s.append(float(row[6]))
 ts = np.array(ts)
 ts_timing = np.array(ts_timing)
 Ms = np.array(Ms)
@@ -94,13 +104,19 @@ par3.set_ylabel('CSP Stiffness')
 
 par2.set_yticks([0, 1, 2, 3, 4])
 
+if problem == 'Oregonator':
+    host.set_yscale('log')
+
 # host.title("CSP Toy Problem")
 if problem == 'CSPtest':
     host.set_xscale('log')
 par3.set_yscale('log')
 ymin = min(CSPstiffness)
 par3.set_ylim(ymin,2)
-p1, = host.plot(ts, Y1s, label='Y1')
+if problem == 'Oregonator':
+    p1, = host.plot(ts, Y2s, label='Y1')
+else:
+    p1, = host.plot(ts, Y1s, label='Y1')
 # p2, = host.plot(ts, Y2s, label='Y2')
 if problem == 'CSPtest':
     p3, = host.plot(ts, Y3s, label='Y3')

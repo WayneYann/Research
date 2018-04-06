@@ -90,7 +90,7 @@ NUM = 1  # Number of threads to solve simultaneously (not implemented yet)
 
 # Simulation parameters
 t0 = 0.0  # Start time (sec)
-tend = 300.0  # End time (sec)
+tend = 320.0  # End time (sec)
 tim = t0  # Current time (sec), initialized at zero
 
 # Options are 'RK4', 'vode'
