@@ -4,6 +4,7 @@
 import numpy as np
 import scipy.linalg as linalg
 import math as mth
+import sys as sys
 
 
 def RK4(func, y0, t, h, Q, qflag):
@@ -27,6 +28,8 @@ def RK4(func, y0, t, h, Q, qflag):
 
 def jacvdp(x, y, dummy):
     """Find the local Jacobian matrix of the Van der Pol equation."""
+    # Note that the dummy value is just because I originally set this up
+    # for the test problem and thought I'd be making a lot of changes to eps
 
     # Change this parameter to modify the stiffness of the problem.
     eta = 1e3
@@ -79,6 +82,53 @@ def d2ydx2vdp(x, y):
     y2prime = eta*y2 - y1 - eta*y2*y1**2.
     f = np.array([y2prime, eta*y2prime - y2 - 2*eta*y1*y2 - eta*y2prime*y1**2])
     return f
+
+
+def oregonatordydt(tim, y, Q, qflag):
+    """Find the local vector of the first derivative of the Oregonator."""
+
+    s = 77.27
+    q = 8.375E-6
+    w = 0.161
+
+    #print(qflag)
+
+    ydot = np.empty(3)
+
+    NN = len(y)
+
+    ydot[0] = s * (y[0] - y[0] * y[1] + y[1] - (q * y[0]**2))
+    ydot[1] = (y[2] - y[1] - y[0] * y[1]) / s
+    ydot[2] = w * (y[0] - y[2])
+
+    ydotn = np.empty(NN)
+
+    if qflag == 1:
+        for i in range(NN):
+            sum_row = 0.0
+            for j in range (NN):
+                sum_row += Q[j][i] * ydot[j]
+            ydotn[i] = sum_row
+
+        # now replace f with ydotn
+        for i in range(NN):
+            ydot[i] = ydotn[i]
+
+    return np.array(ydot)
+
+def oregonatorjac(tim, y, dummy):
+    """Find the local vector of the first derivative of the Oregonator."""
+    # Note that the dummy value is just because I originally set this up
+    # for the test problem and thought I'd be making a lot of changes to eps
+    s = 77.27
+    q = 8.375E-6
+    w = 0.161
+
+    row1 = [s * (-1 * y[1] + 1 - q * 2 * y[0]), s * (1 - y[0]), 0]
+    row2 = [-1 * y[1] / s, (-1 - y[0])/s, 1/s]
+    row3 = [w, 0, -1 * w]
+
+    return np.array([row1, row2, row3])
 
 
 def testfunc(tim, y, Q, qflag):

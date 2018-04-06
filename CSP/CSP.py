@@ -5,6 +5,7 @@ import numpy as np
 from CSPfuncs1 import *
 import time as time
 from scipy.integrate import ode
+import warnings
 
 
 def CSPwrap(tim, y0_local, eps, derivfun, jacfun, CSPtols):
@@ -59,7 +60,7 @@ def intDriver(tim, dt, y_global, mu, setup, CSPtols):
                 #tim, yn_local = RK4(tim, h, y0_local, Qs)
             else:
                 solver.set_initial_value(Y, t0)
-                solver.set_f_params(Qs, 1)
+                solver.set_f_params(Qs, 0)
                 # solver.set_jac_params(eps)
                 tstart_step = time.time()
                 solver.integrate(t0 + dt)
@@ -89,18 +90,20 @@ NUM = 1  # Number of threads to solve simultaneously (not implemented yet)
 
 # Simulation parameters
 t0 = 0.0  # Start time (sec)
-tend = 3000.0  # End time (sec)
+tend = 300.0  # End time (sec)
 tim = t0  # Current time (sec), initialized at zero
 
 # Options are 'RK4', 'vode'
 mode = 'vode'
-# Options are 'CSPtest', 'VDP'
-problem = 'VDP'
+# Options are 'CSPtest', 'VDP', 'Oregonator'
+problem = 'Oregonator'
 CSPon = False  # Decides if the integration actually will use CSP
-constantdt = False
+constantdt = True
 # Make this either human readable or better for saving into a table
 humanreadable = False
 
+# Filter out the warnings
+warnings.filterwarnings('ignore')
 # Set initial conditions
 if problem == 'CSPtest':
     dt = 1.0e-9  # Integrating time step
@@ -116,6 +119,12 @@ elif problem == 'VDP':
     Y = [2, 0]
     derivfun = dydxvdp
     jacfun = jacvdp
+elif problem == 'Oregonator':
+    dt = 1.0e-1  # Integrating time step
+    NN = 3  # Size of problem
+    Y = [1, 1, 2]
+    derivfun = oregonatordydt
+    jacfun = oregonatorjac
 
 # Initialize the specific problem
 setup = (derivfun, jacfun, mode, CSPon)
@@ -130,6 +139,8 @@ printstep = 0
 if problem == 'CSPtest':
     printevery = 1
 elif problem == 'VDP':
+    printevery = 0
+elif problem == 'Oregonator':
     printevery = 0
 while tim < tend:
     if problem == 'CSPtest':
