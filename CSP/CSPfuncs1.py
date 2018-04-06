@@ -264,7 +264,7 @@ def get_slow_projector(tim, y, eps, derivfun, jacfun, CSPtols):
 
                 # Rc = sum_r^M a_r*tau_r*b_r
                 Rc[j][i] = sum_rc
-    taum1 = abs(tau[M])
+    taum1 = abs(tau[M-1])
     try:
         stiffness = float(abs(tau[0])) / float(taum1)
     except ZeroDivisionError:
