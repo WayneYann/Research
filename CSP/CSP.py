@@ -223,6 +223,7 @@ while tim < tend:
                                      separator=',')
             print(''.join(output.strip('[]').split()))
 
+    del solver
 t_end = time.time()
 
 cpu_time = t_end - t_start
