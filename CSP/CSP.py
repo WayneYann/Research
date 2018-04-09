@@ -97,11 +97,11 @@ tim = t0  # Current time (sec), initialized at zero
 # Options are 'RK4', 'vode'
 mode = 'vode'
 # Options are 'CSPtest', 'VDP', 'Oregonator'
-problem = 'CSPtest'
+problem = 'Oregonator'
 CSPon = False  # Decides if the integration actually will use CSP
 constantdt = True
 # Make this either human readable or better for saving into a table
-humanreadable = True
+humanreadable = False
 
 # Filter out the warnings
 warnings.filterwarnings('ignore')
