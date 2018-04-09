@@ -11,12 +11,15 @@ import csv as csv
 from mpl_toolkits.axes_grid1 import host_subplot
 import mpl_toolkits.axisartist as AA
 import matplotlib.pyplot as plt
+from StiffnessFuncs import *
+from CSPfuncs1 import *
+import sys as sys
 
 
-problem = 'Oregonator'
+problem = 'VDP'
 
-ts, ts_timing, Ms, comptimes, CSPstiffness, Y1s, Y2s, Y3s, Y4s = \
-    [], [], [], [], [], [], [], [], []
+ts, ts_timing, Ms, comptimes, CSPstiffness, Y1s, Y2s, Y3s, Y4s, sol = \
+    [], [], [], [], [], [], [], [], [], []
 if problem == 'CSPtest':
     with open('csptoyproblem2.csv', newline='') as csvfile:
         reader = csv.reader(csvfile, delimiter=',')
@@ -28,6 +31,7 @@ if problem == 'CSPtest':
             Y2s.append(float(row[5]))
             Y3s.append(float(row[6]))
             Y4s.append(float(row[7]))
+            sol.append([float(row[i]) for i in range(4,8)])
     with open('csptoyproblem.csv', newline='') as csvfile:
         reader = csv.reader(csvfile, delimiter=',')
         for row in reader:
@@ -42,6 +46,7 @@ elif problem == 'VDP':
             CSPstiffness.append(float(row[3]))
             Y1s.append(float(row[4]))
             Y2s.append(float(row[5]))
+            sol.append([float(row[i]) for i in range(4,6)])
 elif problem == 'Oregonator':
     with open('oregonatorcsp.csv', newline='') as csvfile:
         reader = csv.reader(csvfile, delimiter=',')
@@ -52,6 +57,7 @@ elif problem == 'Oregonator':
             Y1s.append(float(row[4]))
             Y2s.append(float(row[5]))
             Y3s.append(float(row[6]))
+            sol.append([float(row[i]) for i in range(4,7)])
 ts = np.array(ts)
 ts_timing = np.array(ts_timing)
 Ms = np.array(Ms)
@@ -61,6 +67,21 @@ Y1s = np.array(Y1s)
 Y2s = np.array(Y2s)
 Y3s = np.array(Y3s)
 Y4s = np.array(Y4s)
+sol = np.array(sol)
+
+# Calculating values of the stiffness index here for convenince
+if problem == 'CSPtest':
+    derivfun = testfunc
+    jacfun = testjac
+elif problem == 'VDP':
+    derivfun = dydxvdp
+    jacfun = jacvdp
+elif problem == 'Oregonator':
+    derivfun = oregonatordydt
+    jacfun = oregonatorjac
+
+# Needed to bring over the epsilon from the driving code
+indexes = stiffnessindex(ts, sol, derivfun, jacfun, 1.0e-2)
 
 plt.close('all')
 
@@ -111,8 +132,8 @@ if problem == 'Oregonator':
 if problem == 'CSPtest':
     host.set_xscale('log')
 par3.set_yscale('log')
-ymin = min(CSPstiffness)
-par3.set_ylim(ymin,2)
+#ymin = min(CSPstiffness)
+#par3.set_ylim(ymin,2)
 if problem == 'Oregonator':
     p1, = host.plot(ts, Y2s, label='Y1')
 else:

@@ -3,6 +3,7 @@
 
 import numpy as np
 from CSPfuncs1 import *
+from StiffnessFuncs import *
 import time as time
 from scipy.integrate import ode
 import warnings
@@ -96,11 +97,11 @@ tim = t0  # Current time (sec), initialized at zero
 # Options are 'RK4', 'vode'
 mode = 'vode'
 # Options are 'CSPtest', 'VDP', 'Oregonator'
-problem = 'Oregonator'
+problem = 'CSPtest'
 CSPon = False  # Decides if the integration actually will use CSP
 constantdt = True
 # Make this either human readable or better for saving into a table
-humanreadable = False
+humanreadable = True
 
 # Filter out the warnings
 warnings.filterwarnings('ignore')
@@ -206,6 +207,7 @@ while tim < tend:
     # if CSPon:
     tim, Y, comp_time, stiffness, M = intDriver(tim, dt, Y, mu, setup, CSPtols)
     comp_speed = dt / comp_time
+    ratio, indicator, CEM = stiffmetrics(tim, Y, jacfun, eps)
     if printstep == printevery:
         printstep = 0
         if humanreadable:
@@ -215,11 +217,12 @@ while tim < tend:
                                                                      comp_speed,
                                                                      stiffness
                                                                      ),
-                  ''.join('{:<12.8g}'.format(solver.y[i])
-                  for i in range(len(solver.y))))
+                  ''.join(('{:<12.8g}'.format(solver.y[i])
+                  for i in range(len(solver.y)))), ratio, indicator, CEM.real)
         else:
             output = np.array2string(np.hstack((solver.t, M, comp_time,
-                                                stiffness, solver.y)),
+                                                stiffness, solver.y,
+                                                ratio, indicator, CEM.real)),
                                      separator=',')
             print(''.join(output.strip('[]').split()))
 

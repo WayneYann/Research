@@ -202,7 +202,7 @@ def testjac(tim, y, eps):
     dfdy[14] = ((1.0 / (eps * (1.0 + y[3])**2))
                 + ((y[3] - 1.0) / ((y[3] + 1.0)**3)))
     dfdy[15] = -1.0
-    return dfdy
+    return np.reshape(np.array(dfdy),(4,4))
 
 
 def radical_correction(tim, y, Rc):
@@ -264,7 +264,7 @@ def get_slow_projector(tim, y, eps, derivfun, jacfun, CSPtols):
 
                 # Rc = sum_r^M a_r*tau_r*b_r
                 Rc[j][i] = sum_rc
-    taum1 = abs(tau[M-1])
+    taum1 = abs(tau[M])
     try:
         stiffness = float(abs(tau[0])) / float(taum1)
     except ZeroDivisionError:
