@@ -18,8 +18,8 @@ import sys as sys
 
 problem = 'VDP'
 
-ts, ts_timing, Ms, comptimes, CSPstiffness, Y1s, Y2s, Y3s, Y4s, sol = \
-    [], [], [], [], [], [], [], [], [], []
+[ts, ts_timing, Ms, comptimes, CSPstiffness, Y1s, Y2s, Y3s, Y4s, sol, ratios,
+    indicators, CEMs] = [[] for i in range(13)]
 if problem == 'CSPtest':
     with open('csptoyproblem2.csv', newline='') as csvfile:
         reader = csv.reader(csvfile, delimiter=',')
@@ -32,6 +32,9 @@ if problem == 'CSPtest':
             Y3s.append(float(row[6]))
             Y4s.append(float(row[7]))
             sol.append([float(row[i]) for i in range(4,8)])
+            ratios.append(float(row[8]))
+            indicators.append(float(row[9]))
+            CEMs.append(float(row[10]))
     with open('csptoyproblem.csv', newline='') as csvfile:
         reader = csv.reader(csvfile, delimiter=',')
         for row in reader:
@@ -47,6 +50,9 @@ elif problem == 'VDP':
             Y1s.append(float(row[4]))
             Y2s.append(float(row[5]))
             sol.append([float(row[i]) for i in range(4,6)])
+            ratios.append(float(row[6]))
+            indicators.append(float(row[7]))
+            CEMs.append(float(row[8]))
 elif problem == 'Oregonator':
     with open('oregonatorcsp.csv', newline='') as csvfile:
         reader = csv.reader(csvfile, delimiter=',')
@@ -58,6 +64,9 @@ elif problem == 'Oregonator':
             Y2s.append(float(row[5]))
             Y3s.append(float(row[6]))
             sol.append([float(row[i]) for i in range(4,7)])
+            ratios.append(float(row[7]))
+            indicators.append(float(row[8]))
+            CEMs.append(float(row[9]))
 ts = np.array(ts)
 ts_timing = np.array(ts_timing)
 Ms = np.array(Ms)
@@ -68,6 +77,9 @@ Y2s = np.array(Y2s)
 Y3s = np.array(Y3s)
 Y4s = np.array(Y4s)
 sol = np.array(sol)
+ratios = np.array(ratios)
+indicators = np.array(indicators)
+CEMs.append(CEMs)
 
 # Calculating values of the stiffness index here for convenince
 if problem == 'CSPtest':
