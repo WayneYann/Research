@@ -8,7 +8,7 @@ Created on Fri Apr 6 12:14 2018
 
 import os as os
 import numpy as np
-#import pyjacob as pyjacob
+import pyjacob as pyjacob
 
 
 def derivcd4(vals, dx):
@@ -242,35 +242,3 @@ def stiffmetrics(xlist, solution, jfun, *args):
         indicators = 0.5 * (min(eigvals2) + max(eigvals2))
         CEMs = max(np.linalg.eigvals(jacobian))
     return ratios, indicators, CEMs
-
-
-def loadpasrdata():
-    """Load the initial conditions from the full PaSR file."""
-    print('Loading data...')
-    filepath = os.path.join(os.getcwd(), 'ch4_full_pasr_data.npy')
-    return np.load(filepath)
-
-
-def rearrangepasr(Y, N2_pos):
-    """Rearrange the PaSR data so it works with pyJac."""
-    press_pos = 2
-    temp_pos = 1
-    arraylen = len(Y)
-
-    Y_press = Y[press_pos]
-    Y_temp = Y[temp_pos]
-    Y_species = Y[3:arraylen]
-    Ys = np.hstack((Y_temp, Y_species))
-
-    # Put N2 to the last value of the mass species
-    newarlen = len(Ys)
-    Y_N2 = Ys[N2_pos]
-    # Y_x = Ys[newarlen - 1]
-    for i in range(N2_pos, newarlen - 1):
-        Ys[i] = Ys[i + 1]
-    Ys[newarlen - 1] = Y_N2
-    if useN2:
-        initcond = Ys
-    else:
-        initcond = Ys[:-1]
-    return initcond, Y_press

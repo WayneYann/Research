@@ -5,6 +5,8 @@ import numpy as np
 import scipy.linalg as linalg
 import math as mth
 import sys as sys
+import os as os
+import pyjacob as pyjacob
 
 
 def RK4(func, y0, t, h, Q, qflag):
@@ -203,6 +205,82 @@ def testjac(tim, y, eps):
                 + ((y[3] - 1.0) / ((y[3] + 1.0)**3)))
     dfdy[15] = -1.0
     return np.reshape(np.array(dfdy),(4,4))
+
+
+def firstderiv(time, state, press):
+    """Force the integrator to use the right arguments."""
+    # Need to make sure that N2 is at the end of the state array
+    dy = np.zeros_like(state)
+    pyjacob.py_dydt(time, press, state, dy)
+    global functioncalls
+    functioncalls += 1
+    return dy
+
+
+def jacobval(time, state, press):
+    """Force the integrator to use the right arguments."""
+    # Need to get rid of N2 because PyJac doesn't compute it.
+    # new = state[:-1]
+    # print('Jacobian function called.')
+    a = len(state)
+    jacobian = np.zeros(a**2)
+    # Obtain the jacobian from pyJac
+    pyjacob.py_eval_jacobian(time, press, state, jacobian)
+    jacobian = np.reshape(jacobian, (a, a))
+    # Re-add the zeros back in
+    # jacobian = np.insert(jacobian, a, np.zeros(a), axis=1)
+    # jacobian = np.vstack((jacobian, np.zeros(a+1)))
+    return jacobian
+
+
+def loadpasrdata(problem):
+    """Load the initial conditions from the full PaSR file."""
+    print('Loading data...')
+    if problem == 'GRIMech':
+        filepath = os.path.join(os.getcwd(), 'PaSR_Data/ch4_full_pasr_data.npy')
+        return np.load(filepath)
+    elif problem == 'H2':
+        pasrarrays = []
+        for i in range(9):
+            filepath = os.path.join(os.getcwd(),
+                                    'PaSR_Data/pasr_out_h2-co_' +
+                                    str(i) +
+                                    '.npy')
+            filearray = np.load(filepath)
+            pasrarrays.append(filearray)
+        return np.concatenate(pasrarrays, 1)
+    else:
+        raise Exception('No PaSR data found.')
+
+
+def rearrangepasr(Y, problem):
+    """Rearrange the PaSR data so it works with pyJac."""
+    useN2 = False
+    press_pos = 2
+    temp_pos = 1
+    if problem == 'GRIMech':
+        N2_pos = 50
+    elif problem == 'H2':
+        N2_pos = 9
+    arraylen = len(Y)
+
+    Y_press = Y[press_pos]
+    Y_temp = Y[temp_pos]
+    Y_species = Y[3:arraylen]
+    Ys = np.hstack((Y_temp, Y_species))
+
+    # Put N2 to the last value of the mass species
+    newarlen = len(Ys)
+    Y_N2 = Ys[N2_pos]
+    # Y_x = Ys[newarlen - 1]
+    for i in range(N2_pos, newarlen - 1):
+        Ys[i] = Ys[i + 1]
+    Ys[newarlen - 1] = Y_N2
+    if useN2:
+        initcond = Ys
+    else:
+        initcond = Ys[:-1]
+    return initcond, Y_press
 
 
 def radical_correction(tim, y, Rc):

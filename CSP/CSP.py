@@ -91,13 +91,12 @@ NUM = 1  # Number of threads to solve simultaneously (not implemented yet)
 
 # Simulation parameters
 t0 = 0.0  # Start time (sec)
-tend = 320.0  # End time (sec)
 tim = t0  # Current time (sec), initialized at zero
 
 # Options are 'RK4', 'vode'
 mode = 'vode'
-# Options are 'CSPtest', 'VDP', 'Oregonator'
-problem = 'Oregonator'
+# Options are 'CSPtest', 'VDP', 'Oregonator', 'H2', 'GRIMech'
+problem = 'H2'
 CSPon = False  # Decides if the integration actually will use CSP
 constantdt = True
 # Make this either human readable or better for saving into a table
@@ -108,6 +107,7 @@ warnings.filterwarnings('ignore')
 # Set initial conditions
 if problem == 'CSPtest':
     dt = 1.0e-9  # Integrating time step
+    tend = 10.0  # End time (sec)
     NN = 4  # Size of problem
     Y = []
     for i in range(NN):
@@ -116,16 +116,39 @@ if problem == 'CSPtest':
     jacfun = testjac
 elif problem == 'VDP':
     dt = 1.0e-1  # Integrating time step
+    tend = 3000.0  # End time (sec)
     NN = 2  # Size of problem
     Y = [2, 0]
     derivfun = dydxvdp
     jacfun = jacvdp
 elif problem == 'Oregonator':
     dt = 1.0e-1  # Integrating time step
+    tend = 320.0  # End time (sec)
     NN = 3  # Size of problem
     Y = [1, 1, 2]
     derivfun = oregonatordydt
     jacfun = oregonatorjac
+elif problem == 'H2':
+    dt = 1.0e-3
+    tend = 2.0
+    particle = 877
+    timestep = 865
+    pasr = loadpasrdata(problem)
+    Y = pasr[timestep, particle, :].copy()
+    NN = len(Y)
+    initcond, RHSparam = rearrangepasr(Y, problem)
+    derivfun = firstderiv
+    jacfun = jacobval
+elif problem == 'GRIMech':
+    dt = 1.0e-3
+    tend = 2.0
+    particle = 92
+    Y = pasr[particle, :].copy()
+    NN = len(Y)
+    initcond, RHSparam = rearrangepasr(Y, problem)
+    pasr = loadpasrdata(problem)
+    derivfun = firstderiv
+    jacfun = jacobval
 
 # Initialize the specific problem
 setup = (derivfun, jacfun, mode, CSPon)
@@ -139,9 +162,10 @@ t_start = time.time()
 printstep = 0
 if problem == 'CSPtest':
     printevery = 1
-elif problem == 'VDP':
-    printevery = 0
-elif problem == 'Oregonator':
+# elif problem == 'VDP':
+#     printevery = 0
+# elif problem == 'Oregonator':
+else:
     printevery = 0
 while tim < tend:
     if problem == 'CSPtest':
@@ -202,6 +226,8 @@ while tim < tend:
         if not CSPon:
             solver.set_f_params(Qs, 0)
             # solver.set_jac_params(eps)
+    elif problem == 'H2' or problem == 'GRIMech':
+        solver.set_f_params(RHSparam)
     solver._integrator.iwork[2] = -1
 
     # if CSPon:
