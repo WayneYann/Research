@@ -13,6 +13,8 @@ Output_Plots
 accelerInt_Data/GRI_PaSR_index_values_old.csv
 accelerInt_Data/GRI_PaSR_index_values.csv
 Old_Research_Data/
+CSP/PaSR_Data/
+CSP/build/
 
 # Compiled source #
 ###################
