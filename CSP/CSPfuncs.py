@@ -4,6 +4,9 @@
 import numpy as np
 import scipy.linalg as linalg
 import math as mth
+import sys as sys
+import os as os
+import pyjacob as pyjacob
 
 
 def RK4(func, y0, t, h, Q, qflag):
@@ -25,20 +28,30 @@ def RK4(func, y0, t, h, Q, qflag):
     return t, y
 
 
-def jacvdp(x, y):
+def jacvdp(x, y, *eta):
     """Find the local Jacobian matrix of the Van der Pol equation."""
+    # Note that the dummy value is just because I originally set this up
+    # for the test problem and thought I'd be making a lot of changes to eps
 
     # Change this parameter to modify the stiffness of the problem.
-    eta = 1
+    if eta:
+        eta = eta[0]
+    else:
+        eta = 1.0E3
+    eta = 1.0E3
 
     return np.array([[0., 1.], [-1. - 2*y[0]*y[1]*eta, eta-eta*y[0]**2]])
 
 
-def dydxvdp(x, y):
+def dydxvdp(x, y, *eta):
     """Find the local vector of the first derivative of the Van der Pol eqn."""
 
     # Change this parameter to modify the stiffness of the problem.
-    eta = 1
+    if eta:
+        eta = eta[0]
+    else:
+        eta = 1.0E3
+    eta = 1.0E3
 
     # Unpack the y vector
     y1 = y[0]
@@ -46,7 +59,7 @@ def dydxvdp(x, y):
 
     # Create dydx vector (y1', y2')
     f = np.array([y2, eta*y2 - y1 - eta*y2*y1**2.])
-    # print(f)
+
     return f
 
 
@@ -66,7 +79,52 @@ def d2ydx2vdp(x, y):
     return f
 
 
-def testfunc(tim, y, Q, qflag):
+def oregonatordydt(tim, y, *eps):
+    """Find the local vector of the first derivative of the Oregonator."""
+
+    # Stiffness factor - change this here if you want the problem to change
+    if eps:
+        s = eps[0]
+        q = eps[1]
+        w = eps[2]
+    else:
+        s = 77.27
+        q = 8.375E-6
+        w = 0.161
+
+    #print(qflag)
+
+    ydot = np.empty(3)
+
+    NN = len(y)
+
+    ydot[0] = s * (y[0] - y[0] * y[1] + y[1] - (q * y[0]**2))
+    ydot[1] = (y[2] - y[1] - y[0] * y[1]) / s
+    ydot[2] = w * (y[0] - y[2])
+
+    return np.array(ydot)
+
+def oregonatorjac(tim, y, *eps):
+    """Find the local vector of the first derivative of the Oregonator."""
+    # Note that the dummy value is just because I originally set this up
+    # for the test problem and thought I'd be making a lot of changes to eps
+    if eps:
+        s = eps[0]
+        q = eps[1]
+        w = eps[2]
+    else:
+        s = 77.27
+        q = 8.375E-6
+        w = 0.161
+
+    row1 = [s * (-1 * y[1] + 1 - q * 2 * y[0]), s * (1 - y[0]), 0]
+    row2 = [-1 * y[1] / s, (-1 - y[0])/s, 1/s]
+    row3 = [w, 0, -1 * w]
+
+    return np.array([row1, row2, row3])
+
+
+def testfunc(tim, y, eps):
     """Derivative (dydt) source term for model problem.
 
     param[in]  tim     the time (sec)
@@ -75,9 +133,6 @@ def testfunc(tim, y, Q, qflag):
     param[in]  qflag   projector flag (1 to use)
     return     ydot    derivative array, size neq
     """
-
-    # Stiffness factor - change this here if you want the problem to change
-    eps = 1.0e-2
 
     NN = len(y)
 
@@ -92,18 +147,6 @@ def testfunc(tim, y, Q, qflag):
                    - sumterm)
     ydot[-1] = -1 * y[-1]
 
-    ydotn = np.empty(NN)
-
-    if qflag == 1:
-        for i in range(NN):
-            sum_row = 0.0
-            for j in range (NN):
-                sum_row += Q[j][i] * ydot[j]
-            ydotn[i] = sum_row
-
-        # now replace ydot with ydotn
-        for i in range(NN):
-            ydot[i] = ydotn[i]
     return ydot
 
 
@@ -111,54 +154,111 @@ def testjac(tim, y, eps):
     """
     Jacobian for model problem.
 
-    MAY NOT BE WORKING!!!
-
     param[in]  tim  	the time (sec)
     param[in]  y	 	the data array, size neq
     param[in]  eps     stiffness factor
     return     dfdy	Jacobian, size (neq,neq)
     """
+
     dfdy = np.empty(len(y)**2)
 
-    #eps1 = 1.0 / eps
-    #eps2 = 1.0 / (eps**2)
-
-    #y22 = 1.0 / ((1.0 + y[1]) * (1.0 + y[1]))
-    #y32 = 1.0 / ((1.0 + y[2]) * (1.0 + y[2]))
-    #y33 = y32 / (1.0 + y[2])
-    #y42 = 1.0 / ((1.0 + y[3]) * (1.0 + y[3]))
-    #y43 = y42 / (1.0 + y[3])
-
     dfdy[0]  = -1.0 / (eps**3)
-    dfdy[4]  = (1.0 /
-                ((eps**3) * (1.0 + y[1]) * (1.0 + y[1]))
-                + (y[1] - 1.0) / ((y[1] + 1.0) * (y[1] + 1.0) * (y[1] + 1.0))
-               )
-    dfdy[8]  = (y[2] - 1.0) / ((y[2] + 1.0) * (y[2] + 1.0) * (y[2] + 1.0))
-    dfdy[12] = (y[3] - 1.0) / ((y[3] + 1.0) * (y[3] + 1.0) * (y[3] + 1.0))
     dfdy[1]  = 0.0
-    dfdy[5]  = -1.0 / (eps**2)
-    dfdy[9]  = 1.0 / ((eps**2 * (1.0 + y[2]) * (1.0 + y[2]))
-                      + (y[2] - 1.0) / ((y[2] + 1.0)
-                      * (y[2] + 1.0) * (y[2] + 1.0))
-                     )
-    dfdy[13] = (y[3] - 1.0) / ((y[3] + 1.0) * (y[3] + 1.0) * (y[3] + 1.0))
     dfdy[2]  = 0.0
+    dfdy[3]  = 0.0
+    dfdy[4]  = ((1.0 / (eps**3 * (1.0 + y[1])**2))
+                + ((y[1] - 1.0) / ((y[1] + 1.0)**3)))
+    dfdy[5]  = -1.0 / (eps**2)
     dfdy[6]  = 0.0
+    dfdy[7]  = 0.0
+    dfdy[8]  = (y[2] - 1.0) / ((y[2] + 1.0)**3)
+    dfdy[9]  = ((1.0 / (eps**2 * (1.0 + y[2])**2))
+                + ((y[2] - 1.0) / ((y[2] + 1.0)**3)))
     dfdy[10] = -1.0 / eps
-    dfdy[14] = 1.0 / ((eps * (1.0 + y[3]) * (1.0 + y[3]))
-                      + (y[3] - 1.0) / ((y[3] + 1.0)
-                                        * (y[3] + 1.0)
-                                        * (y[3] + 1.0))
-                     )
-    dfdy[3]  = 0.0;
-    dfdy[7]  = 0.0;
-    dfdy[11] = 0.0;
-    dfdy[15] = -1.0;
-    return dfdy
+    dfdy[11] = 0.0
+    dfdy[12] = (y[3] - 1.0) / ((y[3] + 1.0)**3)
+    dfdy[13] = (y[3] - 1.0) / ((y[3] + 1.0)**3)
+    dfdy[14] = ((1.0 / (eps * (1.0 + y[3])**2))
+                + ((y[3] - 1.0) / ((y[3] + 1.0)**3)))
+    dfdy[15] = -1.0
+    return np.reshape(np.array(dfdy),(4,4))
 
 
-def radical_correction(tim, y, Rc):
+def firstderiv(time, state, press):
+    """Force the integrator to use the right arguments."""
+    # Need to make sure that N2 is at the end of the state array
+    dy = np.zeros_like(state)
+    pyjacob.py_dydt(time, press, state, dy)
+    return dy
+
+
+def jacobval(time, state, press):
+    """Force the integrator to use the right arguments."""
+    # Need to get rid of N2 because PyJac doesn't compute it.
+    # new = state[:-1]
+    # print('Jacobian function called.')
+    a = len(state)
+    jacobian = np.zeros(a**2)
+    # Obtain the jacobian from pyJac
+    pyjacob.py_eval_jacobian(time, press, state, jacobian)
+    jacobian = np.reshape(jacobian, (a, a))
+    # Re-add the zeros back in
+    # jacobian = np.insert(jacobian, a, np.zeros(a), axis=1)
+    # jacobian = np.vstack((jacobian, np.zeros(a+1)))
+    return jacobian
+
+
+def loadpasrdata(problem):
+    """Load the initial conditions from the full PaSR file."""
+    print('Loading data...')
+    if problem == 'GRIMech':
+        filepath = os.path.join(os.getcwd(), 'PaSR_Data/ch4_full_pasr_data.npy')
+        return np.load(filepath)
+    elif problem == 'H2':
+        pasrarrays = []
+        for i in range(9):
+            filepath = os.path.join(os.getcwd(),
+                                    'PaSR_Data/pasr_out_h2-co_' +
+                                    str(i) +
+                                    '.npy')
+            filearray = np.load(filepath)
+            pasrarrays.append(filearray)
+        return np.concatenate(pasrarrays, 1)
+    else:
+        raise Exception('No PaSR data found.')
+
+
+def rearrangepasr(Y, problem):
+    """Rearrange the PaSR data so it works with pyJac."""
+    useN2 = False
+    press_pos = 2
+    temp_pos = 1
+    if problem == 'GRIMech':
+        N2_pos = 50
+    elif problem == 'H2':
+        N2_pos = 9
+    arraylen = len(Y)
+
+    Y_press = Y[press_pos]
+    Y_temp = Y[temp_pos]
+    Y_species = Y[3:arraylen]
+    Ys = np.hstack((Y_temp, Y_species))
+
+    # Put N2 to the last value of the mass species
+    newarlen = len(Ys)
+    Y_N2 = Ys[N2_pos]
+    # Y_x = Ys[newarlen - 1]
+    for i in range(N2_pos, newarlen - 1):
+        Ys[i] = Ys[i + 1]
+    Ys[newarlen - 1] = Y_N2
+    if useN2:
+        initcond = Ys
+    else:
+        initcond = Ys[:-1]
+    return initcond, Y_press
+
+
+def radical_correction(ydot, Q):
     """
     Function that applies radical correction to data array
 
@@ -170,10 +270,16 @@ def radical_correction(tim, y, Rc):
     param[in]  Rc   Radical correction tensor, size NN*NN
     return     g    array holding radical corrections, size NN
     """
-    return testfunc(tim, y, Rc, 1)
+    NN = len(Y)
+    for i in range(NN):
+        sum_row = 0.0
+        for j in range (NN):
+            sum_row += Q[j][i] * ydot[j]
+        ydotn[i] = sum_row
+    return ydotn
 
 
-def get_slow_projector(tim, y, eps, derivfun, jacfun, CSPtols):
+def get_slow_projector(tim, y, derivfun, jacfun, CSPtols, *RHSparams):
     """
     Function that performs CSP analysis and returns vectors.
 
@@ -185,15 +291,19 @@ def get_slow_projector(tim, y, eps, derivfun, jacfun, CSPtols):
     return      taum1 time scale of fastest slow mode (sec)
     return      M     number of slow modes
     """
-    NN = len(y)
+    if RHSparams:
+        RHSparam = RHSparams[0]
 
-    eps_a, eps_r, eps = CSPtols
+    NN = len(y)
 
     # CSP vectors and covectors
     a_csp = np.empty((NN, NN))  # Array with CSP vectors
     b_csp = np.empty((NN, NN))  # Array with CSP covectors
 
-    M, tau = get_fast_modes(tim, y, eps, derivfun, jacfun, eps_a, eps_r)
+    if RHSparams:
+        M, tau = get_fast_modes(tim, y, derivfun, jacfun, CSPtols, RHSparam)
+    else:
+        M, tau = get_fast_modes(tim, y, derivfun, jacfun, CSPtols)
 
     # Rc starts as a matrix of zeros
     Rc = np.zeros((NN, NN))
@@ -218,11 +328,14 @@ def get_slow_projector(tim, y, eps, derivfun, jacfun, CSPtols):
                 # Rc = sum_r^M a_r*tau_r*b_r
                 Rc[j][i] = sum_rc
     taum1 = abs(tau[M])
-    stiffness = float(abs(tau[0])) / float(taum1)
+    try:
+        stiffness = float(abs(tau[0])) / float(taum1)
+    except ZeroDivisionError:
+        stiffness = 1e99
     return M, taum1, Qs, Rc, stiffness
 
 
-def get_csp_vectors(tim, y, eps, jacfun):
+def get_csp_vectors(tim, y, jacfun, *RHSparams):
     """
     Function that performs CSP analysis and returns vectors.
 
@@ -244,6 +357,8 @@ def get_csp_vectors(tim, y, eps, jacfun):
     return      a_csp   CSP vectors, size NN*NN
     return      b_csp   CSP covectors, size NN*NN
     """
+    if RHSparams:
+        RHSparam = RHSparams[0]
 
     # Initializations that could not be done in c
     ERROR = False
@@ -253,10 +368,13 @@ def get_csp_vectors(tim, y, eps, jacfun):
     b_csp = np.empty((NN, NN))
 
     # Obtain the jacobian
-    jac = jacfun(tim, y, eps)
+    if RHSparams:
+        jac = jacfun(tim, y, RHSparam)
+    else:
+        jac = jacfun(tim, y)
 
     # Obtain the eigenvalues and left and right eigenvectors of the jacobian
-    evale, evecl, evecr = linalg.eig(np.reshape(jac, (4, 4)), left=True)
+    evale, evecl, evecr = linalg.eig(np.reshape(jac, (NN, NN)), left=True)
 
     # Split the eigenvectors into real and imaginary parts, as was done before
     evalr = [np.real(e) for e in evale]
@@ -280,21 +398,19 @@ def get_csp_vectors(tim, y, eps, jacfun):
     #             complexflag = True
     # if complexflag:
     #     raise Exception('Imaginary values detected.')
-    # Need to reshape because this code was originally written for C
-    #evecl = np.reshape(evecl, (NN**2,))
-    #evecr = np.reshape(evecr, (NN**2,))
 
     # Sort the eigenvalues
     order = insertion_sort(evalr)
 
     for i in range(NN):
-        tau[i] = 1.0 / float(evalr[order[i]])  # time scales, inverse of eigenvalues
+        try:
+            tau[i] = 1.0 / float(evalr[order[i]])  # time scales, inverse of eigenvalues
+        except ZeroDivisionError:
+            tau[i] = 1.0E99
         for j in range(NN):
             # CSP vectors, right eigenvectors
-            #a_csp[j + NN * i] = evecr[j + NN * order[i]]
             a_csp[i][j] = evecr[order[i]][j]
             # CSP covectors, left eigenvectors
-            #b_csp[j + NN * i] = evecl[j + NN * order[i]]
             b_csp[i][j] = evecl[order[i]][j]
 
     # eliminate complex components of eigenvectors if complex eigenvalues,
@@ -312,49 +428,34 @@ def get_csp_vectors(tim, y, eps, jacfun):
             sum_i = 0.0  # imaginary part
 
             for j in range(NN):
-                #ir = j + NN * i  # location of real part
-                #ii = j + NN * (i + 1)  # location of imaginary part
-
                 # need to treat left eigenvector as complex conjugate
                 # (so take negative of imag part)
-                #sum_r = mth.fsum([sum_r, ((a_csp[ir] * b_csp[ir])
-                #                          + (a_csp[ii] * b_csp[ii]))])
-                #sum_i = mth.fsum([sum_i, ((a_csp[ii] * b_csp[ir])
-                #                          - (a_csp[ir] * b_csp[ii]))])
-                sum_r = mth.fsum(sum_r, (np.real(a_csp[i][j])
+                sum_r = mth.fsum([sum_r, (np.real(a_csp[i][j])
                                          * np.real(b_csp[i][j])
                                          + np.imag(a_csp[i][j])
                                          * np.imag(b_csp[i][j])
-                                        ))
-                sum_i = mth.fsum(sum_i, (np.imag(a_csp[i][j])
+                                        )])
+                sum_i = mth.fsum([sum_i, (np.imag(a_csp[i][j])
                                          * np.real(b_csp[i][j])
                                          - np.real(a_csp[i][j])
                                          * np.imag(b_csp[i][j])
-                                        ))
+                                        )])
 
             sum2 = sum_r**2 + sum_i**2
 
-            print(sum2)
+            # print(sum2)
             # ensure sum is not zero
             if abs(sum2) > np.finfo(float).resolution:
                 for j in range(NN):
-                    #ir = j + NN * i
-                    #ii = j + NN * (i + 1)
-
                     # normalize a, and set a1=real, a2=imag
-                    #a_old = a_csp[ir]
-                    #a_csp[ir] = ((a_old * sum_r) + (a_csp[ii] * sum_i)) / sum2
-                    #a_csp[ii] = ((a_csp[ii] * sum_r) - (a_old * sum_i)) / sum2
                     a_old = a_csp[i][j]
                     a_csp[i][j] = (np.real(a_old) * sum_r
-                                   + np.imag(a_csp) * sum_i * 1j) / sum2
+                                   + np.imag(a_csp[i][j]) * sum_i * 1j) / sum2
                     a_csp[i][j] = (np.imag(a_csp[i][j]) * sum_r
                                    - np.real(a_old) * sum_i * 1j) / sum2
 
                     # set b1=2*real, b2=-2*imag
-                    b_csp[ir] = 2.0 * b_csp[ir]
-                    # vl[ii] = -TWO * b_csp[ii];
-                    b_csp[ii] = 2.0 * b_csp[ii]
+                    b_csp[i][j] = 2.0 * b_csp[i][j]
 
             # skip next (conjugate of current)
             flag = 2
@@ -367,9 +468,6 @@ def get_csp_vectors(tim, y, eps, jacfun):
             flag = 1
 
             # More accurate summation
-            #sumj = 0.0
-            #sumj = mth.fsum([a_csp[j + NN * i] * b_csp[j + NN * i]
-            #                for j in range(NN)])
             sumj = mth.fsum([a_csp[i][j] * b_csp[i][j] for j in range(NN)])
 
             # ensure dot product is not zero
@@ -427,7 +525,7 @@ def get_csp_vectors(tim, y, eps, jacfun):
     return tau, a_csp, b_csp
 
 
-def get_fast_modes(tim, y, eps, derivfun, jacfun, eps_a, eps_r):
+def get_fast_modes(tim, y, derivfun, jacfun, CSPtols, *RHSparams):
     """
     Function that returns the number of exhausted modes.
 
@@ -438,11 +536,19 @@ def get_fast_modes(tim, y, eps, derivfun, jacfun, eps_a, eps_r):
     param[out]  b_csp   CSP covectors, size NN*NN
     return      M       number of exhausted (fast) modes
     """
+    if RHSparams:
+        RHSparam = RHSparams[0]
+
     # Initialize things that weren't initialized in C
     NN = len(y)
 
+    eps_a, eps_r = CSPtols
+
     # perform CSP analysis to get timescales, vectors, covectors
-    tau, a_csp, b_csp = get_csp_vectors(tim, y, eps, jacfun)
+    if RHSparams:
+        tau, a_csp, b_csp = get_csp_vectors(tim, y, jacfun, RHSparam)
+    else:
+        tau, a_csp, b_csp = get_csp_vectors(tim, y, jacfun)
 
     # now need to find M exhausted modes
     # first calculate f^i
@@ -452,7 +558,10 @@ def get_fast_modes(tim, y, eps, derivfun, jacfun, eps_a, eps_r):
     qflag = 0 # flag telling dydt to not use projector
 
     # call derivative function
-    g_csp = derivfun(tim, y, Q, qflag) # array of derivatives (g in CSP)
+    if RHSparams:
+        g_csp = derivfun(tim, y, RHSparam) # array of derivatives (g in CSP)
+    else:
+        g_csp = derivfun(tim, y) # array of derivatives (g in CSP)
 
     for i in range(NN):
         # operate b_csp on g
@@ -474,39 +583,15 @@ def get_fast_modes(tim, y, eps, derivfun, jacfun, eps_a, eps_r):
             sum_m = mth.fsum([a_csp[k][i] * f_csp[k]
                               for k in range(M+1)])
 
-            # //////
-            # /*// max (infinite norm)
-            # if ( fabs( eps_a + ( eps_r * y[i] ) ) > y_norm ) {
-            #   y_norm = fabs( eps_a + ( eps_r * y[i] ) );
-            # }
-            #
-            # if ( fabs ( tau[M + 1] * sum_m ) > err_norm ) {
-            #   err_norm = fabs ( tau[M + 1] * sum_m );
-            # }
-            # */
-
             # if error larger than tolerance, flag
-            if abs(tau[M + 1] * sum_m) >= (eps_a + (eps_r * y[i])):
+            if abs(tau[M] * sum_m) >= (eps_a + (eps_r * y[i])):
                 mflag = 1;
 
-            # //////
-            # /*// L2 norm
-            # y_norm += ( eps_a + ( eps_r * y[i] ) ) * ( eps_a + ( eps_r * y[i] ) );
-            # err_norm += ( tau[M + 1] * sum_m ) * ( tau[M + 1] * sum_m );
-            # */
-            # //////
-
-            # // ensure below error tolerance and not explosive mode (positive eigenvalue)
-            # // tau[M+1] is time scale of fastest of slow modes (driving)
-            # // tau[M] is time scale of slowest exhausted mode (current)
-
-        # /*// L2 norm
-        # y_norm = sqrt ( y_norm );
-        # err_norm = sqrt ( err_norm );
-        # */
+            # ensure below error tolerance and not explosive mode (positive eigenvalue)
+            # tau[M+1] is time scale of fastest of slow modes (driving)
+            # tau[M] is time scale of slowest exhausted mode (current)
 
         # add current mode to exhausted if under error tolerance and not explosive mode
-        #if ( ( err_norm < eps_i ) && ( tau[M] < ZERO ) ) {
         if mflag == 0 and tau[M] < 0.0:
             M += 1  # add current mode to exhausted modes
         else:

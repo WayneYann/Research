@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import numpy as np
-from CSPfuncs1 import *
+from CSPfuncs import *
 from StiffnessFuncs import *
 import time as time
 from scipy.integrate import ode
