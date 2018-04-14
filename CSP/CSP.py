@@ -139,9 +139,9 @@ tim = t0  # Current time (sec), initialized at zero
 # Options are 'RK4', 'vode'
 mode = 'vode'
 # Options are 'CSPtest', 'VDP', 'Oregonator', 'H2', 'GRIMech'
-problem = 'H2'
+problem = 'CSPtest'
 CSPon = False  # Decides if the integration actually will use CSP, not working yet
-constantdt = True
+constantdt = False
 # Make this either human readable or better for saving into a table
 humanreadable = False
 
@@ -221,17 +221,17 @@ while tim < tend:
         if constantdt:
             if tim >= 1.0e-8:
                 printevery = 10
-            elif tim >= 1.0e-7:
+            if tim >= 1.0e-7:
                 printevery *= 10
-            elif tim >= 1.0e-6:
+            if tim >= 1.0e-6:
                 printevery *= 10
-            elif tim >= 1.0e-5:
+            if tim >= 1.0e-5:
                 printevery *= 10
-            elif tim >= 1.0e-4:
+            if tim >= 1.0e-4:
                 printevery *= 10
-            elif tim >= 1.0e-3:
+            if tim >= 1.0e-3:
                 printevery *= 10
-            elif tim >= 1.0e-2:
+            if tim >= 1.0e-2:
                 printevery *= 10
         else:
             if dt < 1.0e-6 and tim >= 1.0e-6:
