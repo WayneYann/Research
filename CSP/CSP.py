@@ -9,43 +9,87 @@ from scipy.integrate import ode
 import warnings
 
 
-def CSPwrap(tim, y0_local, eps, derivfun, jacfun, CSPtols):
-    M, tau, Qs, Rc = get_slow_projector(tim, y0_local, eps, derivfun,
+def CSPwrap(tim, y0_local, RHSparam, derivfun, jacfun, CSPtols):
+    """Needs updates before this function will work."""
+    raise Exception('CSPwrap function not supported yet.')
+    M, tau, Qs, Rc = get_slow_projector(tim, y0_local, RHSparam, derivfun,
                                         jacfun, CSPtols)
     ydot = testfunc(tim, y0_local, Qs, 1)
     return ydot
 
 
-def intDriver(tim, dt, y_global, mu, setup, CSPtols):
+def intDriver(tim, dt, y_global, mu, setup, CSPtols, *RHSparam):
 
+    if RHSparam:
+        RHSparam = RHSparam[0]
     t0 = tim
 
     pflag = False
 
     # Unpack variables
-    derivfun, jacfun, mode, CSPon = setup
-    eps_a, eps_r, eps = CSPtols
+    derivfun, jacfun, mode, CSPon, abserr, relerr, dt, constantdt, noRHSparam = setup
 
     y0_local = y_global[:]
 
+    # Initialize the ode solver
+    if mode != 'RK4':
+        # This probably isn't working yet
+        if CSPon:
+            raise Exception('CSP not yet supported.')
+            solver = ode(CSPwrap).set_integrator(mode,
+                                                 #method='bdf',
+                                                 nsteps=1e6,
+                                                 atol=abserr,
+                                                 rtol=relerr,
+                                                 #with_jacobian=False,
+                                                 #first_step=dt,
+                                                 #min_step=dt - 1e-10,
+                                                 max_step=dt
+                                                 )
+        else:
+            solver = ode(derivfun).set_integrator(mode,
+                                              #method='bdf',
+                                              nsteps=1e6,
+                                              atol=abserr,
+                                              rtol=relerr,
+                                              #with_jacobian=False,
+                                              #first_step=dt,
+                                              # min_step=dt,
+                                              max_step=dt
+                                              )
+    solver.set_initial_value(Y, t0)
+    if noRHSparam:
+        pass
+    else:
+        solver.set_f_params(RHSparam)
+        # solver.set_jac_params(eps)
+
+    #solver._integrator.iwork[2] = -1
+
     while tim < t0 + dt:
-        M, tau, Qs, Rc, stiffness = get_slow_projector(tim, y0_local, eps,
-                                                       derivfun, jacfun,
-                                                       CSPtols
-                                                       )
+        if noRHSparam:
+            M, tau, Qs, Rc, stiffness = get_slow_projector(tim, y0_local,
+                                                           derivfun, jacfun,
+                                                           CSPtols)
+        else:
+            M, tau, Qs, Rc, stiffness = get_slow_projector(tim, y0_local,
+                                                           derivfun, jacfun,
+                                                           CSPtols, RHSparam
+                                                           )
 
         # time step size (controlled by fastest slow mode)
         h = mu * tau
         # print(tim, M, Y)
 
-        # Call some integrator
+        # Call some integrator - this isn't working yet for CSPon
         if CSPon:
+            raise Exception('CSPon not yet supported.')
             if mode == 'RK4':
                 tim, yn_local = RK4(derivfun, y0_local, tim, dt, Qs, 1)
                 #tim, yn_local = RK4(tim, h, y0_local, Qs)
             else:
                 solver.set_initial_value(Y, t0)
-                solver.set_f_params(eps, derivfun, jacfun, CSPtols)
+                solver.set_f_params(RHSparam, derivfun, jacfun, CSPtols)
                 # solver.set_jac_params(eps)
                 tstart_step = time.time()
                 solver.integrate(t0 + dt)
@@ -57,12 +101,11 @@ def intDriver(tim, dt, y_global, mu, setup, CSPtols):
                 y0_local[i] = yn_local[i] - rc_array[i]
         else:
             if mode == 'RK4':
+                # Also probably not working yet
+                raise Exception('RK4 not yet supported.')
                 tim, yn_local = RK4(derivfun, y0_local, tim, dt, Qs, 0)
                 #tim, yn_local = RK4(tim, h, y0_local, Qs)
             else:
-                solver.set_initial_value(Y, t0)
-                solver.set_f_params(Qs, 0)
-                # solver.set_jac_params(eps)
                 tstart_step = time.time()
                 solver.integrate(t0 + dt)
                 comp_time = time.time() - tstart_step
@@ -74,12 +117,12 @@ def intDriver(tim, dt, y_global, mu, setup, CSPtols):
         #     if y0_local[i] > 1.0 or y0_local[i] < 0.0:
         #         print("Something was less than 1 or negative.")
         #         print(tim, M, y0_local)
+    del solver
     return tim, y0_local, comp_time, stiffness, M
 
 # CSP Tolerances
 eps_r = 1.0e-3  # Real CSP tolerance
 eps_a = 1.0e-3  # Absolute CSP tolerance
-eps = 1.0e-2  # Stiffness factor
 
 # vode tolerances
 abserr = 1e-24
@@ -97,7 +140,7 @@ tim = t0  # Current time (sec), initialized at zero
 mode = 'vode'
 # Options are 'CSPtest', 'VDP', 'Oregonator', 'H2', 'GRIMech'
 problem = 'H2'
-CSPon = False  # Decides if the integration actually will use CSP
+CSPon = False  # Decides if the integration actually will use CSP, not working yet
 constantdt = True
 # Make this either human readable or better for saving into a table
 humanreadable = False
@@ -105,10 +148,12 @@ humanreadable = False
 # Filter out the warnings
 warnings.filterwarnings('ignore')
 # Set initial conditions
+noRHSparam = False
 if problem == 'CSPtest':
     dt = 1.0e-9  # Integrating time step
     tend = 10.0  # End time (sec)
     NN = 4  # Size of problem
+    RHSparam = 1.0e-2  # Stiffness factor
     Y = []
     for i in range(NN):
         Y.append(1.0)
@@ -119,6 +164,7 @@ elif problem == 'VDP':
     tend = 3000.0  # End time (sec)
     NN = 2  # Size of problem
     Y = [2, 0]
+    noRHSparam = True
     derivfun = dydxvdp
     jacfun = jacvdp
 elif problem == 'Oregonator':
@@ -126,6 +172,7 @@ elif problem == 'Oregonator':
     tend = 320.0  # End time (sec)
     NN = 3  # Size of problem
     Y = [1, 1, 2]
+    noRHSparam = True
     derivfun = oregonatordydt
     jacfun = oregonatorjac
 elif problem == 'H2':
@@ -136,7 +183,7 @@ elif problem == 'H2':
     pasr = loadpasrdata(problem)
     Y = pasr[timestep, particle, :].copy()
     NN = len(Y)
-    initcond, RHSparam = rearrangepasr(Y, problem)
+    Y, RHSparam = rearrangepasr(Y, problem)
     derivfun = firstderiv
     jacfun = jacobval
 elif problem == 'GRIMech':
@@ -145,14 +192,14 @@ elif problem == 'GRIMech':
     particle = 92
     Y = pasr[particle, :].copy()
     NN = len(Y)
-    initcond, RHSparam = rearrangepasr(Y, problem)
+    Y, RHSparam = rearrangepasr(Y, problem)
     pasr = loadpasrdata(problem)
     derivfun = firstderiv
     jacfun = jacobval
 
 # Initialize the specific problem
-setup = (derivfun, jacfun, mode, CSPon)
-CSPtols = eps_a, eps_r, eps
+setup = (derivfun, jacfun, mode, CSPon, abserr, relerr, dt, constantdt, noRHSparam)
+CSPtols = eps_a, eps_r
 
 # Need to also reshape because this was originally written in C
 Qs = np.reshape(np.identity(NN), (NN**2,))
@@ -168,6 +215,7 @@ if problem == 'CSPtest':
 else:
     printevery = 0
 while tim < tend:
+    # Make it so that there's not millions of data points for CSPtest
     if problem == 'CSPtest':
         printstep += 1
         if constantdt:
@@ -197,62 +245,34 @@ while tim < tend:
             elif dt < 1.0e-2 and tim >= 1.0e-2:
                 dt = 1.0e-2
 
+    if noRHSparam:
+        tim, Y, comp_time, stiffness, M = intDriver(tim, dt, Y, mu, setup,
+                                                    CSPtols)
+        ratio, indicator, CEM = stiffmetrics(tim, Y, jacfun)
+    else:
+        tim, Y, comp_time, stiffness, M = intDriver(tim, dt, Y, mu, setup,
+                                                    CSPtols, RHSparam)
+        ratio, indicator, CEM = stiffmetrics(tim, Y, jacfun, RHSparam)
 
-    if mode != 'RK4':
-        if CSPon:
-            solver = ode(CSPwrap).set_integrator(mode,
-                                                 #method='bdf',
-                                                 nsteps=1e6,
-                                                 atol=abserr,
-                                                 rtol=relerr,
-                                                 #with_jacobian=False,
-                                                 #first_step=dt,
-                                                 #min_step=dt - 1e-10,
-                                                 max_step=dt
-                                                 )
-        else:
-            solver = ode(derivfun).set_integrator(mode,
-                                              #method='bdf',
-                                              nsteps=1e6,
-                                              atol=abserr,
-                                              rtol=relerr,
-                                              #with_jacobian=False,
-                                              #first_step=dt,
-                                              # min_step=dt,
-                                              max_step=dt
-                                              )
-    solver.set_initial_value(Y, t0)
-    if problem == 'CSPtest':
-        if not CSPon:
-            solver.set_f_params(Qs, 0)
-            # solver.set_jac_params(eps)
-    elif problem == 'H2' or problem == 'GRIMech':
-        solver.set_f_params(RHSparam)
-    solver._integrator.iwork[2] = -1
-
-    # if CSPon:
-    tim, Y, comp_time, stiffness, M = intDriver(tim, dt, Y, mu, setup, CSPtols)
     comp_speed = dt / comp_time
-    ratio, indicator, CEM = stiffmetrics(tim, Y, jacfun, eps)
     if printstep == printevery:
         printstep = 0
         if humanreadable:
             print('t={:<8.2g} M={} speed_comp={:<8.4g}\ts={:<10.8g}\ty:'.format(
-                                                                     solver.t,
+                                                                     tim,
                                                                      M,
                                                                      comp_speed,
                                                                      stiffness
                                                                      ),
-                  ''.join(('{:<12.8g}'.format(solver.y[i])
-                  for i in range(len(solver.y)))), ratio, indicator, CEM.real)
+                  ''.join(('{:<12.8g}'.format(Y[i])
+                  for i in range(len(Y)))), ratio, indicator, CEM.real)
         else:
-            output = np.array2string(np.hstack((solver.t, M, comp_time,
-                                                stiffness, solver.y,
+            output = np.array2string(np.hstack((tim, M, comp_time,
+                                                stiffness, Y,
                                                 ratio, indicator, CEM.real)),
                                      separator=',')
             print(''.join(output.strip('[]').split()))
 
-    del solver
 t_end = time.time()
 
 cpu_time = t_end - t_start

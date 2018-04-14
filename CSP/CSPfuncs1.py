@@ -28,22 +28,30 @@ def RK4(func, y0, t, h, Q, qflag):
     return t, y
 
 
-def jacvdp(x, y, dummy):
+def jacvdp(x, y, *eta):
     """Find the local Jacobian matrix of the Van der Pol equation."""
     # Note that the dummy value is just because I originally set this up
     # for the test problem and thought I'd be making a lot of changes to eps
 
     # Change this parameter to modify the stiffness of the problem.
-    eta = 1e3
+    if eta:
+        eta = eta[0]
+    else:
+        eta = 1.0E3
+    eta = 1.0E3
 
     return np.array([[0., 1.], [-1. - 2*y[0]*y[1]*eta, eta-eta*y[0]**2]])
 
 
-def dydxvdp(x, y, Q, qflag):
+def dydxvdp(x, y, *eta):
     """Find the local vector of the first derivative of the Van der Pol eqn."""
 
     # Change this parameter to modify the stiffness of the problem.
-    eta = 1e3
+    if eta:
+        eta = eta[0]
+    else:
+        eta = 1.0E3
+    eta = 1.0E3
 
     # Unpack the y vector
     y1 = y[0]
@@ -51,21 +59,6 @@ def dydxvdp(x, y, Q, qflag):
 
     # Create dydx vector (y1', y2')
     f = np.array([y2, eta*y2 - y1 - eta*y2*y1**2.])
-
-    NN = len(y)
-
-    ydotn = np.empty(NN)
-
-    if qflag == 1:
-        for i in range(NN):
-            sum_row = 0.0
-            for j in range (NN):
-                sum_row += Q[j][i] * f[j]
-            ydotn[i] = sum_row
-
-        # now replace f with ydotn
-        for i in range(NN):
-            f[i] = ydotn[i]
 
     return f
 
@@ -86,12 +79,18 @@ def d2ydx2vdp(x, y):
     return f
 
 
-def oregonatordydt(tim, y, Q, qflag):
+def oregonatordydt(tim, y, *eps):
     """Find the local vector of the first derivative of the Oregonator."""
 
-    s = 77.27
-    q = 8.375E-6
-    w = 0.161
+    # Stiffness factor - change this here if you want the problem to change
+    if eps:
+        s = eps[0]
+        q = eps[1]
+        w = eps[2]
+    else:
+        s = 77.27
+        q = 8.375E-6
+        w = 0.161
 
     #print(qflag)
 
@@ -103,28 +102,20 @@ def oregonatordydt(tim, y, Q, qflag):
     ydot[1] = (y[2] - y[1] - y[0] * y[1]) / s
     ydot[2] = w * (y[0] - y[2])
 
-    ydotn = np.empty(NN)
-
-    if qflag == 1:
-        for i in range(NN):
-            sum_row = 0.0
-            for j in range (NN):
-                sum_row += Q[j][i] * ydot[j]
-            ydotn[i] = sum_row
-
-        # now replace f with ydotn
-        for i in range(NN):
-            ydot[i] = ydotn[i]
-
     return np.array(ydot)
 
-def oregonatorjac(tim, y, dummy):
+def oregonatorjac(tim, y, *eps):
     """Find the local vector of the first derivative of the Oregonator."""
     # Note that the dummy value is just because I originally set this up
     # for the test problem and thought I'd be making a lot of changes to eps
-    s = 77.27
-    q = 8.375E-6
-    w = 0.161
+    if eps:
+        s = eps[0]
+        q = eps[1]
+        w = eps[2]
+    else:
+        s = 77.27
+        q = 8.375E-6
+        w = 0.161
 
     row1 = [s * (-1 * y[1] + 1 - q * 2 * y[0]), s * (1 - y[0]), 0]
     row2 = [-1 * y[1] / s, (-1 - y[0])/s, 1/s]
@@ -133,7 +124,7 @@ def oregonatorjac(tim, y, dummy):
     return np.array([row1, row2, row3])
 
 
-def testfunc(tim, y, Q, qflag):
+def testfunc(tim, y, eps):
     """Derivative (dydt) source term for model problem.
 
     param[in]  tim     the time (sec)
@@ -142,9 +133,6 @@ def testfunc(tim, y, Q, qflag):
     param[in]  qflag   projector flag (1 to use)
     return     ydot    derivative array, size neq
     """
-
-    # Stiffness factor - change this here if you want the problem to change
-    eps = 1.0e-2
 
     NN = len(y)
 
@@ -159,18 +147,6 @@ def testfunc(tim, y, Q, qflag):
                    - sumterm)
     ydot[-1] = -1 * y[-1]
 
-    ydotn = np.empty(NN)
-
-    if qflag == 1:
-        for i in range(NN):
-            sum_row = 0.0
-            for j in range (NN):
-                sum_row += Q[j][i] * ydot[j]
-            ydotn[i] = sum_row
-
-        # now replace ydot with ydotn
-        for i in range(NN):
-            ydot[i] = ydotn[i]
     return ydot
 
 
@@ -183,6 +159,7 @@ def testjac(tim, y, eps):
     param[in]  eps     stiffness factor
     return     dfdy	Jacobian, size (neq,neq)
     """
+
     dfdy = np.empty(len(y)**2)
 
     dfdy[0]  = -1.0 / (eps**3)
@@ -212,8 +189,6 @@ def firstderiv(time, state, press):
     # Need to make sure that N2 is at the end of the state array
     dy = np.zeros_like(state)
     pyjacob.py_dydt(time, press, state, dy)
-    global functioncalls
-    functioncalls += 1
     return dy
 
 
@@ -283,7 +258,7 @@ def rearrangepasr(Y, problem):
     return initcond, Y_press
 
 
-def radical_correction(tim, y, Rc):
+def radical_correction(ydot, Q):
     """
     Function that applies radical correction to data array
 
@@ -295,10 +270,16 @@ def radical_correction(tim, y, Rc):
     param[in]  Rc   Radical correction tensor, size NN*NN
     return     g    array holding radical corrections, size NN
     """
-    return testfunc(tim, y, Rc, 1)
+    NN = len(Y)
+    for i in range(NN):
+        sum_row = 0.0
+        for j in range (NN):
+            sum_row += Q[j][i] * ydot[j]
+        ydotn[i] = sum_row
+    return ydotn
 
 
-def get_slow_projector(tim, y, eps, derivfun, jacfun, CSPtols):
+def get_slow_projector(tim, y, derivfun, jacfun, CSPtols, *RHSparams):
     """
     Function that performs CSP analysis and returns vectors.
 
@@ -310,15 +291,19 @@ def get_slow_projector(tim, y, eps, derivfun, jacfun, CSPtols):
     return      taum1 time scale of fastest slow mode (sec)
     return      M     number of slow modes
     """
-    NN = len(y)
+    if RHSparams:
+        RHSparam = RHSparams[0]
 
-    eps_a, eps_r, eps = CSPtols
+    NN = len(y)
 
     # CSP vectors and covectors
     a_csp = np.empty((NN, NN))  # Array with CSP vectors
     b_csp = np.empty((NN, NN))  # Array with CSP covectors
 
-    M, tau = get_fast_modes(tim, y, eps, derivfun, jacfun, eps_a, eps_r)
+    if RHSparams:
+        M, tau = get_fast_modes(tim, y, derivfun, jacfun, CSPtols, RHSparam)
+    else:
+        M, tau = get_fast_modes(tim, y, derivfun, jacfun, CSPtols)
 
     # Rc starts as a matrix of zeros
     Rc = np.zeros((NN, NN))
@@ -350,7 +335,7 @@ def get_slow_projector(tim, y, eps, derivfun, jacfun, CSPtols):
     return M, taum1, Qs, Rc, stiffness
 
 
-def get_csp_vectors(tim, y, eps, jacfun):
+def get_csp_vectors(tim, y, jacfun, *RHSparams):
     """
     Function that performs CSP analysis and returns vectors.
 
@@ -372,6 +357,8 @@ def get_csp_vectors(tim, y, eps, jacfun):
     return      a_csp   CSP vectors, size NN*NN
     return      b_csp   CSP covectors, size NN*NN
     """
+    if RHSparams:
+        RHSparam = RHSparams[0]
 
     # Initializations that could not be done in c
     ERROR = False
@@ -381,7 +368,10 @@ def get_csp_vectors(tim, y, eps, jacfun):
     b_csp = np.empty((NN, NN))
 
     # Obtain the jacobian
-    jac = jacfun(tim, y, eps)
+    if RHSparams:
+        jac = jacfun(tim, y, RHSparam)
+    else:
+        jac = jacfun(tim, y)
 
     # Obtain the eigenvalues and left and right eigenvectors of the jacobian
     evale, evecl, evecr = linalg.eig(np.reshape(jac, (NN, NN)), left=True)
@@ -413,7 +403,10 @@ def get_csp_vectors(tim, y, eps, jacfun):
     order = insertion_sort(evalr)
 
     for i in range(NN):
-        tau[i] = 1.0 / float(evalr[order[i]])  # time scales, inverse of eigenvalues
+        try:
+            tau[i] = 1.0 / float(evalr[order[i]])  # time scales, inverse of eigenvalues
+        except ZeroDivisionError:
+            tau[i] = 1.0E99
         for j in range(NN):
             # CSP vectors, right eigenvectors
             a_csp[i][j] = evecr[order[i]][j]
@@ -532,7 +525,7 @@ def get_csp_vectors(tim, y, eps, jacfun):
     return tau, a_csp, b_csp
 
 
-def get_fast_modes(tim, y, eps, derivfun, jacfun, eps_a, eps_r):
+def get_fast_modes(tim, y, derivfun, jacfun, CSPtols, *RHSparams):
     """
     Function that returns the number of exhausted modes.
 
@@ -543,11 +536,19 @@ def get_fast_modes(tim, y, eps, derivfun, jacfun, eps_a, eps_r):
     param[out]  b_csp   CSP covectors, size NN*NN
     return      M       number of exhausted (fast) modes
     """
+    if RHSparams:
+        RHSparam = RHSparams[0]
+
     # Initialize things that weren't initialized in C
     NN = len(y)
 
+    eps_a, eps_r = CSPtols
+
     # perform CSP analysis to get timescales, vectors, covectors
-    tau, a_csp, b_csp = get_csp_vectors(tim, y, eps, jacfun)
+    if RHSparams:
+        tau, a_csp, b_csp = get_csp_vectors(tim, y, jacfun, RHSparam)
+    else:
+        tau, a_csp, b_csp = get_csp_vectors(tim, y, jacfun)
 
     # now need to find M exhausted modes
     # first calculate f^i
@@ -557,7 +558,10 @@ def get_fast_modes(tim, y, eps, derivfun, jacfun, eps_a, eps_r):
     qflag = 0 # flag telling dydt to not use projector
 
     # call derivative function
-    g_csp = derivfun(tim, y, Q, qflag) # array of derivatives (g in CSP)
+    if RHSparams:
+        g_csp = derivfun(tim, y, RHSparam) # array of derivatives (g in CSP)
+    else:
+        g_csp = derivfun(tim, y) # array of derivatives (g in CSP)
 
     for i in range(NN):
         # operate b_csp on g

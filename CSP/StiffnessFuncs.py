@@ -217,23 +217,17 @@ def stiffmetrics(xlist, solution, jfun, *args):
     """
     Find values of the stiffness ratio, stiffness indicator, and CEMA.
     """
-    funcparams = []
-    for arg in args:
-        funcparams.append(arg)
+    if args:
+        funcparams = []
+        for arg in args:
+            funcparams.append(arg)
 
     ratios, indicators, CEMs = [], [], []
-    try:
-        for i in range(len(solution)):
-            jacobian = jfun(xlist[i], solution[i], funcparams[0])
-            eigvals1 = np.array([abs(j) for j in np.linalg.eigvals(jacobian)
-                                if j != 0])
-            Hermitian = 0.5 * (jacobian + np.transpose(jacobian))
-            eigvals2 = np.linalg.eigvals(Hermitian)
-            ratios.append(max(eigvals1)/min(eigvals1))
-            indicators.append(0.5 * (min(eigvals2) + max(eigvals2)))
-            CEMs.append(max(np.linalg.eigvals(jacobian)))
-    except TypeError:
-        jacobian = jfun(xlist, solution, funcparams[0])
+    if isinstance(xlist, float):
+        if args:
+            jacobian = jfun(xlist, solution, funcparams[0])
+        else:
+            jacobian = jfun(xlist, solution)
         eigvals1 = np.array([abs(j) for j in np.linalg.eigvals(jacobian)
                             if j != 0])
         Hermitian = 0.5 * (jacobian + np.transpose(jacobian))
@@ -241,4 +235,17 @@ def stiffmetrics(xlist, solution, jfun, *args):
         ratios = (max(eigvals1)/min(eigvals1))
         indicators = 0.5 * (min(eigvals2) + max(eigvals2))
         CEMs = max(np.linalg.eigvals(jacobian))
+    else:
+        for i in range(len(solution)):
+            if args:
+                jacobian = jfun(xlist[i], solution[i], funcparams[0])
+            else:
+                jacobian = jfun(xlist[i], solution[i])
+            eigvals1 = np.array([abs(j) for j in np.linalg.eigvals(jacobian)
+                                if j != 0])
+            Hermitian = 0.5 * (jacobian + np.transpose(jacobian))
+            eigvals2 = np.linalg.eigvals(Hermitian)
+            ratios.append(max(eigvals1)/min(eigvals1))
+            indicators.append(0.5 * (min(eigvals2) + max(eigvals2)))
+            CEMs.append(max(np.linalg.eigvals(jacobian)))
     return ratios, indicators, CEMs
