@@ -267,9 +267,9 @@ while tim < tend:
                   ''.join(('{:<12.8g}'.format(Y[i])
                   for i in range(len(Y)))), ratio, indicator, CEM.real)
         else:
-            output = np.array2string(np.hstack((tim, M, comp_time,
-                                                stiffness, Y,
-                                                ratio, indicator, CEM.real)),
+            output = np.array2string(np.hstack((tim, comp_time, M, stiffness,
+                                                ratio, indicator, CEM.real,
+                                                Y)),
                                      separator=',')
             print(''.join(output.strip('[]').split()))
 

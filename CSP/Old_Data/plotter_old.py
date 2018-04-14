@@ -22,18 +22,20 @@ problem = 'CSPtest'
 [ts, ts_timing, Ms, comptimes, CSPstiffness, Y1s, Y2s, Y3s, Y4s, sol, ratios,
     indicators, CEMs] = [[] for i in range(13)]
 if problem == 'CSPtest':
-    with open(problem + '.csv', newline='') as csvfile:
+    with open('CSPtest.csv', newline='') as csvfile:
         reader = csv.reader(csvfile, delimiter=',')
         for row in reader:
             ts.append(float(row[0]))
-            comptimes.append(float(row[1]))
-            Ms.append(float(row[2]))
+            Ms.append(float(row[1]))
             CSPstiffness.append(float(row[3]))
-            ratios.append(float(row[4]))
-            indicators.append(float(row[5]))
-            CEMs.append(float(row[6]))
-            sol.append([float(row[i]) for i in range(7,len(row))])
-
+            Y1s.append(float(row[4]))
+            Y2s.append(float(row[5]))
+            Y3s.append(float(row[6]))
+            Y4s.append(float(row[7]))
+            sol.append([float(row[i]) for i in range(4,8)])
+            ratios.append(float(row[8]))
+            indicators.append(float(row[9]))
+            CEMs.append(float(row[10]))
     # with open('Old_Data/csptoyproblem.csv', newline='') as csvfile:
     #     reader = csv.reader(csvfile, delimiter=',')
     #     for row in reader:
