@@ -139,7 +139,7 @@ tim = t0  # Current time (sec), initialized at zero
 # Options are 'RK4', 'vode'
 mode = 'vode'
 # Options are 'CSPtest', 'VDP', 'Oregonator', 'H2', 'GRIMech'
-problem = 'CSPtest'
+problem = 'H2'
 CSPon = False  # Decides if the integration actually will use CSP, not working yet
 constantdt = False
 # Make this either human readable or better for saving into a table
