@@ -210,7 +210,7 @@ def jacobval(time, state, press):
 
 def loadpasrdata(problem):
     """Load the initial conditions from the full PaSR file."""
-    print('Loading data...')
+    # print('Loading data...')
     if problem == 'GRIMech':
         filepath = os.path.join(os.getcwd(), '../GRI_Mech_3/ch4_full_pasr_data.npy')
         return np.load(filepath)

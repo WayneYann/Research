@@ -49,7 +49,7 @@ def intDriver(tim, dt, y_global, mu, setup, CSPtols, *RHSparam):
         else:
             solver = ode(derivfun).set_integrator(mode,
                                               #method='bdf',
-                                              nsteps=1e6,
+                                              nsteps=1e10,
                                               atol=abserr,
                                               rtol=relerr,
                                               #with_jacobian=False,
