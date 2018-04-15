@@ -215,6 +215,7 @@ if problem == 'CSPtest':
 else:
     printevery = 0
 while tim < tend:
+    oldtime = tim
     # Make it so that there's not millions of data points for CSPtest
     if problem == 'CSPtest':
         printstep += 1
@@ -254,7 +255,7 @@ while tim < tend:
                                                     CSPtols, RHSparam)
         ratio, indicator, CEM = stiffmetrics(tim, Y, jacfun, RHSparam)
 
-    print(dt)
+    print(tim - oldtime)
     comp_speed = dt / comp_time
     if printstep == printevery:
         printstep = 0
