@@ -17,7 +17,7 @@ import sys as sys
 from matplotlib.ticker import NullFormatter
 
 
-problem = 'VDP'
+problem = 'H2'
 
 [ts, ts_timing, Ms, comptimes, CSPstiffness, Y1s, Y2s, Y3s, Y4s, sol, ratios,
     indicators, CEMs] = [[] for i in range(13)]
@@ -25,14 +25,24 @@ problem = 'VDP'
 with open(problem + '.csv', newline='') as csvfile:
     reader = csv.reader(csvfile, delimiter=',')
     for row in reader:
-        ts.append(float(row[0]))
-        comptimes.append(float(row[1]))
-        Ms.append(float(row[2]))
-        CSPstiffness.append(float(row[3]))
-        ratios.append(float(row[4]))
-        indicators.append(float(row[5]))
-        CEMs.append(float(row[6]))
-        sol.append([float(row[i]) for i in range(7,len(row))])
+        try:
+            ts.append(float(row[0]))
+            comptimes.append(float(row[1]))
+            Ms.append(float(row[2]))
+            CSPstiffness.append(float(row[3]))
+            ratios.append(float(row[4]))
+            indicators.append(float(row[5]))
+            CEMs.append(float(row[6]))
+            sol.append([float(row[i]) for i in range(7,len(row))])
+        except ValueError:
+            ts.append(complex(row[0]).real)
+            comptimes.append(complex(row[1]).real)
+            Ms.append(complex(row[2]).real)
+            CSPstiffness.append(complex(row[3]).real)
+            ratios.append(complex(row[4]).real)
+            indicators.append(complex(row[5]).real)
+            CEMs.append(complex(row[6]).real)
+            sol.append([complex(row[i]).real for i in range(7,len(row))])
 
 ts = np.array(ts)
 ts_timing = np.array(ts_timing)
@@ -54,9 +64,12 @@ elif problem == 'VDP':
 elif problem == 'Oregonator':
     derivfun = oregonatordydt
     jacfun = oregonatorjac
+elif problem == 'H2' or problem == 'GRIMech':
+    derivfun = firstderiv
+    jacfun = jacobval
 
 # Needed to bring over the epsilon from the driving code
-indexes = stiffnessindex(ts, sol, derivfun, jacfun, 1.0e-2)
+indexes = stiffnessindex(ts, sol, derivfun, jacfun, 2533125.001)
 
 for i in range(10):
     plt.figure(i)
