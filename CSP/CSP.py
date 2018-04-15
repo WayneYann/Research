@@ -109,7 +109,6 @@ def intDriver(tim, dt, y_global, mu, setup, CSPtols, *RHSparam):
                 tstart_step = time.time()
                 solver.integrate(t0 + dt)
                 comp_time = time.time() - tstart_step
-                print(solver.t - tim)
                 tim = solver.t
                 y0_local = solver.y
 
@@ -118,6 +117,7 @@ def intDriver(tim, dt, y_global, mu, setup, CSPtols, *RHSparam):
         #     if y0_local[i] > 1.0 or y0_local[i] < 0.0:
         #         print("Something was less than 1 or negative.")
         #         print(tim, M, y0_local)
+    print(solver.t - t0)
     del solver
     return tim, y0_local, comp_time, stiffness, M
 
