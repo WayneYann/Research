@@ -94,7 +94,6 @@ def intDriver(tim, dt, y_global, mu, setup, CSPtols, *RHSparam):
                 tstart_step = time.time()
                 solver.integrate(t0 + dt)
                 comp_time = time.time() - tstart_step
-                print(solver.t - tim)
                 tim = solver.t
                 yn_local = solver.y
             rc_array = radical_correction(tim, yn_local, Rc)
@@ -110,6 +109,7 @@ def intDriver(tim, dt, y_global, mu, setup, CSPtols, *RHSparam):
                 tstart_step = time.time()
                 solver.integrate(t0 + dt)
                 comp_time = time.time() - tstart_step
+                print(solver.t - tim)
                 tim = solver.t
                 y0_local = solver.y
 
