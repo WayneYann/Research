@@ -254,6 +254,7 @@ while tim < tend:
                                                     CSPtols, RHSparam)
         ratio, indicator, CEM = stiffmetrics(tim, Y, jacfun, RHSparam)
 
+    print(dt)
     comp_speed = dt / comp_time
     if printstep == printevery:
         printstep = 0
