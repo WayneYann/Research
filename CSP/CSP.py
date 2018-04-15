@@ -190,10 +190,10 @@ elif problem == 'GRIMech':
     dt = 1.0e-3
     tend = 2.0
     particle = 92
+    pasr = loadpasrdata(problem)
     Y = pasr[particle, :].copy()
     NN = len(Y)
     Y, RHSparam = rearrangepasr(Y, problem)
-    pasr = loadpasrdata(problem)
     derivfun = firstderiv
     jacfun = jacobval
 
