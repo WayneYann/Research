@@ -94,6 +94,7 @@ def intDriver(tim, dt, y_global, mu, setup, CSPtols, *RHSparam):
                 tstart_step = time.time()
                 solver.integrate(t0 + dt)
                 comp_time = time.time() - tstart_step
+                print(solver.t - tim)
                 tim = solver.t
                 yn_local = solver.y
             rc_array = radical_correction(tim, yn_local, Rc)
@@ -215,7 +216,6 @@ if problem == 'CSPtest':
 else:
     printevery = 0
 while tim < tend:
-    oldtime = tim
     # Make it so that there's not millions of data points for CSPtest
     if problem == 'CSPtest':
         printstep += 1
@@ -255,7 +255,6 @@ while tim < tend:
                                                     CSPtols, RHSparam)
         ratio, indicator, CEM = stiffmetrics(tim, Y, jacfun, RHSparam)
 
-    print(tim - oldtime)
     comp_speed = dt / comp_time
     if printstep == printevery:
         printstep = 0
