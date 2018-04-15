@@ -121,6 +121,7 @@ def intDriver(tim, dt, y_global, mu, setup, CSPtols, *RHSparam):
     print('solver.t: {}'.format(solver.t))
     print('t0: {}'.format(t0))
     print('dt: {}'.format(dt))
+    print('tim - t0: {}'.format(tim - t0))
     del solver
     return tim, y0_local, comp_time, stiffness, M
 
