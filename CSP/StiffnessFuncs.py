@@ -97,8 +97,7 @@ def stiffnessindex(xlist, solution, dfun, jfun, *args, **kwargs):
     dx = xlist[1] - xlist[0]
     dydxlist = []
     for i in range(len(solution)):
-        dydxlist.append(dfun(xlist[i], solution[i, :],
-                        np.empty(len(solution[i, :])), 0))
+        dydxlist.append(dfun(xlist[i], solution[i, :], funcparams[0]))
     # Raise the derivative to the order we need it
     for i in range(order):
         dydxlist = derivcd4(dydxlist, dx)

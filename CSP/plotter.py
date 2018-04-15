@@ -17,7 +17,7 @@ import sys as sys
 from matplotlib.ticker import NullFormatter
 
 
-problem = 'CSPtest'
+problem = 'VDP'
 
 [ts, ts_timing, Ms, comptimes, CSPstiffness, Y1s, Y2s, Y3s, Y4s, sol, ratios,
     indicators, CEMs] = [[] for i in range(13)]
@@ -146,25 +146,22 @@ plt.tick_params(labelcolor='none', top='off', bottom='off', left='off',
                 right='off')
 if problem == 'CSPtest':
     showsols = 4
-    axarr[0,0].legend(loc='upper left', bbox_to_anchor=(1,1),
-                      fontsize='x-small')
     axarr[0,0].set_xscale('log')
     axarr[0,1].set_xscale('log')
     plt.xlabel('x Value')
 elif problem == 'Oregonator':
     showsols = 3
-    axarr[0,0].legend(loc='upper left', bbox_to_anchor=(1,1),
-                      fontsize='x-small')
     axarr[0,0].set_yscale('log')
     plt.xlabel('Time')
 else:
     showsols = 1
     plt.xlabel('x Value')
-print('Solution shape:')
-print(np.shape(sol))
-sys.exit('Here')
 for i in range(showsols):
-    axarr[0,0].plot(ts, sol[i])
+    lab = 'Y' + str(i+1)
+    axarr[0,0].plot(ts, sol[:, i], label=lab)
+if problem == 'CSPtest' or problem == 'Oregonator':
+    axarr[0,0].legend(loc='upper left', bbox_to_anchor=(1,1),
+                      fontsize='x-small')
 axarr[0,0].set_title('Solution')
 axarr[0,1].plot(ts, Ms)
 axarr[0,1].set_title('CSP Fast Modes')
@@ -185,8 +182,6 @@ axarr[3,0].set_title('Chemical Explosive Mode')
 if posCEM:
     axarr[3,0].set_ylim(CEMmin*0.5, CEMmax*10.0)
     axarr[3,0].set_yscale('log')
-    print(CEMmin)
-    print(CEMmax)
 
 # Fine-tune figure; make subplots farther from each other.
 f.subplots_adjust(hspace=0.3)

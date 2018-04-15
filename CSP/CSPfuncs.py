@@ -212,13 +212,13 @@ def loadpasrdata(problem):
     """Load the initial conditions from the full PaSR file."""
     print('Loading data...')
     if problem == 'GRIMech':
-        filepath = os.path.join(os.getcwd(), 'PaSR_Data/ch4_full_pasr_data.npy')
+        filepath = os.path.join(os.getcwd(), '../GRI_Mech_3/ch4_full_pasr_data.npy')
         return np.load(filepath)
     elif problem == 'H2':
         pasrarrays = []
         for i in range(9):
             filepath = os.path.join(os.getcwd(),
-                                    'PaSR_Data/pasr_out_h2-co_' +
+                                    '../H2_CO/pasr_out_h2-co_' +
                                     str(i) +
                                     '.npy')
             filearray = np.load(filepath)
