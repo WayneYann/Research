@@ -12,7 +12,7 @@ from mpl_toolkits.axes_grid1 import host_subplot
 import mpl_toolkits.axisartist as AA
 import matplotlib.pyplot as plt
 from StiffnessFuncs import *
-from CSPfuncs1 import *
+from CSPfuncs import *
 import sys as sys
 from matplotlib.ticker import NullFormatter
 
@@ -21,88 +21,24 @@ problem = 'CSPtest'
 
 [ts, ts_timing, Ms, comptimes, CSPstiffness, Y1s, Y2s, Y3s, Y4s, sol, ratios,
     indicators, CEMs] = [[] for i in range(13)]
-if problem == 'CSPtest':
-    with open(problem + '.csv', newline='') as csvfile:
-        reader = csv.reader(csvfile, delimiter=',')
-        for row in reader:
-            ts.append(float(row[0]))
-            comptimes.append(float(row[1]))
-            Ms.append(float(row[2]))
-            CSPstiffness.append(float(row[3]))
-            ratios.append(float(row[4]))
-            indicators.append(float(row[5]))
-            CEMs.append(float(row[6]))
-            sol.append([float(row[i]) for i in range(7,len(row))])
 
-    # with open('Old_Data/csptoyproblem.csv', newline='') as csvfile:
-    #     reader = csv.reader(csvfile, delimiter=',')
-    #     for row in reader:
-    #         ts_timing.append(float(row[0]))
-    #         comptimes.append(float(row[2]))
-elif problem == 'VDP':
-    with open('VDP.csv', newline='') as csvfile:
-        reader = csv.reader(csvfile, delimiter=',')
-        for row in reader:
-            ts.append(float(row[0]))
-            Ms.append(float(row[1]))
-            CSPstiffness.append(float(row[3]))
-            Y1s.append(float(row[4]))
-            Y2s.append(float(row[5]))
-            sol.append([float(row[i]) for i in range(4,6)])
-            ratios.append(float(row[6]))
-            indicators.append(float(row[7]))
-            CEMs.append(float(row[8]))
-elif problem == 'Oregonator':
-    with open('Oregonator.csv', newline='') as csvfile:
-        reader = csv.reader(csvfile, delimiter=',')
-        for row in reader:
-            ts.append(float(row[0]))
-            Ms.append(float(row[1]))
-            CSPstiffness.append(float(row[3]))
-            Y1s.append(float(row[4]))
-            Y2s.append(float(row[5]))
-            Y3s.append(float(row[6]))
-            sol.append([float(row[i]) for i in range(4,7)])
-            ratios.append(float(row[7]))
-            indicators.append(float(row[8]))
-            CEMs.append(float(row[9]))
-elif problem == 'H2':
-    with open('H2.csv', newline='') as csvfile:
-        reader = csv.reader(csvfile, delimiter=',')
-        for row in reader:
-            ts.append(float(row[0]))
-            Ms.append(float(row[1]))
-            CSPstiffness.append(float(row[3]))
-            Y1s.append(float(row[4]))
-            Y2s.append(float(row[5]))
-            Y3s.append(float(row[6]))
-            sol.append([float(row[i]) for i in range(4,7)])
-            ratios.append(float(row[7]))
-            indicators.append(float(row[8]))
-            CEMs.append(float(row[9]))
-elif problem == 'GRIMech':
-    with open('GRImech.csv', newline='') as csvfile:
-        reader = csv.reader(csvfile, delimiter=',')
-        for row in reader:
-            ts.append(float(row[0]))
-            Ms.append(float(row[1]))
-            CSPstiffness.append(float(row[3]))
-            Y1s.append(float(row[4]))
-            Y2s.append(float(row[5]))
-            Y3s.append(float(row[6]))
-            sol.append([float(row[i]) for i in range(4,7)])
-            ratios.append(float(row[7]))
-            indicators.append(float(row[8]))
-            CEMs.append(float(row[9]))
+with open(problem + '.csv', newline='') as csvfile:
+    reader = csv.reader(csvfile, delimiter=',')
+    for row in reader:
+        ts.append(float(row[0]))
+        comptimes.append(float(row[1]))
+        Ms.append(float(row[2]))
+        CSPstiffness.append(float(row[3]))
+        ratios.append(float(row[4]))
+        indicators.append(float(row[5]))
+        CEMs.append(float(row[6]))
+        sol.append([float(row[i]) for i in range(7,len(row))])
+
 ts = np.array(ts)
 ts_timing = np.array(ts_timing)
 Ms = np.array(Ms)
 comptimes = np.array(comptimes)
 CSPstiffness = np.array(CSPstiffness)
-Y1s = np.array(Y1s)
-Y2s = np.array(Y2s)
-Y3s = np.array(Y3s)
-Y4s = np.array(Y4s)
 sol = np.array(sol)
 ratios = np.array(ratios)
 indicators = np.array(indicators)
@@ -209,26 +145,26 @@ f.add_subplot(111, frameon=False)
 plt.tick_params(labelcolor='none', top='off', bottom='off', left='off',
                 right='off')
 if problem == 'CSPtest':
-    axarr[0,0].plot(ts, Y1s, label='Y1')
-    axarr[0,0].plot(ts, Y2s, label='Y2')
-    axarr[0,0].plot(ts, Y3s, label='Y3')
-    axarr[0,0].plot(ts, Y4s, label='Y4')
+    showsols = 4
     axarr[0,0].legend(loc='upper left', bbox_to_anchor=(1,1),
                       fontsize='x-small')
     axarr[0,0].set_xscale('log')
     axarr[0,1].set_xscale('log')
     plt.xlabel('x Value')
 elif problem == 'Oregonator':
-    axarr[0,0].plot(ts, Y1s, label='Y1')
-    axarr[0,0].plot(ts, Y2s, label='Y2')
-    axarr[0,0].plot(ts, Y3s, label='Y3')
+    showsols = 3
     axarr[0,0].legend(loc='upper left', bbox_to_anchor=(1,1),
                       fontsize='x-small')
     axarr[0,0].set_yscale('log')
     plt.xlabel('Time')
 else:
-    axarr[0,0].plot(ts, Y1s)
+    showsols = 1
     plt.xlabel('x Value')
+print('Solution shape:')
+print(np.shape(sol))
+sys.exit('Here')
+for i in range(showsols):
+    axarr[0,0].plot(ts, sol[i])
 axarr[0,0].set_title('Solution')
 axarr[0,1].plot(ts, Ms)
 axarr[0,1].set_title('CSP Fast Modes')

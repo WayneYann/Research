@@ -236,13 +236,13 @@ while tim < tend:
         else:
             if dt < 1.0e-6 and tim >= 1.0e-6:
                 dt = 1.0e-6
-            elif dt < 1.0e-5 and tim >= 1.0e-5:
+            if dt < 1.0e-5 and tim >= 1.0e-5:
                 dt = 1.0e-5
-            elif dt < 1.0e-4 and tim >= 1.0e-4:
+            if dt < 1.0e-4 and tim >= 1.0e-4:
                 dt = 1.0e-4
-            elif dt < 1.0e-3 and tim >= 1.0e-3:
+            if dt < 1.0e-3 and tim >= 1.0e-3:
                 dt = 1.0e-3
-            elif dt < 1.0e-2 and tim >= 1.0e-2:
+            if dt < 1.0e-2 and tim >= 1.0e-2:
                 dt = 1.0e-2
 
     if noRHSparam:
