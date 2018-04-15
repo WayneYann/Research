@@ -139,7 +139,7 @@ tim = t0  # Current time (sec), initialized at zero
 # Options are 'RK4', 'vode'
 mode = 'vode'
 # Options are 'CSPtest', 'VDP', 'Oregonator', 'H2', 'GRIMech'
-problem = 'H2'
+problem = 'GRIMech'
 CSPon = False  # Decides if the integration actually will use CSP, not working yet
 constantdt = False
 # Make this either human readable or better for saving into a table
@@ -187,8 +187,8 @@ elif problem == 'H2':
     derivfun = firstderiv
     jacfun = jacobval
 elif problem == 'GRIMech':
-    dt = 1.0e-3
-    tend = 2.0
+    dt = 1.0e-4
+    tend = 0.15
     particle = 92
     pasr = loadpasrdata(problem)
     Y = pasr[particle, :].copy()
