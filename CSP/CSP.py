@@ -27,7 +27,7 @@ def intDriver(tim, dt, y_global, mu, setup, CSPtols, *RHSparam):
     pflag = False
 
     # Unpack variables
-    derivfun, jacfun, mode, CSPon, abserr, relerr, dt, constantdt, noRHSparam = setup
+    derivfun, jacfun, mode, CSPon, abserr, relerr, constantdt, noRHSparam = setup
 
     y0_local = y_global[:]
 
@@ -117,11 +117,6 @@ def intDriver(tim, dt, y_global, mu, setup, CSPtols, *RHSparam):
         #     if y0_local[i] > 1.0 or y0_local[i] < 0.0:
         #         print("Something was less than 1 or negative.")
         #         print(tim, M, y0_local)
-    print('tim: {}'.format(tim))
-    print('solver.t: {}'.format(solver.t))
-    print('t0: {}'.format(t0))
-    print('dt: {}'.format(dt))
-    print('tim - t0: {}'.format(tim - t0))
     del solver
     return tim, y0_local, comp_time, stiffness, M
 
@@ -203,7 +198,7 @@ elif problem == 'GRIMech':
     jacfun = jacobval
 
 # Initialize the specific problem
-setup = (derivfun, jacfun, mode, CSPon, abserr, relerr, dt, constantdt, noRHSparam)
+setup = (derivfun, jacfun, mode, CSPon, abserr, relerr, constantdt, noRHSparam)
 CSPtols = eps_a, eps_r
 
 # Need to also reshape because this was originally written in C
