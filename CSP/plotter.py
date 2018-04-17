@@ -10,6 +10,7 @@ import numpy as np
 import csv as csv
 from mpl_toolkits.axes_grid1 import host_subplot
 import mpl_toolkits.axisartist as AA
+import matplotlib
 import matplotlib.pyplot as plt
 plt.use('Agg')
 from StiffnessFuncs import *
