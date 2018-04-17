@@ -194,6 +194,7 @@ elif problem == 'GRIMech':
     Y = pasr[particle, :].copy()
     NN = len(Y)
     Y, RHSparam = rearrangepasr(Y, problem)
+    print(RHSparam)
     derivfun = firstderiv
     jacfun = jacobval
 

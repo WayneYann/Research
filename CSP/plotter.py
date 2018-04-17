@@ -11,11 +11,13 @@ import csv as csv
 from mpl_toolkits.axes_grid1 import host_subplot
 import mpl_toolkits.axisartist as AA
 import matplotlib.pyplot as plt
+matplotlib.use('Agg')
 from StiffnessFuncs import *
 from CSPfuncs import *
 import sys as sys
 from matplotlib.ticker import NullFormatter
 
+plt.ioff()
 
 problem = 'H2'
 
@@ -69,7 +71,7 @@ elif problem == 'H2' or problem == 'GRIMech':
     jacfun = jacobval
 
 # Needed to bring over the epsilon from the driving code
-indexes = stiffnessindex(ts, sol, derivfun, jacfun, 2533125.001)
+indexes = stiffnessindex(ts, sol, derivfun, jacfun, 101325.0)
 
 for i in range(10):
     plt.figure(i)
@@ -200,4 +202,6 @@ if posCEM:
 f.subplots_adjust(hspace=0.3)
 f.subplots_adjust(wspace=0.3)
 
-plt.show()
+plt.savefig(problem + '.png')
+
+# plt.show()
