@@ -11,7 +11,7 @@ import csv as csv
 from mpl_toolkits.axes_grid1 import host_subplot
 import mpl_toolkits.axisartist as AA
 import matplotlib.pyplot as plt
-matplotlib.use('Agg')
+plt.use('Agg')
 from StiffnessFuncs import *
 from CSPfuncs import *
 import sys as sys
