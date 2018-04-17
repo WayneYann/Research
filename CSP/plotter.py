@@ -10,9 +10,9 @@ import numpy as np
 import csv as csv
 from mpl_toolkits.axes_grid1 import host_subplot
 import mpl_toolkits.axisartist as AA
-import matplotlib
+#import matplotlib
 import matplotlib.pyplot as plt
-plt.use('Agg')
+#matplotlib.use('Agg')
 from StiffnessFuncs import *
 from CSPfuncs import *
 import sys as sys
@@ -20,7 +20,7 @@ from matplotlib.ticker import NullFormatter
 
 plt.ioff()
 
-problem = 'H2'
+problem = 'GRIMech'
 
 [ts, ts_timing, Ms, comptimes, CSPstiffness, Y1s, Y2s, Y3s, Y4s, sol, ratios,
     indicators, CEMs] = [[] for i in range(13)]
