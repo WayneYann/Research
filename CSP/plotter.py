@@ -18,9 +18,9 @@ from CSPfuncs import *
 import sys as sys
 from matplotlib.ticker import NullFormatter
 
-plt.ioff()
+#plt.ioff()
 
-problem = 'GRIMech'
+problem = 'H2'
 
 [ts, ts_timing, Ms, comptimes, CSPstiffness, Y1s, Y2s, Y3s, Y4s, sol, ratios,
     indicators, CEMs] = [[] for i in range(13)]
@@ -205,4 +205,4 @@ f.subplots_adjust(wspace=0.3)
 
 plt.savefig(problem + '.png')
 
-# plt.show()
+plt.show()
