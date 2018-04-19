@@ -20,7 +20,7 @@ from matplotlib.ticker import NullFormatter
 
 #plt.ioff()
 
-problem = 'GRIMech'
+problem = 'Oregonator'
 
 [ts, ts_timing, Ms, comptimes, CSPstiffness, Y1s, Y2s, Y3s, Y4s, sol, ratios,
     indicators, CEMs] = [[] for i in range(13)]
