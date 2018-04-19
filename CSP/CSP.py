@@ -188,7 +188,7 @@ elif problem == 'H2':
     jacfun = jacobval
 elif problem == 'GRIMech':
     dt = 1.0e-4
-    tend = 0.15
+    tend = 0.4
     particle = 230761
     pasr = loadpasrdata(problem)
     Y = pasr[particle, :].copy()
