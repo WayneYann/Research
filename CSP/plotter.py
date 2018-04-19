@@ -20,7 +20,7 @@ from matplotlib.ticker import NullFormatter
 
 #plt.ioff()
 
-problem = 'H2'
+problem = 'GRIMech'
 
 [ts, ts_timing, Ms, comptimes, CSPstiffness, Y1s, Y2s, Y3s, Y4s, sol, ratios,
     indicators, CEMs] = [[] for i in range(13)]
@@ -58,21 +58,39 @@ indicators = np.array(indicators)
 CEMs = np.array(CEMs)
 
 # Calculating values of the stiffness index here for convenince
+noRHSparam = False
 if problem == 'CSPtest':
     derivfun = testfunc
     jacfun = testjac
+    RHSparam = 1.0e-2
 elif problem == 'VDP':
     derivfun = dydxvdp
     jacfun = jacvdp
+    noRHSparam = True
 elif problem == 'Oregonator':
     derivfun = oregonatordydt
     jacfun = oregonatorjac
-elif problem == 'H2' or problem == 'GRIMech':
+    noRHSparam = True
+elif problem == 'H2':
     derivfun = firstderiv
     jacfun = jacobval
+    particle = 877
+    timestep = 865
+    pasr = loadpasrdata(problem)
+    Y = pasr[timestep, particle, :].copy()
+    Y, RHSparam = rearrangepasr(Y, problem)
+elif problem == 'GRIMech':
+    derivfun = firstderiv
+    jacfun = jacobval
+    particle = 230761
+    pasr = loadpasrdata(problem)
+    Y = pasr[particle, :].copy()
+    Y, RHSparam = rearrangepasr(Y, problem)
 
-# Needed to bring over the epsilon from the driving code
-indexes = stiffnessindex(ts, sol, derivfun, jacfun, 101325.0)
+if noRHSparam:
+    indexes = stiffnessindex(ts, sol, derivfun, jacfun)
+else:
+    indexes = stiffnessindex(ts, sol, derivfun, jacfun, RHSparam)
 
 for i in range(10):
     plt.figure(i)
@@ -188,11 +206,12 @@ if max(CSPstiffness) > 1.0:
     axarr[1,0].set_ylim(min(CSPstiffness)*0.6,3.0)
 axarr[1,1].plot(ts, indicators)
 axarr[1,1].set_title('Stiffness Indicator')
-axarr[2,0].plot(ts, indexes)
+axarr[2,0].plot(ts[:-5], indexes[:-5])
 axarr[2,0].set_title('Stiffness Index')
 axarr[2,0].set_yscale('log')
 axarr[2,1].plot(ts, ratios)
 axarr[2,1].set_title('Stiffness Ratio')
+axarr[2,1].set_yscale('log')
 axarr[3,0].plot(ts, CEMs)
 axarr[3,0].set_title('Chemical Explosive Mode')
 if posCEM:
