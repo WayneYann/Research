@@ -232,7 +232,6 @@ def rearrangepasr(Y, problem, useN2):
     """Rearrange the PaSR data so it works with pyJac."""
     press_pos = 2
     temp_pos = 1
-    print(Y)
     if problem == 'GRIMech':
         N2_pos = 50
     elif problem == 'H2':
@@ -315,6 +314,7 @@ def get_slow_projector(tim, y, derivfun, jacfun, CSPtols, *RHSparams):
                 sum_rc = 0.0
 
                 # sum over slow modes
+                # print([a_csp[r][i] * b_csp[r][j] for r in range(M)])
                 sum_qs = mth.fsum([a_csp[r][i] * b_csp[r][j] for r in range(M)])
                 sum_rc = mth.fsum([(a_csp[r][i] * b_csp[r][j] * tau[r]) for r in range(M)])
 
