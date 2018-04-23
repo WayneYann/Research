@@ -232,10 +232,11 @@ def rearrangepasr(Y, problem, useN2):
     """Rearrange the PaSR data so it works with pyJac."""
     press_pos = 2
     temp_pos = 1
+    print(Y)
     if problem == 'GRIMech':
         N2_pos = 50
     elif problem == 'H2':
-        N2_pos = 9
+        N2_pos = 11
     arraylen = len(Y)
 
     Y_press = Y[press_pos]
