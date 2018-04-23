@@ -144,6 +144,8 @@ CSPon = False  # Decides if the integration actually will use CSP, not working y
 constantdt = False
 # Make this either human readable or better for saving into a table
 humanreadable = False
+printic = True
+useN2 = True
 
 # Filter out the warnings
 warnings.filterwarnings('ignore')
@@ -183,7 +185,7 @@ elif problem == 'H2':
     pasr = loadpasrdata(problem)
     Y = pasr[timestep, particle, :].copy()
     NN = len(Y)
-    Y, RHSparam = rearrangepasr(Y, problem)
+    Y, RHSparam = rearrangepasr(Y, problem, useN2)
     derivfun = firstderiv
     jacfun = jacobval
 elif problem == 'GRIMech':
@@ -192,9 +194,24 @@ elif problem == 'GRIMech':
     particle = 230761
     pasr = loadpasrdata(problem)
     Y = pasr[particle, :].copy()
+    print(Y)
     NN = len(Y)
-    Y, RHSparam = rearrangepasr(Y, problem)
-    # print(RHSparam)
+    Y, RHSparam = rearrangepasr(Y, problem, useN2)
+    species = ["H2", "H", "O", "O2", "OH", "H2O", "HO2", "H2O2", "C", "CH",
+               "CH2", "CH2S", "CH3", "CH4", "CO", "CO2", "HCO", "CH2O",
+               "CH2OH", "CH3O", "CH3OH", "C2H", "C2H2", "C2H3", "C2H4", "C2H5",
+               "C2H6", "HCCO", "CH2CO", "HCCOH", "N", "NH", "NH2", "NH3",
+               "NNH", "NO", "NO2", "N2O", "HNO", "CN", "HCN", "H2CN", "HCNN",
+               "HCNO", "HOCN", "HNCO", "NCO", "C3H7", "C3H8", "CH2CHO",
+               "CH3CHO", "AR", "N2"]
+    if printic:
+        print(Y)
+        print(Y[0])
+        printstring = ""
+        for i in range(len(Y) - 1):
+            printstring = printstring + species[i] + '={},'.format(Y[i+1])
+        printstring = printstring[:-1]
+        sys.exit(printstring)
     derivfun = firstderiv
     jacfun = jacobval
 

@@ -78,4 +78,3 @@ void set_same_initial_conditions(int NUM, double**, double**);
 void apply_mask(double*);
 void apply_reverse_mask(double*);
 #endif
-

@@ -20,7 +20,7 @@ from matplotlib.ticker import NullFormatter
 
 #plt.ioff()
 
-problem = 'Oregonator'
+problem = 'GRIMech'
 
 [ts, ts_timing, Ms, comptimes, CSPstiffness, Y1s, Y2s, Y3s, Y4s, sol, ratios,
     indicators, CEMs] = [[] for i in range(13)]
@@ -222,6 +222,6 @@ if posCEM:
 f.subplots_adjust(hspace=0.3)
 f.subplots_adjust(wspace=0.3)
 
-plt.savefig(problem + '.png')
+plt.savefig(problem + '.png', dpi=600)
 
 plt.show()

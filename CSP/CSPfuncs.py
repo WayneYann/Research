@@ -228,9 +228,8 @@ def loadpasrdata(problem):
         raise Exception('No PaSR data found.')
 
 
-def rearrangepasr(Y, problem):
+def rearrangepasr(Y, problem, useN2):
     """Rearrange the PaSR data so it works with pyJac."""
-    useN2 = False
     press_pos = 2
     temp_pos = 1
     if problem == 'GRIMech':
@@ -242,15 +241,11 @@ def rearrangepasr(Y, problem):
     Y_press = Y[press_pos]
     Y_temp = Y[temp_pos]
     Y_species = Y[3:arraylen]
+    Y_N2 = Y[N2_pos]
     Ys = np.hstack((Y_temp, Y_species))
+    Ys = np.delete(Ys, N2_pos - 2, 0)
+    Ys = np.hstack((Ys, Y_N2))
 
-    # Put N2 to the last value of the mass species
-    newarlen = len(Ys)
-    Y_N2 = Ys[N2_pos]
-    # Y_x = Ys[newarlen - 1]
-    for i in range(N2_pos, newarlen - 1):
-        Ys[i] = Ys[i + 1]
-    Ys[newarlen - 1] = Y_N2
     if useN2:
         initcond = Ys
     else:
