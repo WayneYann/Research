@@ -78,14 +78,14 @@ elif problem == 'H2':
     timestep = 865
     pasr = loadpasrdata(problem)
     Y = pasr[timestep, particle, :].copy()
-    Y, RHSparam = rearrangepasr(Y, problem)
+    Y, RHSparam = rearrangepasr(Y, problem, False)
 elif problem == 'GRIMech':
     derivfun = firstderiv
     jacfun = jacobval
     particle = 230761
     pasr = loadpasrdata(problem)
     Y = pasr[particle, :].copy()
-    Y, RHSparam = rearrangepasr(Y, problem)
+    Y, RHSparam = rearrangepasr(Y, problem, False)
 
 if noRHSparam:
     indexes = stiffnessindex(ts, sol, derivfun, jacfun)

@@ -189,8 +189,8 @@ elif problem == 'H2':
     Y = pasr[timestep, particle, :].copy()
     NN = len(Y)
     Y, RHSparam = rearrangepasr(Y, problem, useN2)
-    if RHSparam > 1000.0:
-        RHSparam /= 101325.0
+    if RHSparam < 1000.0:
+        RHSparam *= 101325.0
     if printic:
         species = ["H", "H2", "O", "OH", "H2O", "O2", "HO2", "H2O2", "AR",
                    "HE", "CO", "CO2", "N2"]
@@ -214,8 +214,8 @@ elif problem == 'GRIMech':
     Y = pasr[particle, :].copy()
     NN = len(Y)
     Y, RHSparam = rearrangepasr(Y, problem, useN2)
-    if RHSparam > 1000.0:
-        RHSparam /= 101325.0
+    if RHSparam < 1000.0:
+        RHSparam *= 101325.0
     if printic:
         species = ["H2", "H", "O", "O2", "OH", "H2O", "HO2", "H2O2", "C", "CH",
                    "CH2", "CH2\(S\)", "CH3", "CH4", "CO", "CO2", "HCO", "CH2O",
