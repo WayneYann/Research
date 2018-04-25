@@ -144,7 +144,8 @@ CSPon = False  # Decides if the integration actually will use CSP, not working y
 constantdt = False
 # Make this either human readable or better for saving into a table
 humanreadable = False
-printic = False
+printic = True
+
 if printic:
     useN2 = True
 else:
@@ -208,7 +209,7 @@ elif problem == 'H2':
     jacfun = jacobval
 elif problem == 'GRIMech':
     dt = 1.0e-4
-    tend = 2.0
+    tend = 0.4
     particle = 230761
     pasr = loadpasrdata(problem)
     Y = pasr[particle, :].copy()
