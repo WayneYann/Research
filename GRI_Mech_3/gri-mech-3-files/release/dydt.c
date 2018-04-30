@@ -4,7 +4,7 @@
 
 #if defined(CONP)
 
-void dydt (const double t, const double pres, const double * y, double * dy) {
+void dydt (const double t, const double pres, const double * __restrict__ y, double * __restrict__ dy) {
 
   // species molar concentrations
   double conc[53];
@@ -25,7 +25,6 @@ void dydt (const double t, const double pres, const double * y, double * dy) {
   // evaluate species molar net production rates
   double dy_N;
   eval_spec_rates (fwd_rates, rev_rates, pres_mod, &dy[1], &dy_N);
-
   // local array holding constant pressure specific heat
   double cp[53];
   eval_cp (y[0], cp);
@@ -73,9 +72,9 @@ void dydt (const double t, const double pres, const double * y, double * dy) {
         + (dy[42] * h[41] * 2.8033619999999999e+01) + (dy[43] * h[42] * 4.1032420000000002e+01)
         + (dy[44] * h[43] * 4.3025080000000003e+01) + (dy[45] * h[44] * 4.3025080000000003e+01)
         + (dy[46] * h[45] * 4.3025080000000003e+01) + (dy[47] * h[46] * 4.2017139999999998e+01)
-        + (dy[48] * h[47] * 2.8013480000000001e+01) + (dy[49] * h[48] * 4.3088580000000000e+01)
-        + (dy[50] * h[49] * 4.4096519999999998e+01) + (dy[51] * h[50] * 4.3045220000000000e+01)
-        + (dy[52] * h[51] * 4.4053159999999998e+01) + (dy_N * h[52] * 3.9948000000000000e+01));
+        + (dy[49] * h[48] * 4.3088580000000000e+01) + (dy[50] * h[49] * 4.4096519999999998e+01)
+        + (dy[51] * h[50] * 4.3045220000000000e+01) + (dy[52] * h[51] * 4.4053159999999998e+01)
+        + (dy_N * h[52] * 2.8013480000000001e+01));
 
   // calculate rate of change of species mass fractions
   dy[1] *= (2.0158800000000001e+00 / rho);
@@ -125,7 +124,7 @@ void dydt (const double t, const double pres, const double * y, double * dy) {
   dy[45] *= (4.3025080000000003e+01 / rho);
   dy[46] *= (4.3025080000000003e+01 / rho);
   dy[47] *= (4.2017139999999998e+01 / rho);
-  dy[48] *= (2.8013480000000001e+01 / rho);
+  dy[48] *= (3.9948000000000000e+01 / rho);
   dy[49] *= (4.3088580000000000e+01 / rho);
   dy[50] *= (4.4096519999999998e+01 / rho);
   dy[51] *= (4.3045220000000000e+01 / rho);
@@ -135,7 +134,7 @@ void dydt (const double t, const double pres, const double * y, double * dy) {
 
 #elif defined(CONV)
 
-void dydt (const double t, const double rho, const double * y, double * dy) {
+void dydt (const double t, const double rho, const double * __restrict__ y, double * __restrict__ dy) {
 
   // species molar concentrations
   double conc[53];
@@ -156,7 +155,6 @@ void dydt (const double t, const double rho, const double * y, double * dy) {
   // evaluate species molar net production rates
   double dy_N;  eval_spec_rates (fwd_rates, rev_rates, pres_mod, &dy[1], &dy_N);
 
-  // local array holding constant volume specific heat
   double cv[53];
   eval_cv(y[0], cv);
 
@@ -204,9 +202,9 @@ void dydt (const double t, const double rho, const double * y, double * dy) {
         + (dy[42] * u[41] * 2.8033619999999999e+01) + (dy[43] * u[42] * 4.1032420000000002e+01)
         + (dy[44] * u[43] * 4.3025080000000003e+01) + (dy[45] * u[44] * 4.3025080000000003e+01)
         + (dy[46] * u[45] * 4.3025080000000003e+01) + (dy[47] * u[46] * 4.2017139999999998e+01)
-        + (dy[48] * u[47] * 2.8013480000000001e+01) + (dy[49] * u[48] * 4.3088580000000000e+01)
-        + (dy[50] * u[49] * 4.4096519999999998e+01) + (dy[51] * u[50] * 4.3045220000000000e+01)
-        + (dy[52] * u[51] * 4.4053159999999998e+01) + (dy_N * u[52] * 3.9948000000000000e+01));
+        + (dy[49] * u[48] * 4.3088580000000000e+01) + (dy[50] * u[49] * 4.4096519999999998e+01)
+        + (dy[51] * u[50] * 4.3045220000000000e+01) + (dy[52] * u[51] * 4.4053159999999998e+01)
+        + (dy_N * u[52] * 2.8013480000000001e+01));
 
   // calculate rate of change of species mass fractions
   dy[1] *= (2.0158800000000001e+00 / rho);
@@ -256,7 +254,7 @@ void dydt (const double t, const double rho, const double * y, double * dy) {
   dy[45] *= (4.3025080000000003e+01 / rho);
   dy[46] *= (4.3025080000000003e+01 / rho);
   dy[47] *= (4.2017139999999998e+01 / rho);
-  dy[48] *= (2.8013480000000001e+01 / rho);
+  dy[48] *= (3.9948000000000000e+01 / rho);
   dy[49] *= (4.3088580000000000e+01 / rho);
   dy[50] *= (4.4096519999999998e+01 / rho);
   dy[51] *= (4.3045220000000000e+01 / rho);

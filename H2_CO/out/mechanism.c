@@ -44,6 +44,19 @@ void set_same_initial_conditions(int NUM, double** y_host, double** var_host)
 
     //Normalize mole fractions to sum to one
     double Xsum = 0.0;
+    Xi[0] = 9.06756542017123e-12;
+    Xi[1] = 0.027895867750221768;
+    Xi[2] = 1.9159861828260505e-11;
+    Xi[3] = 1.249516207574034e-10;
+    Xi[4] = 0.005443952757524492;
+    Xi[5] = 0.22127041463199268;
+    Xi[6] = 7.783263342726486e-06;
+    Xi[7] = 0.00026485299052499324;
+    Xi[8] = 0.0;
+    Xi[9] = 0.0;
+    Xi[10] = 0.0;
+    Xi[11] = 0.0;
+    Xi[12] = 0.7451171284532142;
     for (int j = 0; j < NSP; ++ j) {
         Xsum += Xi[j];
     }
@@ -60,9 +73,9 @@ void set_same_initial_conditions(int NUM, double** y_host, double** var_host)
     mole2mass(Xi, Yi);
 
     //set initial pressure, units [PA]
-    double P = 101325.0;
+    double P = 2533125.000992985;
     // set intial temperature, units [K]
-    double T0 = 1600;
+    double T0 = 850.479868012;
 
     (*y_host) = (double*)malloc(NUM * NSP * sizeof(double));
     (*var_host) = (double*)malloc(NUM * sizeof(double));

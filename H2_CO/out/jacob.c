@@ -66,7 +66,7 @@ void eval_jacob (const double t, const double pres, const double * __restrict__ 
   }
 
   //partial of rxn 0 wrt T
-  j_temp = ((1.0 / T) * ((fwd_rates[0] - rev_rates[0]) * ((7.6922142684371602e+03 / T)) + fwd_rates[0] * -1.0 - rev_rates[0] * (-1.0 + -T * (dBdT[2] + dBdT[3] - dBdT[5] - dBdT[0])))) * rho_inv;
+  j_temp = ((1.0 / T) * ((fwd_rates[0] - rev_rates[0]) * ((7.6922142684371602e+03 / T)) + fwd_rates[0] * -1.0 - rev_rates[0] * (-1.0 + -T * (dBdT[2] + dBdT[3] - dBdT[0] - dBdT[5])))) * rho_inv;
   jac[1] = -j_temp * 1.0079400000000001e+00;
   jac[3] = j_temp * 1.5999400000000000e+01;
   jac[4] = j_temp * 1.7007339999999999e+01;
@@ -133,7 +133,7 @@ void eval_jacob (const double t, const double pres, const double * __restrict__ 
   jac[162] =  -7.2708351321751064e-01 * (j_temp * -5.7102223643760053e-01);
 
   //partial of rxn 1 wrt T
-  j_temp = ((1.0 / T) * ((fwd_rates[1] - rev_rates[1]) * ((3.9995891015006246e+03 / T)) + fwd_rates[1] * -1.0 - rev_rates[1] * (-1.0 + -T * (dBdT[3] + dBdT[0] - dBdT[2] - dBdT[1])))) * rho_inv;
+  j_temp = ((1.0 / T) * ((fwd_rates[1] - rev_rates[1]) * ((3.9995891015006246e+03 / T)) + fwd_rates[1] * -1.0 - rev_rates[1] * (-1.0 + -T * (dBdT[0] + dBdT[3] - dBdT[1] - dBdT[2])))) * rho_inv;
   jac[1] += j_temp * 1.0079400000000001e+00;
   jac[2] = -j_temp * 2.0158800000000001e+00;
   jac[3] += -j_temp * 1.5999400000000000e+01;
@@ -200,7 +200,7 @@ void eval_jacob (const double t, const double pres, const double * __restrict__ 
   jac[160] +=  3.8644438284200339e-01 * (j_temp * -5.7102223643760053e-01);
 
   //partial of rxn 2 wrt T
-  j_temp = ((1.0 / T) * ((fwd_rates[2] - rev_rates[2]) * ((9.6467190583501470e+03 / T)) + fwd_rates[2] * -1.0 - rev_rates[2] * (-1.0 + -T * (dBdT[3] + dBdT[0] - dBdT[2] - dBdT[1])))) * rho_inv;
+  j_temp = ((1.0 / T) * ((fwd_rates[2] - rev_rates[2]) * ((9.6467190583501470e+03 / T)) + fwd_rates[2] * -1.0 - rev_rates[2] * (-1.0 + -T * (dBdT[0] + dBdT[3] - dBdT[1] - dBdT[2])))) * rho_inv;
   jac[1] += j_temp * 1.0079400000000001e+00;
   jac[2] += -j_temp * 2.0158800000000001e+00;
   jac[3] += -j_temp * 1.5999400000000000e+01;
@@ -334,7 +334,7 @@ void eval_jacob (const double t, const double pres, const double * __restrict__ 
   jac[161] =  4.0934700907525146e-01 * (j_temp * -5.7102223643760053e-01);
 
   //partial of rxn 4 wrt T
-  j_temp = ((1.0 / T) * ((fwd_rates[4] - rev_rates[4]) * (2.4199999999999999e+00 + (-9.7121376017818386e+02 / T)) + fwd_rates[4] * -1.0 - rev_rates[4] * (-1.0 + -T * (dBdT[2] + dBdT[4] - 2.0 * dBdT[3])))) * rho_inv;
+  j_temp = ((1.0 / T) * ((fwd_rates[4] - rev_rates[4]) * (2.4199999999999999e+00 + (-9.7121376017818386e+02 / T)) + fwd_rates[4] * -1.0 - rev_rates[4] * (-1.0 + -T * (dBdT[4] + dBdT[2] - 2.0 * dBdT[3])))) * rho_inv;
   jac[3] += j_temp * 1.5999400000000000e+01;
   jac[4] += j_temp * -2.0 * 1.7007339999999999e+01;
   jac[5] += j_temp * 1.8015280000000001e+01;
@@ -636,7 +636,7 @@ void eval_jacob (const double t, const double pres, const double * __restrict__ 
   jac[162] +=  7.2708351321751064e-01 * (j_temp * -5.7102223643760053e-01);
 
   //partial of rxn 11 wrt T
-  j_temp = ((-pres_mod[2] * (fwd_rates[11] - rev_rates[11]) / T) + (pres_mod[2] / T) * ((fwd_rates[11] - rev_rates[11]) * (-1.0000000000000000e+00) + fwd_rates[11] * -1.0 - rev_rates[11] * (-T * (dBdT[3] - dBdT[2] - dBdT[0])))) * rho_inv;
+  j_temp = ((-pres_mod[2] * (fwd_rates[11] - rev_rates[11]) / T) + (pres_mod[2] / T) * ((fwd_rates[11] - rev_rates[11]) * (-1.0000000000000000e+00) + fwd_rates[11] * -1.0 - rev_rates[11] * (-T * (dBdT[3] - dBdT[0] - dBdT[2])))) * rho_inv;
   jac[1] += -j_temp * 1.0079400000000001e+00;
   jac[3] += -j_temp * 1.5999400000000000e+01;
   jac[4] += j_temp * 1.7007339999999999e+01;
@@ -691,7 +691,7 @@ void eval_jacob (const double t, const double pres, const double * __restrict__ 
   jac[160] +=  3.8644438284200339e-01 * (j_temp * -5.7102223643760053e-01 + 2.2289777635623995e+00 * pres_mod_temp);
 
   //partial of rxn 12 wrt T
-  j_temp = ((-pres_mod[3] * (fwd_rates[12] - rev_rates[12]) / T) + (pres_mod[3] / T) * ((fwd_rates[12] - rev_rates[12]) * (-3.3220000000000001e+00 + (6.0783891239338256e+04 / T)) - rev_rates[12] * (-1.0 + -T * (dBdT[3] + dBdT[0] - dBdT[4])))) * rho_inv;
+  j_temp = ((-pres_mod[3] * (fwd_rates[12] - rev_rates[12]) / T) + (pres_mod[3] / T) * ((fwd_rates[12] - rev_rates[12]) * (-3.3220000000000001e+00 + (6.0783891239338256e+04 / T)) - rev_rates[12] * (-1.0 + -T * (dBdT[0] + dBdT[3] - dBdT[4])))) * rho_inv;
   jac[1] += j_temp * 1.0079400000000001e+00;
   jac[4] += j_temp * 1.7007339999999999e+01;
   jac[5] += -j_temp * 1.8015280000000001e+01;
@@ -746,7 +746,7 @@ void eval_jacob (const double t, const double pres, const double * __restrict__ 
   jac[161] +=  -4.0934700907525146e-01 * (j_temp * -5.7102223643760053e-01 + 6.5795552712479877e-01 * pres_mod_temp);
 
   //partial of rxn 13 wrt T
-  j_temp = ((1.0 / T) * ((fwd_rates[13] - rev_rates[13]) * (-2.4399999999999999e+00 + (6.0476927304774166e+04 / T)) + fwd_rates[13] * -1.0 - rev_rates[13] * (-2.0 + -T * (dBdT[3] + dBdT[0] - dBdT[4])))) * rho_inv;
+  j_temp = ((1.0 / T) * ((fwd_rates[13] - rev_rates[13]) * (-2.4399999999999999e+00 + (6.0476927304774166e+04 / T)) + fwd_rates[13] * -1.0 - rev_rates[13] * (-2.0 + -T * (dBdT[0] - dBdT[4] + dBdT[3])))) * rho_inv;
   jac[1] += j_temp * 1.0079400000000001e+00;
   jac[4] += j_temp * 1.7007339999999999e+01;
   jac[5] += -j_temp * 1.8015280000000001e+01;
@@ -762,9 +762,9 @@ void eval_jacob (const double t, const double pres, const double * __restrict__ 
   j_temp = -mw_avg * rho_inv * (2.0 * fwd_rates[13] - 3.0 * rev_rates[13]);
   kf = exp(5.2965439210540595e+01 - 2.44 * logT - (6.0476927304774166e+04 / T));
   kr = kf / Kc;
-  jac[14] +=  (j_temp * 9.6401946491474821e-01 - kr * conc[3] * conc[4]);
-  jac[17] +=  1.6873365478103853e+01 * (j_temp * 9.6401946491474821e-01 - kr * conc[3] * conc[4]);
-  jac[18] +=  -1.7873365478103857e+01 * (j_temp * 9.6401946491474821e-01 - kr * conc[3] * conc[4]);
+  jac[14] +=  (j_temp * 9.6401946491474821e-01 - kr * conc[4] * conc[3]);
+  jac[17] +=  1.6873365478103853e+01 * (j_temp * 9.6401946491474821e-01 - kr * conc[4] * conc[3]);
+  jac[18] +=  -1.7873365478103857e+01 * (j_temp * 9.6401946491474821e-01 - kr * conc[4] * conc[3]);
   jac[27] +=  5.0000000000000000e-01 * (j_temp * 9.2803892982949643e-01);
   jac[30] +=  8.4366827390519266e+00 * (j_temp * 9.2803892982949643e-01);
   jac[31] +=  -8.9366827390519283e+00 * (j_temp * 9.2803892982949643e-01);
@@ -774,9 +774,9 @@ void eval_jacob (const double t, const double pres, const double * __restrict__ 
   jac[53] +=  5.9264999700129481e-02 * (j_temp * 3.9288728140880758e-01 - kr * conc[0] * conc[4]);
   jac[56] +=  (j_temp * 3.9288728140880758e-01 - kr * conc[0] * conc[4]);
   jac[57] +=  -1.0592649997001296e+00 * (j_temp * 3.9288728140880758e-01 - kr * conc[0] * conc[4]);
-  jac[66] +=  5.5949172036182618e-02 * (j_temp * 3.5690674632355568e-01 + kf * 2.0 * conc[4] - kr * conc[3] * conc[0]);
-  jac[69] +=  9.4405082796381734e-01 * (j_temp * 3.5690674632355568e-01 + kf * 2.0 * conc[4] - kr * conc[3] * conc[0]);
-  jac[70] +=  -(j_temp * 3.5690674632355568e-01 + kf * 2.0 * conc[4] - kr * conc[3] * conc[0]);
+  jac[66] +=  5.5949172036182618e-02 * (j_temp * 3.5690674632355568e-01 + kf * 2.0 * conc[4] - kr * conc[0] * conc[3]);
+  jac[69] +=  9.4405082796381734e-01 * (j_temp * 3.5690674632355568e-01 + kf * 2.0 * conc[4] - kr * conc[0] * conc[3]);
+  jac[70] +=  -(j_temp * 3.5690674632355568e-01 + kf * 2.0 * conc[4] - kr * conc[0] * conc[3]);
   jac[79] +=  3.1499306223983399e-02 * (j_temp * -1.4226436701188128e-01);
   jac[82] +=  5.3149930622398334e-01 * (j_temp * -1.4226436701188128e-01);
   jac[83] +=  -5.6299861244796678e-01 * (j_temp * -1.4226436701188128e-01);
@@ -800,13 +800,13 @@ void eval_jacob (const double t, const double pres, const double * __restrict__ 
   jac[161] +=  -4.0934700907525146e-01 * (j_temp * -5.7102223643760053e-01);
 
   //partial of rxn 14 wrt T
-  conc_temp = (m + 2.8 * conc[11] + 13.0 * conc[4] + 0.8999999999999999 * conc[10] - 0.32999999999999996 * conc[8] + 1.0 * conc[1] - 0.19999999999999996 * conc[9] - 0.21999999999999997 * conc[5]);
+  conc_temp = (m - 0.32999999999999996 * conc[8] + 0.8999999999999999 * conc[10] + 2.8 * conc[11] + 1.0 * conc[1] + 13.0 * conc[4] - 0.19999999999999996 * conc[9] - 0.21999999999999997 * conc[5]);
   Pr = conc_temp * (exp(1.1826848945383947e+01 - 2.16 * logT - (2.6408962763808853e+02 / T)));
   Fcent = 5.0000000000000000e-01 * exp(T / -1.0000000000000001e-30) + 5.0000000000000000e-01 * exp(T / -1.0000000000000002e+30);
   A = log10(fmax(Pr, 1.0e-300)) - 0.67 * log10(fmax(Fcent, 1.0e-300)) - 0.4;
   B = 0.806 - 1.1762 * log10(fmax(Fcent, 1.0e-300)) - 0.14 * log10(fmax(Pr, 1.0e-300));
   lnF_AB = 2.0 * log(fmax(Fcent, 1.0e-300)) * A / (B * B * B * (1.0 + A * A / (B * B)) * (1.0 + A * A / (B * B)));
-  j_temp = (pres_mod[4] * (((-2.1600e+00 + (2.6408962763808853e+02 / T) - 1.0) / (T * (1.0 + Pr))) + (((1.0 / (Fcent * (1.0 + A * A / (B * B)))) - lnF_AB * (-2.9097730287517870e-01 * B + 5.1081716961460466e-01 * A) / Fcent) * (-4.9999999999999994e+29 * exp(T / -1.0000000000000001e-30) - 4.9999999999999995e-31 * exp(T / -1.0000000000000002e+30))) - lnF_AB * (4.3429448190325176e-01 * B + 6.0801227466455256e-02 * A) * (-2.1600000000000001e+00 + (2.6408962763808853e+02 / T) - 1.0) / T) * (fwd_rates[14] - rev_rates[14]) + (pres_mod[4] / T) * ((fwd_rates[14] - rev_rates[14]) * (4.4000000000000000e-01) + fwd_rates[14] * -1.0 - rev_rates[14] * (-T * (dBdT[6] - dBdT[5] - dBdT[0])))) * rho_inv;
+  j_temp = (pres_mod[4] * (((-2.1600e+00 + (2.6408962763808853e+02 / T) - 1.0) / (T * (1.0 + Pr))) + (((1.0 / (Fcent * (1.0 + A * A / (B * B)))) - lnF_AB * (-2.9097730287517870e-01 * B + 5.1081716961460466e-01 * A) / Fcent) * (-4.9999999999999994e+29 * exp(T / -1.0000000000000001e-30) - 4.9999999999999995e-31 * exp(T / -1.0000000000000002e+30))) - lnF_AB * (4.3429448190325176e-01 * B + 6.0801227466455256e-02 * A) * (-2.1600000000000001e+00 + (2.6408962763808853e+02 / T) - 1.0) / T) * (fwd_rates[14] - rev_rates[14]) + (pres_mod[4] / T) * ((fwd_rates[14] - rev_rates[14]) * (4.4000000000000000e-01) + fwd_rates[14] * -1.0 - rev_rates[14] * (-T * (dBdT[6] - dBdT[0] - dBdT[5])))) * rho_inv;
   jac[1] += -j_temp * 1.0079400000000001e+00;
   jac[6] += -j_temp * 3.1998799999999999e+01;
   jac[7] = j_temp * 3.3006740000000001e+01;
@@ -983,7 +983,7 @@ void eval_jacob (const double t, const double pres, const double * __restrict__ 
   jac[163] +=  -7.4998613945075876e-01 * (j_temp * -5.7102223643760053e-01);
 
   //partial of rxn 17 wrt T
-  j_temp = ((1.0 / T) * ((fwd_rates[17] - rev_rates[17]) * (1.0000000000000000e+00 + (-3.6429573958849357e+02 / T)) + fwd_rates[17] * -1.0 - rev_rates[17] * (-1.0 + -T * (dBdT[5] + dBdT[3] - dBdT[2] - dBdT[6])))) * rho_inv;
+  j_temp = ((1.0 / T) * ((fwd_rates[17] - rev_rates[17]) * (1.0000000000000000e+00 + (-3.6429573958849357e+02 / T)) + fwd_rates[17] * -1.0 - rev_rates[17] * (-1.0 + -T * (dBdT[5] + dBdT[3] - dBdT[6] - dBdT[2])))) * rho_inv;
   jac[3] += -j_temp * 1.5999400000000000e+01;
   jac[4] += j_temp * 1.7007339999999999e+01;
   jac[6] += j_temp * 3.1998799999999999e+01;
@@ -1050,7 +1050,7 @@ void eval_jacob (const double t, const double pres, const double * __restrict__ 
   jac[163] +=  -7.4998613945075876e-01 * (j_temp * -5.7102223643760053e-01);
 
   //partial of rxn 18 wrt T
-  j_temp = ((1.0 / T) * ((fwd_rates[18] - rev_rates[18]) * ((-2.5010012373500382e+02 / T)) + fwd_rates[18] * -1.0 - rev_rates[18] * (-1.0 + -T * (dBdT[5] + dBdT[4] - dBdT[3] - dBdT[6])))) * rho_inv;
+  j_temp = ((1.0 / T) * ((fwd_rates[18] - rev_rates[18]) * ((-2.5010012373500382e+02 / T)) + fwd_rates[18] * -1.0 - rev_rates[18] * (-1.0 + -T * (dBdT[4] + dBdT[5] - dBdT[6] - dBdT[3])))) * rho_inv;
   jac[4] += -j_temp * 1.7007339999999999e+01;
   jac[5] += j_temp * 1.8015280000000001e+01;
   jac[6] += j_temp * 3.1998799999999999e+01;
@@ -1225,7 +1225,7 @@ void eval_jacob (const double t, const double pres, const double * __restrict__ 
   jac[164] +=  7.7288876568400677e-01 * (j_temp * -5.7102223643760053e-01);
 
   //partial of rxn 21 wrt T
-  conc_temp = (m + 6.7 * conc[7] + 0.5 * conc[12] + 6.5 * conc[4] + 1.7999999999999998 * conc[10] + 0.6000000000000001 * conc[11] + 2.7 * conc[1] - 0.35 * conc[9] + 0.19999999999999996 * conc[5]);
+  conc_temp = (m + 1.7999999999999998 * conc[10] + 0.6000000000000001 * conc[11] + 2.7 * conc[1] + 6.5 * conc[4] + 6.7 * conc[7] - 0.35 * conc[9] + 0.5 * conc[12] + 0.19999999999999996 * conc[5]);
   Pr = conc_temp * (exp(2.0942401366863081e+01 - 3.1999999999999997 * logT));
   Fcent = 5.7000000000000006e-01 * exp(T / -1.0000000000000001e-30) + 4.2999999999999999e-01 * exp(T / -1.0000000000000002e+30);
   A = log10(fmax(Pr, 1.0e-300)) - 0.67 * log10(fmax(Fcent, 1.0e-300)) - 0.4;
@@ -1274,7 +1274,7 @@ void eval_jacob (const double t, const double pres, const double * __restrict__ 
   jac[164] +=  -7.7288876568400677e-01 * (j_temp * -5.7102223643760053e-01 + -7.5653335465640081e-01 * pres_mod_temp);
 
   //partial of rxn 22 wrt T
-  j_temp = ((1.0 / T) * ((fwd_rates[22] - rev_rates[22]) * ((1.9977816724908757e+03 / T)) + fwd_rates[22] * -1.0 - rev_rates[22] * (-1.0 + -T * (dBdT[3] + dBdT[4] - dBdT[7] - dBdT[0])))) * rho_inv;
+  j_temp = ((1.0 / T) * ((fwd_rates[22] - rev_rates[22]) * ((1.9977816724908757e+03 / T)) + fwd_rates[22] * -1.0 - rev_rates[22] * (-1.0 + -T * (dBdT[4] + dBdT[3] - dBdT[0] - dBdT[7])))) * rho_inv;
   jac[1] += -j_temp * 1.0079400000000001e+00;
   jac[4] += j_temp * 1.7007339999999999e+01;
   jac[5] += j_temp * 1.8015280000000001e+01;
@@ -1341,7 +1341,7 @@ void eval_jacob (const double t, const double pres, const double * __restrict__ 
   jac[164] +=  -7.7288876568400677e-01 * (j_temp * -5.7102223643760053e-01);
 
   //partial of rxn 23 wrt T
-  j_temp = ((1.0 / T) * ((fwd_rates[23] - rev_rates[23]) * ((4.0005955406303428e+03 / T)) + fwd_rates[23] * -1.0 - rev_rates[23] * (-1.0 + -T * (dBdT[1] + dBdT[6] - dBdT[7] - dBdT[0])))) * rho_inv;
+  j_temp = ((1.0 / T) * ((fwd_rates[23] - rev_rates[23]) * ((4.0005955406303428e+03 / T)) + fwd_rates[23] * -1.0 - rev_rates[23] * (-1.0 + -T * (dBdT[1] + dBdT[6] - dBdT[0] - dBdT[7])))) * rho_inv;
   jac[1] += -j_temp * 1.0079400000000001e+00;
   jac[2] += j_temp * 2.0158800000000001e+00;
   jac[7] += j_temp * 3.3006740000000001e+01;
@@ -1408,7 +1408,7 @@ void eval_jacob (const double t, const double pres, const double * __restrict__ 
   jac[164] +=  -7.7288876568400677e-01 * (j_temp * -5.7102223643760053e-01);
 
   //partial of rxn 24 wrt T
-  j_temp = ((1.0 / T) * ((fwd_rates[24] - rev_rates[24]) * (2.0000000000000000e+00 + (1.9977816724908757e+03 / T)) + fwd_rates[24] * -1.0 - rev_rates[24] * (-1.0 + -T * (dBdT[3] + dBdT[6] - dBdT[7] - dBdT[2])))) * rho_inv;
+  j_temp = ((1.0 / T) * ((fwd_rates[24] - rev_rates[24]) * (2.0000000000000000e+00 + (1.9977816724908757e+03 / T)) + fwd_rates[24] * -1.0 - rev_rates[24] * (-1.0 + -T * (dBdT[6] + dBdT[3] - dBdT[7] - dBdT[2])))) * rho_inv;
   jac[3] += -j_temp * 1.5999400000000000e+01;
   jac[4] += j_temp * 1.7007339999999999e+01;
   jac[7] += j_temp * 3.3006740000000001e+01;

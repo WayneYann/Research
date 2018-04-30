@@ -1,7 +1,8 @@
 #ifndef MECHANISM_h
 #define MECHANISM_h
 
-//last_spec 48
+#include <string.h>
+//last_spec 47
 /* Species Indexes
 0  H2
 1  H
@@ -50,12 +51,13 @@
 44  HOCN
 45  HNCO
 46  NCO
-47  N2
+47  AR
 48  C3H7
 49  C3H8
 50  CH2CHO
 51  CH3CHO
-52  AR*/
+52  N2
+*/
 
 //Number of species
 #define NSP 53
@@ -69,7 +71,7 @@
 #define PRES_MOD_RATES 41
 
 //Must be implemented by user on a per mechanism basis in mechanism.c
-void set_same_initial_conditions(int NUM, double**, double**);
+void set_same_initial_conditions(int, double**, double**);
 
 #if defined (RATES_TEST) || defined (PROFILER)
     void write_jacobian_and_rates_output(int NUM);
@@ -78,3 +80,4 @@ void set_same_initial_conditions(int NUM, double**, double**);
 void apply_mask(double*);
 void apply_reverse_mask(double*);
 #endif
+
