@@ -139,7 +139,7 @@ tim = t0  # Current time (sec), initialized at zero
 # Options are 'RK4', 'vode'
 mode = 'vode'
 # Options are 'CSPtest', 'VDP', 'Oregonator', 'H2', 'GRIMech'
-problem = 'GRIMech'
+problem = 'H2'
 CSPon = False  # Decides if the integration actually will use CSP, not working yet
 constantdt = False
 # Make this either human readable or better for saving into a table
@@ -182,17 +182,17 @@ elif problem == 'Oregonator':
     derivfun = oregonatordydt
     jacfun = oregonatorjac
 elif problem == 'H2':
-    dt = 1.0e-3
-    tend = 2.0
+    dt = 1.0e-4
+    tend = 0.15
     particle = 877
     timestep = 865
     pasr = loadpasrdata(problem)
     Y = pasr[timestep, particle, :].copy()
     NN = len(Y)
     Y, RHSparam = rearrangepasr(Y, problem, useN2)
-    if RHSparam < 1000.0:
-        RHSparam *= 101325.0
     if printic:
+        if RHSparam > 1000.0:
+            RHSparam /= 101325.0
         species = ["H", "H2", "O", "OH", "H2O", "O2", "HO2", "H2O2", "AR",
                    "HE", "CO", "CO2", "N2"]
         print('Temperature (K):')
@@ -204,7 +204,12 @@ elif problem == 'H2':
             printstring = printstring + species[i] + '={},'.format(Y[i+1])
         printstring = printstring[:-1]
         print('Species Concentrations:')
+        print(printstring)
+        print('accelerInt string:')
+        printstring = str(Y[0]) + ',' + str(RHSparam) + ',' + printstring
         sys.exit(printstring)
+    if RHSparam < 1000.0:
+        RHSparam *= 101325.0
     derivfun = firstderiv
     jacfun = jacobval
 elif problem == 'GRIMech':
@@ -215,9 +220,9 @@ elif problem == 'GRIMech':
     Y = pasr[particle, :].copy()
     NN = len(Y)
     Y, RHSparam = rearrangepasr(Y, problem, useN2)
-    if RHSparam < 1000.0:
-        RHSparam *= 101325.0
     if printic:
+        if RHSparam > 1000.0:
+            RHSparam /= 101325.0
         species = ["H2", "H", "O", "O2", "OH", "H2O", "HO2", "H2O2", "C", "CH",
                    "CH2", "CH2\(S\)", "CH3", "CH4", "CO", "CO2", "HCO", "CH2O",
                    "CH2OH", "CH3O", "CH3OH", "C2H", "C2H2", "C2H3", "C2H4",
@@ -234,7 +239,12 @@ elif problem == 'GRIMech':
             printstring = printstring + species[i] + '={},'.format(Y[i+1])
         printstring = printstring[:-1]
         print('Species Concentrations:')
+        print(printstring)
+        print('accelerInt string:')
+        printstring = str(Y[0]) + ',' + str(RHSparam) + ',' + printstring
         sys.exit(printstring)
+    if RHSparam < 1000.0:
+        RHSparam *= 101325.0
     derivfun = firstderiv
     jacfun = jacobval
 
