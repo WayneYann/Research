@@ -292,13 +292,13 @@ def get_slow_projector(tim, y, derivfun, jacfun, CSPtols, *RHSparams):
     NN = len(y)
 
     # CSP vectors and covectors
-    a_csp = np.empty((NN, NN))  # Array with CSP vectors
-    b_csp = np.empty((NN, NN))  # Array with CSP covectors
+    # a_csp = np.empty((NN, NN))  # Array with CSP vectors
+    # b_csp = np.empty((NN, NN))  # Array with CSP covectors
 
     if RHSparams:
-        M, tau = get_fast_modes(tim, y, derivfun, jacfun, CSPtols, RHSparam)
+        M, tau, a_csp, b_csp = get_fast_modes(tim, y, derivfun, jacfun, CSPtols, RHSparam)
     else:
-        M, tau = get_fast_modes(tim, y, derivfun, jacfun, CSPtols)
+        M, tau, a_csp, b_csp = get_fast_modes(tim, y, derivfun, jacfun, CSPtols)
 
     # Rc starts as a matrix of zeros
     Rc = np.zeros((NN, NN))
@@ -593,7 +593,7 @@ def get_fast_modes(tim, y, derivfun, jacfun, CSPtols, *RHSparams):
         else:
             mflag = 1  # explosve mode, stop here
 
-    return M, tau
+    return M, tau, a_csp, b_csp
 
 
 def insertion_sort(vals):

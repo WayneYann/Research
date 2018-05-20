@@ -7,6 +7,8 @@ from StiffnessFuncs import *
 import time as time
 from scipy.integrate import ode
 import warnings
+import os as os
+import sys as sys
 
 
 def CSPwrap(tim, y0_local, RHSparam, derivfun, jacfun, CSPtols):
@@ -125,8 +127,10 @@ eps_r = 1.0e-3  # Real CSP tolerance
 eps_a = 1.0e-3  # Absolute CSP tolerance
 
 # vode tolerances
-abserr = 1e-24
-relerr = 1e-15
+# abserr = 1e-24
+# relerr = 1e-15
+abserr = 1e-18
+relerr = 1e-14
 
 mu = 0.005  # Timestep factor
 
@@ -139,12 +143,13 @@ tim = t0  # Current time (sec), initialized at zero
 # Options are 'RK4', 'vode'
 mode = 'vode'
 # Options are 'CSPtest', 'VDP', 'Oregonator', 'H2', 'GRIMech'
-problem = 'H2'
+problem = 'GRIMech'
+autoignition = True
 CSPon = False  # Decides if the integration actually will use CSP, not working yet
 constantdt = False
 # Make this either human readable or better for saving into a table
 humanreadable = False
-printic = True
+printic = False
 
 if printic:
     useN2 = True
@@ -182,78 +187,89 @@ elif problem == 'Oregonator':
     derivfun = oregonatordydt
     jacfun = oregonatorjac
 elif problem == 'H2':
-    dt = 1.0e-4
-    tend = 0.15
-    particle = 877
-    timestep = 865
-    pasr = loadpasrdata(problem)
-    Y = pasr[timestep, particle, :].copy()
-    NN = len(Y)
-    Y, RHSparam = rearrangepasr(Y, problem, useN2)
-    if printic:
-        if RHSparam > 1000.0:
-            RHSparam /= 101325.0
-        species = ["H", "H2", "O", "OH", "H2O", "O2", "HO2", "H2O2", "AR",
-                   "HE", "CO", "CO2", "N2"]
-        print('Temperature (K):')
-        print(Y[0])
-        print('Pressure (atm):')
-        print(RHSparam)
-        printstring = ""
-        for i in range(len(Y) - 1):
-            printstring = printstring + species[i] + '={},'.format(Y[i+1])
-        printstring = printstring[:-1]
-        print('Species Concentrations:')
-        print(printstring)
-        print('accelerInt string:')
-        printstring = str(Y[0]) + ',' + str(RHSparam) + ',' + printstring
-        sys.exit(printstring)
-    if RHSparam < 1000.0:
-        RHSparam *= 101325.0
+    if autoignition:
+        pasr = loadpasrdata(problem)
+        dt = 1.0e-4
+        tend = 0.15
+        particle = 877
+        timestep = 865
+        Y = pasr[timestep, particle, :].copy()
+        Y, RHSparam = rearrangepasr(Y, problem, useN2)
+        NN = len(Y)
+        if printic:
+            if RHSparam > 1000.0:
+                RHSparam /= 101325.0
+            species = ["H", "H2", "O", "OH", "H2O", "O2", "HO2", "H2O2", "AR",
+                       "HE", "CO", "CO2", "N2"]
+            print('Temperature (K):')
+            print(Y[0])
+            print('Pressure (atm):')
+            print(RHSparam)
+            printstring = ""
+            for i in range(len(Y) - 1):
+                printstring = printstring + species[i] + '={},'.format(Y[i+1])
+            printstring = printstring[:-1]
+            print('Species Concentrations:')
+            print(printstring)
+            print('accelerInt string:')
+            printstring = str(Y[0]) + ',' + str(RHSparam) + ',' + printstring
+            sys.exit(printstring)
+        if RHSparam < 1000.0:
+            RHSparam *= 101325.0
+    else:
+        dt = 1.0e-9
+        tend = 5 * dt
+        loadfile = '/Users/andrewalferman/Desktop/accelerInt/initials/H2_CO/ign_data.bin'
+
     derivfun = firstderiv
     jacfun = jacobval
 elif problem == 'GRIMech':
-    dt = 1.0e-4
-    tend = 0.4
-    particle = 230761
-    pasr = loadpasrdata(problem)
-    Y = pasr[particle, :].copy()
-    NN = len(Y)
-    Y, RHSparam = rearrangepasr(Y, problem, useN2)
-    if printic:
-        if RHSparam > 1000.0:
-            RHSparam /= 101325.0
-        species = ["H2", "H", "O", "O2", "OH", "H2O", "HO2", "H2O2", "C", "CH",
-                   "CH2", "CH2\(S\)", "CH3", "CH4", "CO", "CO2", "HCO", "CH2O",
-                   "CH2OH", "CH3O", "CH3OH", "C2H", "C2H2", "C2H3", "C2H4",
-                   "C2H5", "C2H6", "HCCO", "CH2CO", "HCCOH", "N", "NH", "NH2",
-                   "NH3", "NNH", "NO", "NO2", "N2O", "HNO", "CN", "HCN",
-                   "H2CN", "HCNN", "HCNO", "HOCN", "HNCO", "NCO", "C3H7",
-                   "C3H8", "CH2CHO", "CH3CHO", "AR", "N2"]
-        print('Temperature (K):')
-        print(Y[0])
-        print('Pressure (atm):')
-        print(RHSparam)
-        printstring = ""
-        for i in range(len(Y) - 1):
-            printstring = printstring + species[i] + '={},'.format(Y[i+1])
-        printstring = printstring[:-1]
-        print('Species Concentrations:')
-        print(printstring)
-        print('accelerInt string:')
-        printstring = str(Y[0]) + ',' + str(RHSparam) + ',' + printstring
-        sys.exit(printstring)
-    if RHSparam < 1000.0:
-        RHSparam *= 101325.0
+    eps_r = 1.0e-6  # Real CSP tolerance
+    eps_a = 1.0e-6  # Absolute CSP tolerance
+    if autoignition:
+        pasr = loadpasrdata(problem)
+        dt = 1.0e-4
+        tend = 0.4
+        particle = 230761
+        Y = pasr[particle, :].copy()
+        NN = len(Y)
+        Y, RHSparam = rearrangepasr(Y, problem, useN2)
+        if printic:
+            if RHSparam > 1000.0:
+                RHSparam /= 101325.0
+            species = ["H2", "H", "O", "O2", "OH", "H2O", "HO2", "H2O2", "C", "CH",
+                       "CH2", "CH2\(S\)", "CH3", "CH4", "CO", "CO2", "HCO", "CH2O",
+                       "CH2OH", "CH3O", "CH3OH", "C2H", "C2H2", "C2H3", "C2H4",
+                       "C2H5", "C2H6", "HCCO", "CH2CO", "HCCOH", "N", "NH", "NH2",
+                       "NH3", "NNH", "NO", "NO2", "N2O", "HNO", "CN", "HCN",
+                       "H2CN", "HCNN", "HCNO", "HOCN", "HNCO", "NCO", "C3H7",
+                       "C3H8", "CH2CHO", "CH3CHO", "AR", "N2"]
+            print('Temperature (K):')
+            print(Y[0])
+            print('Pressure (atm):')
+            print(RHSparam)
+            printstring = ""
+            for i in range(len(Y) - 1):
+                printstring = printstring + species[i] + '={},'.format(Y[i+1])
+            printstring = printstring[:-1]
+            print('Species Concentrations:')
+            print(printstring)
+            print('accelerInt string:')
+            printstring = str(Y[0]) + ',' + str(RHSparam) + ',' + printstring
+            sys.exit(printstring)
+        if RHSparam < 1000.0:
+            RHSparam *= 101325.0
+    else:
+        dt = 1.0e-9
+        tend = 5 * dt
+        loadfile = '/Users/andrewalferman/Desktop/accelerInt/initials/GRI_Mech_3/ign_data.bin'
+        numbin = 56
     derivfun = firstderiv
     jacfun = jacobval
 
 # Initialize the specific problem
 setup = (derivfun, jacfun, mode, CSPon, abserr, relerr, constantdt, noRHSparam)
 CSPtols = eps_a, eps_r
-
-# Need to also reshape because this was originally written in C
-Qs = np.reshape(np.identity(NN), (NN**2,))
 
 # Timer
 t_start = time.time()
@@ -265,67 +281,114 @@ if problem == 'CSPtest':
 # elif problem == 'Oregonator':
 else:
     printevery = 0
-while tim < tend:
-    # Make it so that there's not millions of data points for CSPtest
-    if problem == 'CSPtest':
-        printstep += 1
-        if constantdt:
-            if tim >= 1.0e-8:
-                printevery = 10
-            if tim >= 1.0e-7:
-                printevery *= 10
-            if tim >= 1.0e-6:
-                printevery *= 10
-            if tim >= 1.0e-5:
-                printevery *= 10
-            if tim >= 1.0e-4:
-                printevery *= 10
-            if tim >= 1.0e-3:
-                printevery *= 10
-            if tim >= 1.0e-2:
-                printevery *= 10
+if ((problem != 'H2' and problem != 'GRIMech') or autoignition):
+    # Need to also reshape because this was originally written in C
+    Qs = np.reshape(np.identity(NN), (NN**2,))
+    while tim < tend:
+        # Make it so that there's not millions of data points for CSPtest
+        if problem == 'CSPtest':
+            printstep += 1
+            if constantdt:
+                if tim >= 1.0e-8:
+                    printevery = 10
+                if tim >= 1.0e-7:
+                    printevery *= 10
+                if tim >= 1.0e-6:
+                    printevery *= 10
+                if tim >= 1.0e-5:
+                    printevery *= 10
+                if tim >= 1.0e-4:
+                    printevery *= 10
+                if tim >= 1.0e-3:
+                    printevery *= 10
+                if tim >= 1.0e-2:
+                    printevery *= 10
+            else:
+                if dt < 1.0e-6 and tim >= 1.0e-6:
+                    dt = 1.0e-6
+                if dt < 1.0e-5 and tim >= 1.0e-5:
+                    dt = 1.0e-5
+                if dt < 1.0e-4 and tim >= 1.0e-4:
+                    dt = 1.0e-4
+                if dt < 1.0e-3 and tim >= 1.0e-3:
+                    dt = 1.0e-3
+                if dt < 1.0e-2 and tim >= 1.0e-2:
+                    dt = 1.0e-2
+
+        if noRHSparam:
+            tim, Y, comp_time, stiffness, M = intDriver(tim, dt, Y, mu, setup,
+                                                        CSPtols)
+            ratio, indicator, CEM = stiffmetrics(tim, Y, jacfun)
         else:
-            if dt < 1.0e-6 and tim >= 1.0e-6:
-                dt = 1.0e-6
-            if dt < 1.0e-5 and tim >= 1.0e-5:
-                dt = 1.0e-5
-            if dt < 1.0e-4 and tim >= 1.0e-4:
-                dt = 1.0e-4
-            if dt < 1.0e-3 and tim >= 1.0e-3:
-                dt = 1.0e-3
-            if dt < 1.0e-2 and tim >= 1.0e-2:
-                dt = 1.0e-2
+            tim, Y, comp_time, stiffness, M = intDriver(tim, dt, Y, mu, setup,
+                                                        CSPtols, RHSparam)
+            ratio, indicator, CEM = stiffmetrics(tim, Y, jacfun, RHSparam)
 
-    if noRHSparam:
-        tim, Y, comp_time, stiffness, M = intDriver(tim, dt, Y, mu, setup,
-                                                    CSPtols)
-        ratio, indicator, CEM = stiffmetrics(tim, Y, jacfun)
-    else:
-        tim, Y, comp_time, stiffness, M = intDriver(tim, dt, Y, mu, setup,
-                                                    CSPtols, RHSparam)
-        ratio, indicator, CEM = stiffmetrics(tim, Y, jacfun, RHSparam)
+        comp_speed = dt / comp_time
+        if printstep == printevery:
+            printstep = 0
+            if humanreadable:
+                print('t={:<8.2g} M={} speed_comp={:<8.4g}\ts={:<10.8g}\ty:'.format(
+                                                                         tim,
+                                                                         M,
+                                                                         comp_speed,
+                                                                         stiffness
+                                                                         ),
+                      ''.join(('{:<12.8g}'.format(Y[i])
+                      for i in range(len(Y)))), ratio, indicator, CEM.real)
+            else:
+                output = np.array2string(np.hstack((tim, comp_time, M, stiffness,
+                                                    ratio, indicator, CEM.real,
+                                                    Y)),
+                                         separator=',')
+                print(''.join(output.strip('[]').split()))
 
-    comp_speed = dt / comp_time
-    if printstep == printevery:
-        printstep = 0
-        if humanreadable:
-            print('t={:<8.2g} M={} speed_comp={:<8.4g}\ts={:<10.8g}\ty:'.format(
-                                                                     tim,
-                                                                     M,
-                                                                     comp_speed,
-                                                                     stiffness
-                                                                     ),
-                  ''.join(('{:<12.8g}'.format(Y[i])
-                  for i in range(len(Y)))), ratio, indicator, CEM.real)
-        else:
-            output = np.array2string(np.hstack((tim, comp_time, M, stiffness,
-                                                ratio, indicator, CEM.real,
-                                                Y)),
-                                     separator=',')
-            print(''.join(output.strip('[]').split()))
+    t_end = time.time()
 
-t_end = time.time()
+    cpu_time = t_end - t_start
 
-cpu_time = t_end - t_start
+    # print("Time taken: {}".format(cpu_time))
+else:
+    pasr = np.fromfile(loadfile)
+    for i in range(int(len(pasr)/numbin)):
+        tim = 0.0
+        Y = pasr[i*numbin:(i+1)*numbin]
+        Y, RHSparam = rearrangepasr(Y, problem, useN2)
+        sol, xlist = [], []
+        while tim < tend:
+            if tim < 0.9 * dt:
+                ratio, indicator, CEM = stiffmetrics(tim, Y, jacfun, RHSparam)
+            tim, Y, comp_time, stiffness, M = intDriver(tim, dt, Y, mu, setup,
+                                                        CSPtols, RHSparam)
+            if tim < 0.9 * dt:
+                stiffval, Mval = stiffness, M
+            xlist.append(tim)
+            sol.append(Y)
+            comp_speed = dt / comp_time
+            #Add a small buffer to ensure it only prints once
+            if tim > 4.1 * dt:
+                sol = np.array(sol)
+                xlist = np.array(xlist)
+                index = stiffnessindex(xlist, sol, firstderiv, jacobval, RHSparam)[2]
+                if humanreadable:
+                    print('p={}, t={:<8.2g} M={} speed_comp={:<8.4g}\ts={:<10.8g}\ty:'.format(
+                                                                             i,
+                                                                             tim,
+                                                                             M,
+                                                                             comp_speed,
+                                                                             stiffness
+                                                                             ),
+                          ''.join(('{:<12.8g}'.format(Y[j])
+                          for j in range(len(Y)))), ratio, indicator, CEM.real)
+                else:
+                    output = np.array2string(np.hstack((i, tim, comp_time, M, stiffness,
+                                                        ratio, indicator, CEM.real,
+                                                        index)),
+                                             separator=',')
+                    print(''.join(output.strip('[]').split()))
 
-# print("Time taken: {}".format(cpu_time))
+    t_end = time.time()
+
+    cpu_time = t_end - t_start
+
+    # print("Time taken: {}".format(cpu_time))
