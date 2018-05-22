@@ -658,4 +658,5 @@ def insertion_sort(vals):
     sorted_data = sorted(enumerate(vals), key=lambda key: key[1])
     indices = list(range(len(vals)))
     indices.sort(key=lambda key: sorted_data[key][0])
-    return reversed(indices)
+    indices = refersed(indices)
+    return indices
