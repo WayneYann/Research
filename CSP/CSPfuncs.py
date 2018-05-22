@@ -218,7 +218,7 @@ def loadpasrdata(problem):
         pasrarrays = []
         for i in range(9):
             filepath = os.path.join(os.getcwd(),
-                                    '../H2_CO/pasr_out_h2-co_' +
+                                    '../H2_CO/Partial_PaSR/pasr_out_h2-co_' +
                                     str(i) +
                                     '.npy')
             filearray = np.load(filepath)
