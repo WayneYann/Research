@@ -414,6 +414,7 @@ def get_csp_vectors(tim, y, jacfun, *RHSparams):
             b_csp[i][j] = evecl[order[i]][j]
 
     print(tau)
+    print(insertion_sort(tau))
     # eliminate complex components of eigenvectors if complex eigenvalues,
     # and normalize dot products (so that bi*aj = delta_ij).
     flag = 1
