@@ -398,15 +398,15 @@ def get_csp_vectors(tim, y, jacfun, *RHSparams):
     #     raise Exception('Imaginary values detected.')
 
     # Sort the eigenvalues
-    order = insertion_sort([abs(i) for i in evalr])
+    order = insertion_sort(evalr)
     # print(evalr)
     # print(order)
 
     for i in range(NN):
         try:
-            tau[order[i]] = abs(1.0 / float(evalr[i]))  # time scales, inverse of eigenvalues
+            tau[i] = abs(1.0 / float(evalr[order[i]]))  # time scales, inverse of eigenvalues
         except ZeroDivisionError:
-            tau[order[i]] = 1.0E99
+            tau[i] = 1.0E99
         for j in range(NN):
             # CSP vectors, right eigenvectors
             a_csp[i][j] = evecr[order[i]][j]
