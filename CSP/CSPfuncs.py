@@ -399,8 +399,8 @@ def get_csp_vectors(tim, y, jacfun, *RHSparams):
 
     # Sort the eigenvalues
     order = insertion_sort([abs(i) for i in evalr])
-    # print(evalr)
-    # print(order)
+    print(evalr)
+    print(order)
 
     for i in range(NN):
         try:
@@ -413,7 +413,7 @@ def get_csp_vectors(tim, y, jacfun, *RHSparams):
             # CSP covectors, left eigenvectors
             b_csp[i][j] = evecl[order[i]][j]
 
-    # print(tau)
+    print(tau)
     print(insertion_sort(tau))
     # eliminate complex components of eigenvectors if complex eigenvalues,
     # and normalize dot products (so that bi*aj = delta_ij).
