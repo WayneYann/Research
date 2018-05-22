@@ -580,7 +580,7 @@ def get_fast_modes(tim, y, derivfun, jacfun, CSPtols, *RHSparams):
                               for k in range(M+1)])
 
             # if error larger than tolerance, flag
-            if abs(tau[M+1] * sum_m) >= (eps_a + (eps_r * y[i])):
+            if abs(tau[M] * sum_m) >= (eps_a + (eps_r * y[i])):
                 mflag = 1;
 
             # ensure below error tolerance and not explosive mode (positive eigenvalue)
