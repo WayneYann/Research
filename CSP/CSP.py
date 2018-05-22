@@ -143,7 +143,7 @@ tim = t0  # Current time (sec), initialized at zero
 # Options are 'RK4', 'vode'
 mode = 'vode'
 # Options are 'CSPtest', 'VDP', 'Oregonator', 'H2', 'GRIMech'
-problem = 'GRIMech'
+problem = 'CSPtest'
 autoignition = False
 CSPon = False  # Decides if the integration actually will use CSP, not working yet
 constantdt = False
