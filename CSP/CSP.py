@@ -143,8 +143,8 @@ tim = t0  # Current time (sec), initialized at zero
 # Options are 'RK4', 'vode'
 mode = 'vode'
 # Options are 'CSPtest', 'VDP', 'Oregonator', 'H2', 'GRIMech'
-problem = 'GRIMech'
-autoignition = True
+problem = 'H2'
+autoignition = False
 CSPon = False  # Decides if the integration actually will use CSP, not working yet
 constantdt = False
 # Make this either human readable or better for saving into a table
@@ -219,13 +219,13 @@ elif problem == 'H2':
     else:
         dt = 1.0e-9
         tend = 5 * dt
-        loadfile = '/Users/andrewalferman/Desktop/accelerInt/initials/H2_CO/ign_data.bin'
-
+        loadfile = '../../accelerInt/initials/H2_CO/ign_data.bin'
+        numbin = 16
     derivfun = firstderiv
     jacfun = jacobval
 elif problem == 'GRIMech':
-    eps_r = 1.0e-6  # Real CSP tolerance
-    eps_a = 1.0e-6  # Absolute CSP tolerance
+    #eps_r = 1.0e-6  # Real CSP tolerance
+    #eps_a = 1.0e-6  # Absolute CSP tolerance
     if autoignition:
         pasr = loadpasrdata(problem)
         dt = 1.0e-4
@@ -262,7 +262,7 @@ elif problem == 'GRIMech':
     else:
         dt = 1.0e-9
         tend = 5 * dt
-        loadfile = '/Users/andrewalferman/Desktop/accelerInt/initials/GRI_Mech_3/ign_data.bin'
+        loadfile = '../../accelerInt/initials/GRI_Mech_3/ign_data.bin'
         numbin = 56
     derivfun = firstderiv
     jacfun = jacobval
@@ -381,9 +381,15 @@ else:
                           ''.join(('{:<12.8g}'.format(Y[j])
                           for j in range(len(Y)))), ratio, indicator, CEM.real)
                 else:
-                    output = np.array2string(np.hstack((i, tim, comp_time, M, stiffness,
-                                                        ratio, indicator, CEM.real,
-                                                        index)),
+                    output = np.array2string(np.hstack((i.real,
+                                                        tim.real,
+                                                        comp_time.real,
+                                                        M.real,
+                                                        stiffness.real,
+                                                        ratio.real,
+                                                        indicator.real,
+                                                        CEM.real,
+                                                        index.real)),
                                              separator=',')
                     print(''.join(output.strip('[]').split()))
 
