@@ -657,5 +657,5 @@ def insertion_sort(vals):
     # https://stackoverflow.com/questions/5185060/insertion-sort-get-indices
     sorted_data = sorted(enumerate(vals), key=lambda key: key[1])
     indices = list(range(len(vals)))
-    indices.sort(key=lambda key: sorted_data[key][0])
+    indices.sort(key=lambda key: sorted_data[key][0], reverse=True)
     return indices
