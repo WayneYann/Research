@@ -398,7 +398,7 @@ def get_csp_vectors(tim, y, jacfun, *RHSparams):
     #     raise Exception('Imaginary values detected.')
 
     # Sort the eigenvalues
-    order = insertion_sort(evalr)
+    order = insertion_sort([abs(i) for i in evalr])
     print(evalr)
     print(order)
 
