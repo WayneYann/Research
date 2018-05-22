@@ -187,8 +187,8 @@ elif problem == 'Oregonator':
     derivfun = oregonatordydt
     jacfun = oregonatorjac
 elif problem == 'H2':
-    eps_r = 1.0e-6  # Real CSP tolerance
-    eps_a = 1.0e-6  # Absolute CSP tolerance
+    #eps_r = 1.0e-6  # Real CSP tolerance
+    #eps_a = 1.0e-6  # Absolute CSP tolerance
     if autoignition:
         pasr = loadpasrdata(problem)
         dt = 1.0e-4
