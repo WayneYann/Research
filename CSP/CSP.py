@@ -187,6 +187,8 @@ elif problem == 'Oregonator':
     derivfun = oregonatordydt
     jacfun = oregonatorjac
 elif problem == 'H2':
+    eps_r = 1.0e-6  # Real CSP tolerance
+    eps_a = 1.0e-6  # Absolute CSP tolerance
     if autoignition:
         pasr = loadpasrdata(problem)
         dt = 1.0e-4
@@ -381,11 +383,6 @@ else:
                           ''.join(('{:<12.8g}'.format(Y[j])
                           for j in range(len(Y)))), ratio, indicator, CEM.real)
                 else:
-                    for thing in [i.real, tim.real, comp_time.real, M.real,
-                                  stiffness.real, ratio.real, indicator.real,
-                                  CEM.real, index.real]:
-                                  if (thing < 1.0e-100 and thing > 0.0):
-                                      thing = 0.0
                     output = np.array2string(np.hstack((i.real,
                                                         tim.real,
                                                         comp_time.real,
