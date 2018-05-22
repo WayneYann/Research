@@ -404,9 +404,9 @@ def get_csp_vectors(tim, y, jacfun, *RHSparams):
 
     for i in range(NN):
         try:
-            tau[order[NN - i + 1]] = abs(1.0 / float(evalr[i]))  # time scales, inverse of eigenvalues
+            tau[order[NN - i - 1]] = abs(1.0 / float(evalr[i]))  # time scales, inverse of eigenvalues
         except ZeroDivisionError:
-            tau[order[NN - i + 1]] = 1.0E99
+            tau[order[NN - i - 1]] = 1.0E99
         for j in range(NN):
             # CSP vectors, right eigenvectors
             a_csp[i][j] = evecr[order[i]][j]
