@@ -409,9 +409,9 @@ def get_csp_vectors(tim, y, jacfun, *RHSparams):
             tau[order[i]] = 1.0E99
         for j in range(NN):
             # CSP vectors, right eigenvectors
-            a_csp[i][j] = evecr[order[i]][j]
+            a_csp[order[i]][j] = evecr[i][j]
             # CSP covectors, left eigenvectors
-            b_csp[i][j] = evecl[order[i]][j]
+            b_csp[order[i]][j] = evecl[i][j]
 
     # print(tau)
     # print(insertion_sort(tau))
