@@ -402,7 +402,7 @@ def get_csp_vectors(tim, y, jacfun, *RHSparams):
     print(evalr)
     print(order)
 
-    for i in range(NN):
+    for i in range(NN+1):
         try:
             tau[i] = abs(1.0 / float(evalr[order[NN - (i+1)]]))  # time scales, inverse of eigenvalues
         except ZeroDivisionError:
