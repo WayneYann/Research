@@ -328,6 +328,8 @@ def get_slow_projector(tim, y, derivfun, jacfun, CSPtols, *RHSparams):
         stiffness = float(abs(tau[0])) / float(taum1)
     except ZeroDivisionError:
         stiffness = 1e99
+    if stiffness < 1.0e-50:
+        print(tau)
     return M, taum1, Qs, Rc, stiffness
 
 

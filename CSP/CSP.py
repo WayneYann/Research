@@ -362,7 +362,7 @@ else:
                 ratio, indicator, CEM = stiffmetrics(tim, Y, jacfun, RHSparam)
             tim, Y, comp_time, stiffness, M = intDriver(tim, dt, Y, mu, setup,
                                                         CSPtols, RHSparam)
-            if tim < 0.9 * dt:
+            if tim < 1.5 * dt:
                 stiffval, Mval = stiffness, M
             xlist.append(tim)
             sol.append(Y)
