@@ -404,9 +404,9 @@ def get_csp_vectors(tim, y, jacfun, *RHSparams):
 
     for i in range(NN):
         try:
-            tau[NN - (order[i]+1)] = abs(1.0 / float(evalr[i]))  # time scales, inverse of eigenvalues
+            tau[i] = abs(1.0 / float(evalr[i]))  # time scales, inverse of eigenvalues
         except ZeroDivisionError:
-            tau[NN - (order[i]+1)] = 1.0E99
+            tau[i] = 1.0E99
         for j in range(NN):
             # CSP vectors, right eigenvectors
             a_csp[i][j] = evecr[order[i]][j]
@@ -414,7 +414,7 @@ def get_csp_vectors(tim, y, jacfun, *RHSparams):
             b_csp[i][j] = evecl[order[i]][j]
 
     # print(tau)
-    # print(insertion_sort(tau))
+    print(insertion_sort(tau))
     # eliminate complex components of eigenvectors if complex eigenvalues,
     # and normalize dot products (so that bi*aj = delta_ij).
     flag = 1
@@ -658,4 +658,6 @@ def insertion_sort(vals):
     sorted_data = sorted(enumerate(vals), key=lambda key: key[1])
     indices = list(range(len(vals)))
     indices.sort(key=lambda key: sorted_data[key][0])
+    for i in range(len(vals)):
+        indices[i] = len(vals) - (indices[i] + 1)
     return indices
