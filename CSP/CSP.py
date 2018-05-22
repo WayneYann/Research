@@ -381,6 +381,11 @@ else:
                           ''.join(('{:<12.8g}'.format(Y[j])
                           for j in range(len(Y)))), ratio, indicator, CEM.real)
                 else:
+                    for thing in [i.real, tim.real, comp_time.real, M.real,
+                                  stiffness.real, ratio.real, indicator.real,
+                                  CEM.real, index.real]:
+                                  if (thing < 1.0e-100 and thing > 0.0):
+                                      thing = 0.0
                     output = np.array2string(np.hstack((i.real,
                                                         tim.real,
                                                         comp_time.real,
