@@ -376,9 +376,9 @@ else:
                     print('p={}, t={:<8.2g} M={} speed_comp={:<8.4g}\ts={:<10.8g}\ty:'.format(
                                                                              i,
                                                                              tim,
-                                                                             M,
+                                                                             Mval,
                                                                              comp_speed,
-                                                                             stiffness
+                                                                             stiffval
                                                                              ),
                           ''.join(('{:<12.8g}'.format(Y[j])
                           for j in range(len(Y)))), ratio, indicator, CEM.real)
@@ -386,8 +386,8 @@ else:
                     output = np.array2string(np.hstack((i.real,
                                                         tim.real,
                                                         comp_time.real,
-                                                        M.real,
-                                                        stiffness.real,
+                                                        Mval.real,
+                                                        stiffval.real,
                                                         ratio.real,
                                                         indicator.real,
                                                         CEM.real,
