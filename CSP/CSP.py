@@ -192,7 +192,7 @@ elif problem == 'H2':
     if autoignition:
         pasr = loadpasrdata(problem)
         dt = 1.0e-4
-        tend = 0.15
+        tend = 0.2
         particle = 877
         timestep = 865
         Y = pasr[timestep, particle, :].copy()
