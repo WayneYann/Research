@@ -6,26 +6,32 @@ Created on Wed Nov 15 2017
 @author: andrewalferman
 """
 
+#import numpy as np
+#import csv as csv
+#from mpl_toolkits.axes_grid1 import host_subplot
+#import mpl_toolkits.axisartist as AA
+import matplotlib
+#import matplotlib.pyplot as plt
+matplotlib.use('Agg')
+
 import numpy as np
 import csv as csv
 from mpl_toolkits.axes_grid1 import host_subplot
 import mpl_toolkits.axisartist as AA
-#import matplotlib
 import matplotlib.pyplot as plt
-#matplotlib.use('Agg')
 from StiffnessFuncs import *
 from CSPfuncs import *
 import sys as sys
 from matplotlib.ticker import NullFormatter
 
-#plt.ioff()
+plt.ioff()
 
-problem = 'VDP'
+problem = 'H2'
 
 [ts, ts_timing, Ms, comptimes, CSPstiffness, Y1s, Y2s, Y3s, Y4s, sol, ratios,
     indicators, CEMs] = [[] for i in range(13)]
 
-with open(problem + '.csv', newline='') as csvfile:
+with open(problem + '-1e-3.csv', newline='') as csvfile:
     reader = csv.reader(csvfile, delimiter=',')
     for row in reader:
         try:
@@ -222,6 +228,6 @@ if posCEM:
 f.subplots_adjust(hspace=0.3)
 f.subplots_adjust(wspace=0.3)
 
-plt.savefig(problem + '.png', dpi=600)
+plt.savefig(problem + '1.png', dpi=600)
 
-plt.show()
+#plt.show()
