@@ -178,16 +178,18 @@ if posCEM:
     CEMmin = min(posCEM)
     CEMmax = max(posCEM)
 
-f, axarr = plt.subplots(4, 2, sharex='col', figsize=(9.0, 6.0))
+f, axarr = plt.subplots(1, 1, sharex='col', figsize=(9.0/4.0, 6.0/2.0))
+#f, axarr = plt.subplots(4, 2, sharex='col', figsize=(9.0, 6.0))
 #plt.gca().yaxis.set_minor_formatter(NullFormatter())
-plt.suptitle('Plots for ' + problem)
+#plt.suptitle('Plots for ' + problem)
+plt.suptitle('Solution')
 f.add_subplot(111, frameon=False)
 plt.tick_params(labelcolor='none', top='off', bottom='off', left='off',
                 right='off')
 if problem == 'CSPtest':
     showsols = 4
     axarr[0,0].set_xscale('log')
-    axarr[0,1].set_xscale('log')
+    #axarr[0,1].set_xscale('log')
     plt.xlabel('x Value')
 elif problem == 'Oregonator':
     showsols = 3
@@ -203,31 +205,32 @@ if problem == 'CSPtest' or problem == 'Oregonator':
     axarr[0,0].legend(loc='upper left', bbox_to_anchor=(1,1),
                       fontsize='x-small')
 axarr[0,0].set_title('Solution')
-axarr[0,1].plot(ts, Ms)
+#axarr[0,1].plot(ts, Ms)
 axarr[0,1].set_title('CSP Fast Modes')
-axarr[1,0].plot(ts, CSPstiffness)
-axarr[1,0].set_title('CSP Stiffness')
-axarr[1,0].set_yscale('log')
-if max(CSPstiffness) > 1.0:
-    axarr[1,0].set_ylim(min(CSPstiffness)*0.6,3.0)
-axarr[1,1].plot(ts, indicators)
-axarr[1,1].set_title('Stiffness Indicator')
-axarr[2,0].plot(ts[:-5], indexes[:-5])
-axarr[2,0].set_title('Stiffness Index')
-axarr[2,0].set_yscale('log')
-axarr[2,1].plot(ts, ratios)
-axarr[2,1].set_title('Stiffness Ratio')
-axarr[2,1].set_yscale('log')
-axarr[3,0].plot(ts, CEMs)
-axarr[3,0].set_title('Chemical Explosive Mode')
-if posCEM:
-    axarr[3,0].set_ylim(CEMmin*0.5, CEMmax*10.0)
-    axarr[3,0].set_yscale('log')
+#axarr[1,0].plot(ts, CSPstiffness)
+#axarr[1,0].set_title('CSP Stiffness')
+#axarr[1,0].set_yscale('log')
+#if max(CSPstiffness) > 1.0:
+#    axarr[1,0].set_ylim(min(CSPstiffness)*0.6,3.0)
+# axarr[1,1].plot(ts, indicators)
+# axarr[1,1].set_title('Stiffness Indicator')
+# axarr[2,0].plot(ts[:-5], indexes[:-5])
+# axarr[2,0].set_title('Stiffness Index')
+# axarr[2,0].set_yscale('log')
+# axarr[2,1].plot(ts, ratios)
+# axarr[2,1].set_title('Stiffness Ratio')
+# axarr[2,1].set_yscale('log')
+# axarr[3,0].plot(ts, CEMs)
+# axarr[3,0].set_title('Chemical Explosive Mode')
+# if posCEM:
+#     axarr[3,0].set_ylim(CEMmin*0.5, CEMmax*10.0)
+#     axarr[3,0].set_yscale('log')
 
 # Fine-tune figure; make subplots farther from each other.
-f.subplots_adjust(hspace=0.3)
-f.subplots_adjust(wspace=0.3)
+#f.subplots_adjust(hspace=0.3)
+#f.subplots_adjust(wspace=0.3)
 
-plt.savefig(problem + '-1e-6.png', dpi=600)
+#plt.savefig(problem + '-1e-6.png', dpi=600)
+plt.savefig(problem + '-Solution.png',dpi=600)
 
 #plt.show()

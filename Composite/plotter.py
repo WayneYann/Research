@@ -15,7 +15,8 @@ import sys as sys
 def readsolver(solver, problem, csptol, dt):
     """Take the input file and return the QoI."""
     particles, inttimes = [], []
-    with open('speciesdata-' + problem + '-' + solver + '-' + dt + '.csv', newline='') as csvfile:
+    timingname = 'speciesdata-' + problem + '-' + solver + '-' + dt + '.csv'
+    with open(timingname, newline='') as csvfile:
         reader = csv.reader(csvfile, delimiter=',')
         fail = False
         for row in reader:
@@ -28,30 +29,31 @@ def readsolver(solver, problem, csptol, dt):
             else:
                 fail = False
     orderedtimes = np.empty_like(inttimes)
-    for i in particles:
-        orderedtimes[i] = inttimes[i]
+    for i, particle in enumerate(particles):
+        orderedtimes[particle] = inttimes[i]
     # These lines only necessary because I messed up the file naming convention
     if problem == 'grimech':
         fname = 'GRIMech-'
     elif problem == 'h2':
         fname = 'H2-'
-    Mval, CSPstiff, ratio, indicator, CEM, index = [[] for i in range(6)]
-    with open('PaSRStiffvals-' + fname + csptol + '.csv', newline='') as csvfile:
+    CSPstiff, ratio, indicator, CEM, index = [[] for i in range(5)]
+    metricname = 'PaSRStiffvals-' + fname + csptol + '.csv'
+    with open(metricname, newline='') as csvfile:
         reader = csv.reader(csvfile, delimiter=',')
         for row in reader:
-            Mval.append(int(float(row[3])))
+            #Mval.append(int(float(row[3])))
             CSPstiff.append(float(row[4]))
             ratio.append(float(row[5]))
             indicator.append(float(row[6]))
             CEM.append(float(row[7]))
             index.append(float(row[8]))
-    Mval = np.array(Mval)
+    #Mval = np.array(Mval)
     CSPstiff = np.array(CSPstiff)
     ratio = np.array(ratio)
     indicator = np.array(indicator)
     CEM = np.array(CEM)
     index = np.array(index)
-    return np.array([ratio, indicator, CEM, index, CSPstiff, Mval, orderedtimes])
+    return np.array([ratio, indicator, CEM, index, CSPstiff, orderedtimes])
 
 dts = ['1e-8', '1e-7', '1e-6', '1e-5', '1e-4']
 figformat = 'png'
@@ -60,8 +62,8 @@ output_folder = './'
 # Implemented solvers are 'cvodes', 'exp4', 'exprb43', 'radau2a', 'rkc'
 solvers = ['cvodes', 'exp4', 'exprb43', 'radau2a', 'rkc']
 # Implemented metrics are 'Ratios', 'Indicators', 'CEM', 'Indexes'
-xlabels = ['Ratios', 'Indicators', 'CEM', 'Indexes', 'CSP Stiffness', 'Fast Modes']
-problem = 'grimech' # Make this all lowercase
+xlabels = ['Ratios', 'Indicators', 'CEM', 'Indexes', 'CSP Stiffness']
+problem = 'h2'
 csptol = '1e-3'
 
 for t in range(len(dts)):
@@ -117,8 +119,8 @@ for t in range(len(dts)):
             ax.scatter(data[key][i], data[key][-1], 1.0, lw=0, label=key)
         legend = ax.legend(solvers, loc='upper right', fontsize='small',
                            markerscale=5)
-        # plt.ylim(ymin, ymax)
-        plt.yscale('log')
+        plt.ylim(ymin, ymax)
+        # plt.yscale('log')
         # Set the limits and unique values for each plot
         if xlabels[i] == 'Ratios':
             # Parameters for ratio plot
@@ -138,10 +140,10 @@ for t in range(len(dts)):
             # Parameters for CSP plot
             plt.xscale('log')
             plt.xlim(xmin[4], xmax[4])
-        elif xlabels[i] == 'Fast Modes':
+        #elif xlabels[i] == 'Fast Modes':
             # Parameters for fast modes plot
-            plt.xlim(max(0, xmin[5]), xmax[5])
-        # plt.title(xlabels[i] + ' vs. Int Times, dt={}'.format(dts[t]))
+            #plt.xlim(max(0, xmin[5]), xmax[5])
+        plt.title(xlabels[i] + ' vs. Int Times, dt={}'.format(dts[t]))
         plotxlabel = xlabels[i]
         # if plotxlabel.endswith('s'):
         #     plotxlabel = plotxlabel[:-1]
@@ -151,7 +153,7 @@ for t in range(len(dts)):
         plt.ylabel('Integration Times')
         ax.grid(b=True, which='both')
         plt.tight_layout()
-        figname = output_folder + xlabels[i] + '_' + 'Int_Times_' + dts[t] + '.' + figformat
+        figname = output_folder + xlabels[i] + '_' + problem + '_Int_Times_' + dts[t] + '.' + figformat
         figname.replace(" ", "_")
         plt.savefig(figname, dpi=600)
 
