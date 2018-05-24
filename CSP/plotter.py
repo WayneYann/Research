@@ -228,6 +228,6 @@ if posCEM:
 f.subplots_adjust(hspace=0.3)
 f.subplots_adjust(wspace=0.3)
 
-plt.savefig(problem + '1.png', dpi=600)
+plt.savefig(problem + '.png', dpi=600)
 
 #plt.show()
