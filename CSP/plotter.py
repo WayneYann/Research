@@ -31,7 +31,7 @@ problem = 'H2'
 [ts, ts_timing, Ms, comptimes, CSPstiffness, Y1s, Y2s, Y3s, Y4s, sol, ratios,
     indicators, CEMs] = [[] for i in range(13)]
 
-with open(problem + '-1e-3.csv', newline='') as csvfile:
+with open(problem + '-1e-6.csv', newline='') as csvfile:
     reader = csv.reader(csvfile, delimiter=',')
     for row in reader:
         try:
@@ -228,6 +228,6 @@ if posCEM:
 f.subplots_adjust(hspace=0.3)
 f.subplots_adjust(wspace=0.3)
 
-plt.savefig(problem + '.png', dpi=600)
+plt.savefig(problem + '-1e-6.png', dpi=600)
 
 #plt.show()
