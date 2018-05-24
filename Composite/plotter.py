@@ -141,10 +141,10 @@ for t in range(len(dts)):
         elif xlabels[i] == 'Fast Modes':
             # Parameters for fast modes plot
             plt.xlim(max(0, xmin[5]), xmax[5])
-        plt.title(xlabels[i] + ' vs. Int Times, dt={}'.format(dts[t]))
+        # plt.title(xlabels[i] + ' vs. Int Times, dt={}'.format(dts[t]))
         plotxlabel = xlabels[i]
-        if plotxlabel.endswith('s'):
-            plotxlabel = plotxlabel[:-1]
+        # if plotxlabel.endswith('s'):
+        #     plotxlabel = plotxlabel[:-1]
         # if plotxlabel.endswith('e'):
         #     plotxlabel = plotxlabel[:-1]
         plt.xlabel(plotxlabel + ' Values')
@@ -152,7 +152,7 @@ for t in range(len(dts)):
         ax.grid(b=True, which='both')
         plt.tight_layout()
         figname = output_folder + xlabels[i] + '_' + 'Int_Times_' + dts[t] + '.' + figformat
-        figname.replace(' ', '_')
+        figname.replace(" ", "_")
         plt.savefig(figname, dpi=600)
 
 plt.show()
