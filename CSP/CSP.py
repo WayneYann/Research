@@ -143,7 +143,7 @@ tim = t0  # Current time (sec), initialized at zero
 # Options are 'RK4', 'vode'
 mode = 'vode'
 # Options are 'CSPtest', 'VDP', 'Oregonator', 'H2', 'GRIMech'
-problem = 'H2'
+problem = 'GRIMech'
 autoignition = True
 CSPon = False  # Decides if the integration actually will use CSP, not working yet
 constantdt = False
@@ -187,12 +187,12 @@ elif problem == 'Oregonator':
     derivfun = oregonatordydt
     jacfun = oregonatorjac
 elif problem == 'H2':
-    # eps_r = 1.0e-6  # Real CSP tolerance
-    # eps_a = 1.0e-6  # Absolute CSP tolerance
+    eps_r = 1.0e-6  # Real CSP tolerance
+    eps_a = 1.0e-6  # Absolute CSP tolerance
     if autoignition:
         pasr = loadpasrdata(problem)
         dt = 1.0e-4
-        tend = 0.2
+        tend = 1.0
         particle = 877
         timestep = 865
         Y = pasr[timestep, particle, :].copy()
@@ -226,8 +226,8 @@ elif problem == 'H2':
     derivfun = firstderiv
     jacfun = jacobval
 elif problem == 'GRIMech':
-    #eps_r = 1.0e-6  # Real CSP tolerance
-    #eps_a = 1.0e-6  # Absolute CSP tolerance
+    # eps_r = 1.0e-6  # Real CSP tolerance
+    # eps_a = 1.0e-6  # Absolute CSP tolerance
     if autoignition:
         pasr = loadpasrdata(problem)
         dt = 1.0e-4
@@ -339,9 +339,9 @@ if ((problem != 'H2' and problem != 'GRIMech') or autoignition):
                       ''.join(('{:<12.8g}'.format(Y[i])
                       for i in range(len(Y)))), ratio, indicator, CEM.real)
             else:
-                output = np.array2string(np.hstack((tim, comp_time, M, stiffness,
-                                                    ratio, indicator, CEM.real,
-                                                    Y)),
+                output = np.array2string(np.hstack((tim.real, comp_time.real, M.real, stiffness.real,
+                                                    ratio.real, indicator.real, CEM.real,
+                                                    Y.real)),
                                          separator=',')
                 print(''.join(output.strip('[]').split()))
 
