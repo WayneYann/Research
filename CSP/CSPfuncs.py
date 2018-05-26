@@ -546,11 +546,17 @@ def get_csp_vectors(tim, y, jacfun, *RHSparams):
     #     raise Exception('Imaginary values detected.')
 
     # Sort the eigenvalues
+    print('Eigenvalues before sorting:')
+    print(evalr)
     order = insertion_sort(evalr)
+    print('Order:')
+    print(order)
 
+    orderedevals = np.empty_like(evalr)
     for i in range(NN):
         try:
             tau[i] = 1.0 / float(evalr[order[i]])  # time scales, inverse of eigenvalues
+            orderedevals[i] = float(evalr[order[i]])
         except ZeroDivisionError:
             tau[i] = 1.0E99
         for j in range(NN):
@@ -558,7 +564,11 @@ def get_csp_vectors(tim, y, jacfun, *RHSparams):
             a_csp[i][j] = evecr[order[i]][j]
             # CSP covectors, left eigenvectors
             b_csp[i][j] = evecl[order[i]][j]
+    print('Eigenvalues after sorting:')
+    print(orderedevals)
 
+    print('Sorted values of tau')
+    print(tau)
     # eliminate complex components of eigenvectors if complex eigenvalues,
     # and normalize dot products (so that bi*aj = delta_ij).
     flag = 1
@@ -738,11 +748,13 @@ def get_fast_modes(tim, y, derivfun, jacfun, CSPtols, *RHSparams):
             # tau[M] is time scale of slowest exhausted mode (current)
 
         # add current mode to exhausted if under error tolerance and not explosive mode
-        if mflag == 0 and tau[M+1] < 0.0:
+        if mflag == 0 and tau[M] < 0.0:
             M += 1  # add current mode to exhausted modes
         else:
             mflag = 1  # explosve mode, stop here
-
+    if M == 0:
+        print('No fast modes detected')
+        sys.exit(tau)
     return M, tau, a_csp, b_csp
 
 
