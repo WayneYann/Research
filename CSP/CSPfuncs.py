@@ -759,6 +759,9 @@ def get_fast_modes(tim, y, derivfun, jacfun, CSPtols, *RHSparams):
     if M == 0:
         print('No fast modes detected')
         sys.exit(tau)
+    else:
+        print('Fast modes detected: {}'.format(M))
+        sys.exit(tau)
     return M, tau, a_csp, b_csp
 
 
