@@ -546,13 +546,13 @@ def get_csp_vectors(tim, y, jacfun, *RHSparams):
     #     raise Exception('Imaginary values detected.')
 
     # Sort the eigenvalues
-    print('Eigenvalues before sorting:')
-    print(evalr)
-    order = insertion_sort(evalr)
-    print('Order:')
-    print(order)
-
-    print('Sorting:')
+    # print('Eigenvalues before sorting:')
+    # print(evalr)
+    # order = insertion_sort(evalr)
+    # print('Order:')
+    # print(order)
+    #
+    # print('Sorting:')
     orderedevals = np.empty_like(evalr)
     for i in range(NN):
         try:
@@ -561,19 +561,19 @@ def get_csp_vectors(tim, y, jacfun, *RHSparams):
         except ZeroDivisionError:
             tau[order[i]] = 1.0E99
         orderedevals[order[i]] = float(evalr[i])
-        print(orderedevals[i])
+        # print(orderedevals[i])
         for j in range(NN):
             # CSP vectors, right eigenvectors
-            a_csp[i][j] = evecr[order[i]][j]
+            a_csp[order[i]][j] = evecr[i][j]
             # CSP covectors, left eigenvectors
-            b_csp[i][j] = evecl[order[i]][j]
-    print('Eigenvalues after sorting:')
-    print(orderedevals)
-    print('Order of eigenvalues after sorting')
+            b_csp[order[i]][j] = evecl[i][j]
+    # print('Eigenvalues after sorting:')
+    # print(orderedevals)
+    # print('Order of eigenvalues after sorting')
     print(insertion_sort(orderedevals))
 
-    print('Sorted values of tau')
-    print(tau)
+    # print('Sorted values of tau')
+    # print(tau)
     # eliminate complex components of eigenvectors if complex eigenvalues,
     # and normalize dot products (so that bi*aj = delta_ij).
     flag = 1
@@ -755,15 +755,15 @@ def get_fast_modes(tim, y, derivfun, jacfun, CSPtols, *RHSparams):
 
         # add current mode to exhausted if under error tolerance and not explosive mode
         if mflag == 0 and tau[M+1] < 0.0:
+            if tau[M+1] >= 0.0:
+                print('Next mode is zero or explosive')
             M += 1  # add current mode to exhausted modes
         else:
             mflag = 1  # explosve mode, stop here
     if M == 0:
         print('No fast modes detected')
-        sys.exit(tau)
     else:
         print('Fast modes detected: {}'.format(M))
-        sys.exit(tau)
     return M, tau, a_csp, b_csp
 
 
