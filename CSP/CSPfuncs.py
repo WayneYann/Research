@@ -473,10 +473,10 @@ def get_slow_projector(tim, y, derivfun, jacfun, CSPtols, *RHSparams):
 
                 # Rc = sum_r^M a_r*tau_r*b_r
                 Rc[j][i] = sum_rc
-    if tau[M+1] != 1e99:
-        taum1 = abs(tau[M+1])
+    if tau[M] != 1e99:
+        taum1 = abs(tau[M])
     else:
-        taum1 =
+        taum1 = abs(tau[M-1])  # This would be the last finite timescale
     stiffness = float(abs(tau[0])) / float(taum1)
     return M, taum1, Qs, Rc, stiffness
 
@@ -546,13 +546,8 @@ def get_csp_vectors(tim, y, jacfun, *RHSparams):
     #     raise Exception('Imaginary values detected.')
 
     # Sort the eigenvalues
-    # print('Eigenvalues before sorting:')
-    # print(evalr)
     order = insertion_sort([abs(i) for i in evalr])
-    # print('Order:')
-    # print(order)
-    #
-    # print('Sorting:')
+
     # orderedevals = np.empty_like(evalr)
     for i in range(NN):
         try:
@@ -560,20 +555,13 @@ def get_csp_vectors(tim, y, jacfun, *RHSparams):
             tau[order[i]] = 1.0 / float(evalr[i])  # time scales, inverse of eigenvalues
         except ZeroDivisionError:
             tau[order[i]] = 1.0E99
-        # orderedevals[order[i]] = float(evalr[i])
-        # print(orderedevals[i])
+
         for j in range(NN):
             # CSP vectors, right eigenvectors
             a_csp[order[i]][j] = evecr[i][j]
             # CSP covectors, left eigenvectors
             b_csp[order[i]][j] = evecl[i][j]
-    # print('Eigenvalues after sorting:')
-    # print(orderedevals)
-    # print('Order of eigenvalues after sorting')
-    # print(insertion_sort(orderedevals))
 
-    # print('Sorted values of tau')
-    # print(tau)
     # eliminate complex components of eigenvectors if complex eigenvalues,
     # and normalize dot products (so that bi*aj = delta_ij).
     flag = 1
@@ -746,18 +734,17 @@ def get_fast_modes(tim, y, derivfun, jacfun, CSPtols, *RHSparams):
 
             # if error larger than tolerance, flag
             if abs(tau[M] * sum_m) >= (eps_a + (eps_r * y[i])):
-                print('Tolerance limit reached')
                 mflag = 1
                 break
 
             # ensure below error tolerance and not explosive mode (positive eigenvalue)
-            # tau[M+1] is time scale of fastest of slow modes (driving)
-            # tau[M] is time scale of slowest exhausted mode (current)
+            # M will be the number of exhausted modes
+            # because of zero based indexing:
+            # tau[M] is time scale of fastest of slow modes (driving)
+            # tau[M-1] is time scale of slowest exhausted mode (current)
 
         # add current mode to exhausted if under error tolerance and not explosive mode
-        if mflag == 0 and tau[M+1] < 0.0:
-            if tau[M+1] >= 0.0:
-                print('Next mode is zero or explosive')
+        if mflag == 0 and tau[M] < 0.0:
             M += 1  # add current mode to exhausted modes
         else:
             mflag = 1  # explosve mode, stop here

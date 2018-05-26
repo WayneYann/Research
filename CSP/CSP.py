@@ -143,13 +143,14 @@ tim = t0  # Current time (sec), initialized at zero
 # Options are 'RK4', 'vode'
 mode = 'vode'
 # Options are 'CSPtest', 'VDP', 'Oregonator', 'H2', 'GRIMech'
-problem = 'H2'
+problem = 'GRIMech'
 autoignition = True
 CSPon = False  # Decides if the integration actually will use CSP, not working yet
 constantdt = False
 # Make this either human readable or better for saving into a table
 humanreadable = False
 printic = False
+reducedCSPtol = False
 
 if printic:
     useN2 = True
@@ -187,8 +188,9 @@ elif problem == 'Oregonator':
     derivfun = oregonatordydt
     jacfun = oregonatorjac
 elif problem == 'H2':
-    #eps_r = 1.0e-6  # Real CSP tolerance
-    #eps_a = 1.0e-6  # Absolute CSP tolerance
+    if reducedCSPtol:
+        eps_r = 1.0e-6  # Real CSP tolerance
+        eps_a = 1.0e-6  # Absolute CSP tolerance
     if autoignition:
         pasr = loadpasrdata(problem)
         dt = 1.0e-4
@@ -226,8 +228,9 @@ elif problem == 'H2':
     derivfun = firstderiv
     jacfun = jacobval
 elif problem == 'GRIMech':
-    # eps_r = 1.0e-6  # Real CSP tolerance
-    # eps_a = 1.0e-6  # Absolute CSP tolerance
+    if reducedCSPtol:
+        eps_r = 1.0e-6  # Real CSP tolerance
+        eps_a = 1.0e-6  # Absolute CSP tolerance
     if autoignition:
         pasr = loadpasrdata(problem)
         dt = 1.0e-4
