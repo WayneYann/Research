@@ -476,6 +476,7 @@ def get_slow_projector(tim, y, derivfun, jacfun, CSPtols, *RHSparams):
     if tau[M] != 1e99:
         taum1 = abs(tau[M])
     else:
+        print('Not sure what to do here')
         taum1 = abs(tau[M-1])  # This would be the last finite timescale
     stiffness = float(abs(tau[0])) / float(taum1)
     return M, taum1, Qs, Rc, stiffness
