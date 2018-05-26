@@ -556,7 +556,7 @@ def get_csp_vectors(tim, y, jacfun, *RHSparams):
     orderedevals = np.empty_like(evalr)
     for i in range(NN):
         try:
-            print('i, order[i], eval[i]: {}, {}, {}'.format(i, order[i], evalr[i]))
+            #print('i, order[i], eval[i]: {}, {}, {}'.format(i, order[i], evalr[i]))
             tau[order[i]] = 1.0 / float(evalr[i])  # time scales, inverse of eigenvalues
         except ZeroDivisionError:
             tau[order[i]] = 1.0E99
