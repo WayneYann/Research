@@ -566,6 +566,8 @@ def get_csp_vectors(tim, y, jacfun, *RHSparams):
             b_csp[i][j] = evecl[order[i]][j]
     print('Eigenvalues after sorting:')
     print(orderedevals)
+    print('Order of eigenvalues after sorting')
+    print(insertion_sort(orderedevals))
 
     print('Sorted values of tau')
     print(tau)
@@ -748,7 +750,7 @@ def get_fast_modes(tim, y, derivfun, jacfun, CSPtols, *RHSparams):
             # tau[M] is time scale of slowest exhausted mode (current)
 
         # add current mode to exhausted if under error tolerance and not explosive mode
-        if mflag == 0 and tau[M] < 0.0:
+        if mflag == 0 and tau[M+1] < 0.0:
             M += 1  # add current mode to exhausted modes
         else:
             mflag = 1  # explosve mode, stop here
