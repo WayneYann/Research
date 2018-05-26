@@ -548,7 +548,7 @@ def get_csp_vectors(tim, y, jacfun, *RHSparams):
     # Sort the eigenvalues
     # print('Eigenvalues before sorting:')
     # print(evalr)
-    # order = insertion_sort(evalr)
+    order = insertion_sort(evalr)
     # print('Order:')
     # print(order)
     #
