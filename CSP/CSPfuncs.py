@@ -473,11 +473,11 @@ def get_slow_projector(tim, y, derivfun, jacfun, CSPtols, *RHSparams):
 
                 # Rc = sum_r^M a_r*tau_r*b_r
                 Rc[j][i] = sum_rc
-    taum1 = abs(tau[M])
-    try:
-        stiffness = float(abs(tau[0])) / float(taum1)
-    except ZeroDivisionError:
-        stiffness = 1e99
+    if tau[M+1] != 1e99:
+        taum1 = abs(tau[M+1])
+    else:
+        taum1 =
+    stiffness = float(abs(tau[0])) / float(taum1)
     return M, taum1, Qs, Rc, stiffness
 
 
@@ -548,19 +548,19 @@ def get_csp_vectors(tim, y, jacfun, *RHSparams):
     # Sort the eigenvalues
     # print('Eigenvalues before sorting:')
     # print(evalr)
-    order = insertion_sort(evalr)
+    order = insertion_sort([abs(i) for i in evalr])
     # print('Order:')
     # print(order)
     #
     # print('Sorting:')
-    orderedevals = np.empty_like(evalr)
+    # orderedevals = np.empty_like(evalr)
     for i in range(NN):
         try:
             #print('i, order[i], eval[i]: {}, {}, {}'.format(i, order[i], evalr[i]))
             tau[order[i]] = 1.0 / float(evalr[i])  # time scales, inverse of eigenvalues
         except ZeroDivisionError:
             tau[order[i]] = 1.0E99
-        orderedevals[order[i]] = float(evalr[i])
+        # orderedevals[order[i]] = float(evalr[i])
         # print(orderedevals[i])
         for j in range(NN):
             # CSP vectors, right eigenvectors
@@ -570,7 +570,7 @@ def get_csp_vectors(tim, y, jacfun, *RHSparams):
     # print('Eigenvalues after sorting:')
     # print(orderedevals)
     # print('Order of eigenvalues after sorting')
-    print(insertion_sort(orderedevals))
+    # print(insertion_sort(orderedevals))
 
     # print('Sorted values of tau')
     # print(tau)
@@ -761,10 +761,6 @@ def get_fast_modes(tim, y, derivfun, jacfun, CSPtols, *RHSparams):
             M += 1  # add current mode to exhausted modes
         else:
             mflag = 1  # explosve mode, stop here
-    if M == 0:
-        print('No fast modes detected')
-    else:
-        print('Fast modes detected: {}'.format(M))
     return M, tau, a_csp, b_csp
 
 
