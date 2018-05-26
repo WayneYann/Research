@@ -557,10 +557,10 @@ def get_csp_vectors(tim, y, jacfun, *RHSparams):
     for i in range(NN):
         try:
             print('i, order[i], eval[i]: {}, {}, {}'.format(i, order[i], evalr[i]))
-            tau[i] = 1.0 / float(evalr[order[i]])  # time scales, inverse of eigenvalues
+            tau[order[i]] = 1.0 / float(evalr[i])  # time scales, inverse of eigenvalues
         except ZeroDivisionError:
-            tau[i] = 1.0E99
-        orderedevals[i] = float(evalr[order[i]])
+            tau[order[i]] = 1.0E99
+        orderedevals[order[i]] = float(evalr[i])
         print(orderedevals[i])
         for j in range(NN):
             # CSP vectors, right eigenvectors
