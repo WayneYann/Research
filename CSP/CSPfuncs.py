@@ -547,9 +547,8 @@ def get_csp_vectors(tim, y, jacfun, *RHSparams):
     # if complexflag:
     #     raise Exception('Imaginary values detected.')
 
-    # Sort the eigenvalues
+    # Sort the eigenvalues negative to positive
     order = insertion_sort([abs(i) for i in evalr])
-    order = order[::-1]
 
     # orderedevals = np.empty_like(evalr)
     for i in range(NN):
@@ -751,6 +750,8 @@ def get_fast_modes(tim, y, derivfun, jacfun, CSPtols, *RHSparams):
             M += 1  # add current mode to exhausted modes
         else:
             mflag = 1  # explosve mode, stop here
+    if M == 0:
+        sys.exit(tau)
     return M, tau, a_csp, b_csp
 
 
@@ -810,6 +811,6 @@ def insertion_sort(vals):
     sorted_data = sorted(enumerate(vals), key=lambda key: key[1])
     indices = list(range(len(vals)))
     indices.sort(key=lambda key: sorted_data[key][0])
-    # for i in range(len(vals)):
-    #     indices[i] = len(vals) - (indices[i] + 1)
+    for i in range(len(vals)):
+        indices[i] = len(vals) - (indices[i] + 1)
     return indices
