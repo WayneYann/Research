@@ -88,7 +88,7 @@ for t in range(len(dts)):
     # First loop through the solvers to get min/max for each metric
     for key in solvers:
         ymax = max(ymax, max(data[key][-1]))
-        ymin = min(ymin, min(data[key][-1]))
+        ymin = min(ymin, min([pt for pt in data[key][-1] if pt > 0.0]))
         for i in range(len(xlabels)):
             if key == solvers[0]:
                 xmin[i] = min(data[key][i])
@@ -119,8 +119,9 @@ for t in range(len(dts)):
             ax.scatter(data[key][i], data[key][-1], 1.0, lw=0, label=key)
         legend = ax.legend(solvers, loc='upper right', fontsize='small',
                            markerscale=5)
+
         plt.ylim(ymin, ymax)
-        # plt.yscale('log')
+        plt.yscale('log')
         # Set the limits and unique values for each plot
         if xlabels[i] == 'Ratios':
             # Parameters for ratio plot
@@ -131,6 +132,8 @@ for t in range(len(dts)):
             plt.xlim(xmin[1], xmax[1])
         elif xlabels[i] == 'CEM':
             # Parameters for CEM plot
+            if problem == 'h2':
+                xmax[2] = 7500  # This visually looks better with the data
             plt.xlim(max(1e-9, xmin[2]), xmax[2])
         elif xlabels[i] == 'Indexes':
             # Parameters for index plot
