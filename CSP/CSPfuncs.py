@@ -476,9 +476,7 @@ def get_slow_projector(tim, y, derivfun, jacfun, CSPtols, *RHSparams):
     if tau[M] != 1.0E99:
         taum1 = abs(tau[M])
     else:
-        print('Not sure what to do here')
-        sys.exit(tau)
-        taum1 = abs(tau[M-1])  # This would be the last finite timescale
+        taum1 = abs(tau[M-1])  # This would be the last finite timescale, all modes are exhausted
     stiffness = float(abs(tau[0])) / float(taum1)
     return M, taum1, Qs, Rc, stiffness
 
@@ -750,8 +748,6 @@ def get_fast_modes(tim, y, derivfun, jacfun, CSPtols, *RHSparams):
             M += 1  # add current mode to exhausted modes
         else:
             mflag = 1  # explosve mode, stop here
-    if M == 0:
-        sys.exit(tau)
     return M, tau, a_csp, b_csp
 
 
