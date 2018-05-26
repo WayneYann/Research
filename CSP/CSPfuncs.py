@@ -748,6 +748,7 @@ def get_fast_modes(tim, y, derivfun, jacfun, CSPtols, *RHSparams):
             if abs(tau[M] * sum_m) >= (eps_a + (eps_r * y[i])):
                 print('Tolerance limit reached')
                 mflag = 1
+                break
 
             # ensure below error tolerance and not explosive mode (positive eigenvalue)
             # tau[M+1] is time scale of fastest of slow modes (driving)
