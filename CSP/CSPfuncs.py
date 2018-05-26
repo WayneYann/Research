@@ -549,7 +549,7 @@ def get_csp_vectors(tim, y, jacfun, *RHSparams):
 
     # Sort the eigenvalues
     order = insertion_sort([abs(i) for i in evalr])
-    order = order.reverse()
+    order = reversed(order)
 
     # orderedevals = np.empty_like(evalr)
     for i in range(NN):
